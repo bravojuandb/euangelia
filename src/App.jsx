@@ -419,7 +419,15 @@ function App() {
           signs removed.
         </p>
         <p>
-          Polish:{" "}
+          Latin:{" "}
+          <a href="https://github.com/BibleGet-I-O/Clementine-Vulgate">
+            Clementine Vulgate Project
+          </a>
+          , public domain; layout marks removed. Spanish:{" "}
+          <a href="https://es.wikisource.org/wiki/La_Sagrada_Biblia_(XIII)/Juan">
+            Torres Amat, 1836
+          </a>
+          , public domain. Polish:{" "}
           <a href="https://pl.wikisource.org/wiki/Biblia_Wujka_(1923)/Ewangelia_wg_%C5%9Bw._Jana">
             Biblia Wujka, 1923 edition
           </a>
