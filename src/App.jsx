@@ -36,7 +36,7 @@ const VERNACULARS = [
   { id: "spanish", label: "Español", field: "spanish", available: true },
   { id: "english", label: "English", field: "english", available: false },
   { id: "german", label: "Deutsch", field: "german", available: false },
-  { id: "polski", label: "Polski", field: "polski", available: false },
+  { id: "polski", label: "Polski", field: "polski", available: true },
 ];
 
 const CHAPTER_LABELS = {
