@@ -33,11 +33,23 @@ const GOSPELS = [
 ];
 
 const VERNACULARS = [
-  { id: "spanish", label: "Español", field: "spanish", available: true },
-  { id: "english", label: "English", field: "english", available: false },
-  { id: "german", label: "Deutsch", field: "german", available: false },
-  { id: "polski", label: "Polski", field: "polski", available: true },
+  { id: "spanish", label: "Español", field: "spanish", lang: "es", available: true },
+  { id: "english", label: "English", field: "english", lang: "en", available: false },
+  { id: "german", label: "Deutsch", field: "german", lang: "de", available: false },
+  { id: "polski", label: "Polski", field: "polski", lang: "pl", available: true },
 ];
+
+// Greek labels set in capitals use lang="el": browsers only drop accents and
+// breathings when uppercasing for "el" ("Κατὰ" → "ΚΑΤΑ"), not for "grc".
+const GREEK_CAPS_LANG = "el";
+const GREEK_TEXT_LANG = "grc";
+const LATIN_LANG = "la";
+
+// The Latin edition puts a space before : ; ? (French style). A no-break
+// space keeps the mark from starting a new line.
+function bindPunctuation(text) {
+  return text.replace(/ ([:;!?])/g, " $1");
+}
 
 const CHAPTER_LABELS = {
   spanish: "Capítulo",
@@ -208,13 +220,18 @@ function App() {
               key={gospel.id}
               type="button"
               className={`gospel-link ${selectedGospel === gospel.id ? "is-active" : ""}`}
+              aria-pressed={selectedGospel === gospel.id}
               disabled={!gospel.available}
               onClick={() => {
                 setSelectedGospel(gospel.id);
               }}
             >
-              <span className="gospel-heading">{gospel.heading}</span>
-              <span className="gospel-subheading">{gospel.subheading}</span>
+              <span className="gospel-heading" lang={GREEK_CAPS_LANG}>
+                {gospel.heading}
+              </span>
+              <span className="gospel-subheading" lang={LATIN_LANG}>
+                {gospel.subheading}
+              </span>
             </button>
           ))}
         </div>
@@ -222,7 +239,7 @@ function App() {
 
       <main className="app">
         <header className="page-header">
-          <h1>Evengelium Heptaglotton</h1>
+          <h1 lang={LATIN_LANG}>Evangelium Heptaglotton</h1>
           <p className="folio-subtitle">The Gospel according to Saint {currentGospel?.label}</p>
         </header>
 
@@ -237,6 +254,8 @@ function App() {
                     className={`vernacular-button ${
                       selectedVernacular === vernacular.id ? "is-active" : ""
                     }`}
+                    lang={vernacular.lang}
+                    aria-pressed={selectedVernacular === vernacular.id}
                     disabled={!vernacular.available}
                     onClick={() => {
                       setSelectedVernacular(vernacular.id);
@@ -316,15 +335,17 @@ function App() {
                 <button
                   type="button"
                   className="size-button"
+                  aria-label="Decrease text size"
                   onClick={() => {
                     setFontScale((currentScale) => Math.max(0.85, currentScale - 0.1));
                   }}
                 >
-                  -
+                  −
                 </button>
                 <button
                   type="button"
                   className="size-button"
+                  aria-label="Increase text size"
                   onClick={() => {
                     setFontScale((currentScale) => Math.min(1.5, currentScale + 0.1));
                   }}
@@ -341,16 +362,28 @@ function App() {
         ) : (
           <div className="parallel-reader">
             <div className="folio-rule" aria-hidden="true" />
-            <div className="parallel-header">{currentVernacular?.label}</div>
-            <div className="parallel-header">Ελληνικά</div>
-            <div className="parallel-header">Latina</div>
+            <div className="parallel-header" lang={currentVernacular?.lang}>
+              {currentVernacular?.label}
+            </div>
+            <div className="parallel-header" lang={GREEK_CAPS_LANG}>
+              Ελληνικά
+            </div>
+            <div className="parallel-header" lang={LATIN_LANG}>
+              Latina
+            </div>
 
             {chapterGroups.map((group) => (
               <div key={`chapter-${group.chapter}`} className="chapter-section">
                 <div id={`chapter-${group.chapter}`} className="chapter-divider">
-                  <span>{CHAPTER_LABELS[selectedVernacular] || "Chapter"} {group.chapter}</span>
-                  <span>{CHAPTER_LABELS.greek} {toGreekNumeral(group.chapter)}</span>
-                  <span>{CHAPTER_LABELS.latin} {toRomanNumeral(group.chapter)}</span>
+                  <span lang={currentVernacular?.lang}>
+                    {CHAPTER_LABELS[selectedVernacular] || "Chapter"} {group.chapter}
+                  </span>
+                  <span lang={GREEK_CAPS_LANG}>
+                    {CHAPTER_LABELS.greek} {toGreekNumeral(group.chapter)}
+                  </span>
+                  <span lang={LATIN_LANG}>
+                    {CHAPTER_LABELS.latin} {toRomanNumeral(group.chapter)}
+                  </span>
                 </div>
 
                 {group.verses.map((verse) => (
@@ -365,19 +398,23 @@ function App() {
                   >
                     <article className="parallel-cell">
                       <span className="verse-number">{verse.verse}</span>
-                      <p className="verse spanish-text">
-                        {verse[currentVernacular?.field] || "—"}
+                      <p className="verse vernacular-text" lang={currentVernacular?.lang}>
+                        {bindPunctuation(verse[currentVernacular?.field] || "—")}
                       </p>
                     </article>
 
                     <article className="parallel-cell">
                       <span className="verse-number">{verse.verse}</span>
-                      <p className="verse greek-text">{verse.greek || "—"}</p>
+                      <p className="verse greek-text" lang={GREEK_TEXT_LANG}>
+                        {bindPunctuation(verse.greek || "—")}
+                      </p>
                     </article>
 
                     <article className="parallel-cell">
                       <span className="verse-number">{verse.verse}</span>
-                      <p className="verse latin-text">{verse.latin || "—"}</p>
+                      <p className="verse latin-text" lang={LATIN_LANG}>
+                        {bindPunctuation(verse.latin || "—")}
+                      </p>
                     </article>
                   </div>
                 ))}
