@@ -424,11 +424,11 @@ function App() {
             Clementine Vulgate Project
           </a>
           , public domain; layout marks removed. Spanish:{" "}
-          <a href="https://es.wikisource.org/wiki/La_Sagrada_Biblia_(XIII)/Juan">
+          <a href="https://es.wikisource.org/wiki/La_Sagrada_Biblia_(XIII)">
             Torres Amat, 1836
           </a>
           , public domain. Polish:{" "}
-          <a href="https://pl.wikisource.org/wiki/Biblia_Wujka_(1923)/Ewangelia_wg_%C5%9Bw._Jana">
+          <a href="https://pl.wikisource.org/wiki/Biblia_Wujka_(1923)">
             Biblia Wujka, 1923 edition
           </a>
           , public domain.

@@ -172,14 +172,15 @@
   color: var(--muted);
 }
 
+/* Chapters wrap on wide screens (Matthew has 28); phones scroll the row. */
 .chapter-chips {
   position: relative;
   display: flex;
   flex: 1 1 auto;
+  flex-wrap: wrap;
   gap: 6px;
   min-width: 0;
   padding: 3px;
-  overflow-x: auto;
   scrollbar-width: none;
 }
 
@@ -483,6 +484,11 @@
 
   .nav-label {
     display: none;
+  }
+
+  .chapter-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
   }
 
   .reference-input {
