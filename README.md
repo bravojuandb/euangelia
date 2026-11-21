@@ -19,6 +19,18 @@ The texts live in `public/data/<gospel>.json`, one entry per verse:
 { "book": "John", "chapter": 1, "verse": 1, "greek": "…", "latin": "…", "spanish": "…", "polski": "…" }
 ```
 
+### Regenerating the data
+
+The data files are built from the sources below with Python 3.9+ (standard library only):
+
+```sh
+python3 scripts/fetch_sources.py        # download into scripts/sources/ (not committed)
+python3 scripts/build_data.py --check   # report: renumbering, gaps, length outliers
+python3 scripts/build_data.py           # write public/data/*.json
+```
+
+The GitHub sources are pinned to a commit; the Wikisource pages are fetched as currently transcribed. Every re-numbering and correction described below is listed per book in [scripts/build_data.py](scripts/build_data.py), and the build stops if one no longer matches the text.
+
 ## Text sources
 
 | Column  | Edition | Source | License |
