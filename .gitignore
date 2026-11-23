@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Data pipeline: downloaded sources and Python cache
+scripts/sources/
+__pycache__/
