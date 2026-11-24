@@ -591,7 +591,11 @@ function App() {
           </a>
           , {ui.credits.publicDomain}. {ui.credits.polish}:{" "}
           <a href="https://pl.wikisource.org/wiki/Biblia_Wujka_(1923)">Biblia Wujka, 1923</a>,{" "}
-          {ui.credits.publicDomain}.
+          {ui.credits.publicDomain}. {ui.credits.english}:{" "}
+          <a href="https://ebible.org/find/details.php?id=eng-kjv">
+            King James Version, 1769
+          </a>
+          , {ui.credits.publicDomain}.
         </p>
         <img className="colophon" src={sello} alt="JB" width="72" height="72" />
       </footer>

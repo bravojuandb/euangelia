@@ -3,8 +3,9 @@
 Usage: python3 scripts/build_data.py [--sources DIR] [--out DIR] [--check]
 
 Run scripts/fetch_sources.py first. Rows follow the Greek (modern) verse
-numbering; each source is re-keyed to it with the operations listed per book,
-written in the source's own numbering:
+numbering, which the King James Version already uses; each other source is
+re-keyed to it with the operations listed per book, written in the source's
+own numbering:
 
   ("merge", c, a, b)      verses c:a..c:b form one verse c:a; later verses move up
   ("split", c, v, marks)  verse c:v is cut where marks[source] begins; later verses move down
@@ -24,7 +25,13 @@ import statistics
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from parsers import parse_clementine, parse_sblgnt, parse_torres_amat, parse_wujek  # noqa: E402
+from parsers import (  # noqa: E402
+    parse_clementine,
+    parse_sblgnt,
+    parse_torres_amat,
+    parse_usfm,
+    parse_wujek,
+)
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
@@ -178,8 +185,10 @@ def build(gospel, cfg, sources):
     polish = apply_fixes(polish, cfg["polish_fixes"], "polish")
     polish = apply_ops(polish, cfg["polish_ops"], "polish")
 
+    english = parse_usfm((sources / "en" / f"{gospel}.usfm").read_text(encoding="utf-8-sig"))
+
     # Every source must cover the same verses, except those the Greek omits.
-    for name, texts in (("spanish", spanish), ("polish", polish)):
+    for name, texts in (("spanish", spanish), ("polish", polish), ("english", english)):
         if set(texts) != set(latin):
             missing = sorted(set(latin) - set(texts), key=split_key)[:8]
             extra = sorted(set(texts) - set(latin), key=split_key)[:8]
@@ -198,6 +207,7 @@ def build(gospel, cfg, sources):
             "latin": latin[k],
             "spanish": spanish[k],
             "polski": polish[k],
+            "english": english[k],
         })
 
     report = [
@@ -215,7 +225,7 @@ def build(gospel, cfg, sources):
 
 def length_outliers(rows):
     flagged = []
-    for a, b in (("latin", "greek"), ("spanish", "latin"), ("polski", "latin")):
+    for a, b in (("latin", "greek"), ("spanish", "latin"), ("polski", "latin"), ("english", "greek")):
         ratios = [(row, len(row[a]) / len(row[b])) for row in rows if row[a] and row[b]]
         median = statistics.median(ratio for _, ratio in ratios)
         flagged += [

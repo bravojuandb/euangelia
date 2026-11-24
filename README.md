@@ -2,7 +2,9 @@
 
 A parallel reader for the Gospels: a vernacular translation, the Greek text and the Latin text side by side, verse by verse.
 
-The four Gospels are available, complete, in Greek, Latin, Spanish and Polish.
+The four Gospels are available, complete, in Greek, Latin, Spanish, Polish and English.
+
+The interface follows the chosen translation (Spanish, English or Polish); a browser in another language gets English.
 
 ## Development
 
@@ -16,7 +18,7 @@ npm run lint
 The texts live in `public/data/<gospel>.json`, one entry per verse:
 
 ```json
-{ "book": "John", "chapter": 1, "verse": 1, "greek": "…", "latin": "…", "spanish": "…", "polski": "…" }
+{ "book": "John", "chapter": 1, "verse": 1, "greek": "…", "latin": "…", "spanish": "…", "polski": "…", "english": "…" }
 ```
 
 ### Regenerating the data
@@ -29,7 +31,7 @@ python3 scripts/build_data.py --check   # report: renumbering, gaps, length outl
 python3 scripts/build_data.py           # write public/data/*.json
 ```
 
-The GitHub sources are pinned to a commit; the Wikisource pages are fetched as currently transcribed. Every re-numbering and correction described below is listed per book in [scripts/build_data.py](scripts/build_data.py), and the build stops if one no longer matches the text.
+The GitHub sources are pinned to a commit; the Wikisource pages and the eBible.org KJV are fetched as currently published. Every re-numbering and correction described below is listed per book in [scripts/build_data.py](scripts/build_data.py), and the build stops if one no longer matches the text.
 
 ## Text sources
 
@@ -39,6 +41,7 @@ The GitHub sources are pinned to a commit; the Wikisource pages are fetched as c
 | Latin   | Clementine Vulgate (1592), Clementine Vulgate Project text, digitized by Michael Tweedale | [BibleGet-I-O/Clementine-Vulgate](https://github.com/BibleGet-I-O/Clementine-Vulgate) (`src/utf8/{Mt,Mc,Lc,Jo}.lat`) | Public domain |
 | Spanish | La Sagrada Biblia, tr. Félix Torres Amat, vol. XIII (1836) | [es.wikisource.org](https://es.wikisource.org/wiki/La_Sagrada_Biblia_(XIII)) | Public domain |
 | Polish  | Biblia Wujka, 1923 edition | [pl.wikisource.org](https://pl.wikisource.org/wiki/Biblia_Wujka_(1923)) | Public domain |
+| English | King James Version (1611), standard text of 1769 | [eBible.org](https://ebible.org/find/details.php?id=eng-kjv) (`eng-kjv_usfm.zip`) | Public domain (outside the UK, where printing it is under Crown letters patent) |
 
 The SBLGNT is copyright 2010 by the Society of Biblical Literature and Logos Bible Software. Here its variation-unit signs (⸀ ⸁ ⸂ ⸃ ⸄ ⸅) are removed, since the apparatus is not included; the double brackets ⟦ ⟧ are kept because they mark passages as later additions (the shorter ending after Mark 16:8, Mark 16:9–20 and John 7:53–8:11). As a critical text it omits Matthew 17:21, 18:11, 23:14; Mark 7:16, 9:44, 9:46, 11:26, 15:28; Luke 17:36, 23:17; and John 5:4, so those verses have no Greek.
 
@@ -48,7 +51,9 @@ The Spanish text is the Wikisource transcription of the 1836 edition, with its o
 
 The Polish text is kept as transcribed on Wikisource, including the 1923 orthography (e.g. *jéj*, *woléj*). Where Wikisource marks a misprint, the corrected form is used. Chapter numbers are taken from the sequence of verses, since a few anchors carry the previous chapter's number.
 
-Rows follow the Greek verse numbering. The Latin and Spanish texts use the Vulgate numbering and are re-keyed where it differs:
+The English text is the eBible.org USFM edition of the KJV. Its markup is removed: Strong's numbers, the paragraph signs (¶), and the styles for words in italics (added by the translators), words of Jesus and LORD are kept as plain text. The KJV was translated from the Greek Textus Receptus, so in places it has words the SBLGNT omits (e.g. Matthew 27:35, Luke 9:55–56).
+
+Rows follow the Greek verse numbering, which the KJV shares. The Latin and Spanish texts use the Vulgate numbering and are re-keyed where it differs:
 
 - Matthew 17:14 is split into 17:14–15 (17:15–26 become 17:16–27).
 - Mark 4:40 is split into 4:40–41, and Mark 8:39 becomes 9:1 (9:1–49 become 9:2–50; the Polish text follows the Vulgate here too).

@@ -13,8 +13,12 @@ export const GOSPEL_IDS = GOSPELS.map((gospel) => gospel.id);
 // selects the interface language in i18n.js.
 export const VERNACULARS = [
   { id: "spanish", label: "Español", field: "spanish", lang: "es" },
+  { id: "english", label: "English", field: "english", lang: "en" },
   { id: "polski", label: "Polski", field: "polski", lang: "pl" },
 ];
+
+// For a browser in a language without a translation here.
+export const FALLBACK_VERNACULAR = "english";
 
 export const COLUMN_IDS = ["vernacular", "greek", "latin"];
 

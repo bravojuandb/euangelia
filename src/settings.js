@@ -1,4 +1,4 @@
-import { COLUMN_IDS, FONT_SCALES, GOSPEL_IDS, VERNACULARS } from "./config.js";
+import { COLUMN_IDS, FALLBACK_VERNACULAR, FONT_SCALES, GOSPEL_IDS, VERNACULARS } from "./config.js";
 
 const STORAGE_KEY = "euangelion:settings";
 
@@ -23,7 +23,7 @@ function browserVernacular() {
   const match = VERNACULARS.find((vernacular) =>
     languages.some((language) => language?.toLowerCase().startsWith(vernacular.lang)),
   );
-  return (match ?? VERNACULARS[0]).id;
+  return match?.id ?? FALLBACK_VERNACULAR;
 }
 
 // Stored settings are validated: an old or hand-edited value falls back to the default.

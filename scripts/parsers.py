@@ -62,6 +62,39 @@ def parse_clementine(text):
     return verses
 
 
+# --- King James Version (1769 text), eBible.org USFM ------------------------
+
+# \w word|strong="G1234"\w* : a word tagged with its Strong's number. Inside
+# another style the markers take a plus sign: \+w ... \+w*.
+_USFM_WORD = re.compile(r"\\\+?w\s+([^|\\]*?)(?:\|[^\\]*)?\\\+?w\*")
+# Character styles whose text is kept as plain text: \add (words the
+# translators printed in italics), \wj (words of Jesus) and \nd (LORD,
+# printed in small capitals).
+_USFM_STYLE = re.compile(r"\\\+?(?:add|wj|nd)\*|\\\+?(?:add|wj|nd)\s")
+
+
+def parse_usfm(text):
+    """USFM book file as published by eBible.org: \\c N opens a chapter,
+    \\v N a verse. Paragraph marks (\\p and the printed ¶) are dropped."""
+    verses = {}
+    chapter = None
+    for m in re.finditer(r"\\c\s+(\d+)|\\v\s+(\d+)\s+(.*?)(?=\\c\s|\\v\s|\Z)", text, flags=re.S):
+        if m.group(1):
+            chapter = int(m.group(1))
+            continue
+        clean = _USFM_WORD.sub(r"\1", m.group(3))
+        clean = _USFM_STYLE.sub("", clean)
+        clean = re.sub(r"\\p\b|¶", " ", clean)
+        if "\\" in clean:
+            raise ValueError(f"unhandled USFM marker in {chapter}:{m.group(2)}: {clean!r}")
+        clean = re.sub(r"\s+", " ", clean).strip()
+        key = _key(chapter, int(m.group(2)))
+        if key in verses:
+            raise ValueError(f"duplicate verse {key}")
+        verses[key] = unicodedata.normalize("NFC", clean)
+    return verses
+
+
 # --- Torres Amat (1836), es.wikisource --------------------------------------
 
 
