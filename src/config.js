@@ -1,46 +1,24 @@
+// Interface names of the Gospels live in i18n.js; these are the Greek and
+// Latin titles shown in the masthead.
 export const GOSPELS = [
-  {
-    id: "matthew",
-    label: "Matthew",
-    heading: "Κατὰ Ματθαῖον",
-    subheading: "Secundum Matthaeum",
-    available: true,
-  },
-  {
-    id: "mark",
-    label: "Mark",
-    heading: "Κατὰ Μᾶρκον",
-    subheading: "Secundum Marcum",
-    available: true,
-  },
-  {
-    id: "luke",
-    label: "Luke",
-    heading: "Κατὰ Λουκᾶν",
-    subheading: "Secundum Lucam",
-    available: true,
-  },
-  {
-    id: "john",
-    label: "John",
-    heading: "Κατὰ Ἰωάννην",
-    subheading: "Secundum Ioannem",
-    available: true,
-  },
+  { id: "matthew", heading: "Κατὰ Ματθαῖον", subheading: "Secundum Matthaeum" },
+  { id: "mark", heading: "Κατὰ Μᾶρκον", subheading: "Secundum Marcum" },
+  { id: "luke", heading: "Κατὰ Λουκᾶν", subheading: "Secundum Lucam" },
+  { id: "john", heading: "Κατὰ Ἰωάννην", subheading: "Secundum Ioannem" },
 ];
 
+export const GOSPEL_IDS = GOSPELS.map((gospel) => gospel.id);
+
+// `field` is the key of the text in public/data/<gospel>.json; `lang` also
+// selects the interface language in i18n.js.
 export const VERNACULARS = [
-  { id: "spanish", label: "Español", field: "spanish", lang: "es", available: true },
-  { id: "english", label: "English", field: "english", lang: "en", available: false },
-  { id: "german", label: "Deutsch", field: "german", lang: "de", available: false },
-  { id: "polski", label: "Polski", field: "polski", lang: "pl", available: true },
+  { id: "spanish", label: "Español", field: "spanish", lang: "es" },
+  { id: "polski", label: "Polski", field: "polski", lang: "pl" },
 ];
+
+export const COLUMN_IDS = ["vernacular", "greek", "latin"];
 
 export const CHAPTER_LABELS = {
-  spanish: "Capítulo",
-  english: "Chapter",
-  german: "Kapitel",
-  polski: "Rozdział",
   greek: "Κεφάλαιον",
   latin: "Caput",
 };
@@ -53,4 +31,4 @@ export const LANG = {
   latin: "la",
 };
 
-export const FONT_SCALE = { min: 0.85, max: 1.5, step: 0.1 };
+export const FONT_SCALES = [0.85, 0.92, 1, 1.1, 1.2, 1.35, 1.5];

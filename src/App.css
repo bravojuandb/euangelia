@@ -59,8 +59,15 @@
   color: var(--ink-strong);
 }
 
+.masthead-title {
+  margin: 10px 0 0;
+  font-size: 1.15rem;
+  font-style: italic;
+  color: var(--ink-strong);
+}
+
 .masthead-subtitle {
-  margin: 8px 0 0;
+  margin: 4px 0 0;
   font-size: 0.85rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -71,14 +78,27 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 12px 20px;
+  gap: 12px 28px;
   margin-top: 20px;
 }
 
-/* Segmented controls (gospel, translation, text size, mobile columns) */
+.setting {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
 
-.segmented,
-.column-tabs {
+.setting-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Segmented controls (gospel, translation, columns, text size) */
+
+.segmented {
   display: inline-flex;
   border: 1px solid var(--control-border);
   background: var(--control-bg);
@@ -126,14 +146,68 @@
   cursor: not-allowed;
 }
 
-.soon {
-  margin-top: 3px;
-  font-size: 0.6rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+/* The last visible column cannot be hidden: shown as on, not as unavailable. */
+.segment[aria-pressed="true"]:disabled {
+  color: var(--ink-strong);
+  cursor: default;
+}
+
+.column-toggles .segment {
+  flex-direction: row;
+  gap: 4px;
+}
+
+.check {
+  display: inline-block;
+  width: 0.9em;
+  color: var(--rubric);
+}
+
+.text-button {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+  color: var(--ink-strong);
+  font: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.text-button:hover {
+  background: var(--control-hover);
+}
+
+/* First visit */
+
+.welcome {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px 20px;
+  max-width: 860px;
+  margin: 0 auto 18px;
+  padding: 14px 18px;
+  border: 1px solid var(--control-border);
+  background: rgba(252, 246, 232, 0.85);
+}
+
+.welcome p {
+  flex: 1 1 360px;
+  text-align: left;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.welcome-actions {
+  display: flex;
+  gap: 8px;
 }
 
 .segment:focus-visible,
+.text-button:focus-visible,
 .chapter-chip:focus-visible,
 .reference-input:focus-visible,
 .reference-submit:focus-visible,
@@ -164,6 +238,18 @@
   gap: 12px;
 }
 
+.reader-tools {
+  flex-wrap: wrap;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(84, 65, 38, 0.14);
+}
+
+.guide-button {
+  flex-direction: row;
+  gap: 6px;
+}
+
 .nav-label {
   flex: 0 0 auto;
   font-size: 0.72rem;
@@ -191,6 +277,7 @@
 .chapter-chip,
 .reference-submit {
   flex: 0 0 auto;
+  box-sizing: border-box;
   min-width: 40px;
   height: 40px;
   padding: 0 10px;
@@ -260,10 +347,6 @@
   display: none;
 }
 
-.column-tabs {
-  display: none;
-}
-
 /* Folio */
 
 .status-message {
@@ -276,6 +359,8 @@
 
 .parallel-reader {
   position: relative;
+  max-width: calc(var(--columns, 3) * 640px);
+  margin: 0 auto;
   text-align: left;
   padding: 30px 32px 28px;
   border: 3px solid var(--rubric);
@@ -292,9 +377,10 @@
 }
 
 .parallel-reader,
-.parallel-verse-row {
+.parallel-verse-row,
+.chapter-divider {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--columns, 3), minmax(0, 1fr));
 }
 
 .folio-rule {
@@ -311,6 +397,9 @@
 }
 
 .parallel-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   position: sticky;
   top: var(--nav-height, 0px);
   z-index: 10;
@@ -324,6 +413,14 @@
   background: #f6edd6;
 }
 
+.parallel-header-note {
+  font-size: 0.85rem;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--muted);
+}
+
 .parallel-header:not(:last-of-type) {
   border-right: 1px solid var(--rule);
 }
@@ -335,8 +432,6 @@
 }
 
 .chapter-divider {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin: 6px 0 0;
   padding: 14px 12px 10px;
   border-top: 1px solid rgba(84, 65, 38, 0.24);
@@ -349,15 +444,23 @@
   letter-spacing: 0.22em;
   text-transform: uppercase;
   text-align: center;
-  scroll-margin-top: calc(var(--nav-height, 0px) + 52px);
+  /* Clears the sticky column headers (two lines: language and edition). */
+  scroll-margin-top: calc(var(--nav-height, 0px) + 80px);
 }
 
 .chapter-divider span:not(:last-child) {
   border-right: 1px solid rgba(84, 65, 38, 0.16);
 }
 
+/* A click on a verse highlights it in every column. */
+@media (hover: hover) {
+  .parallel-verse-row:hover .parallel-cell {
+    background: rgba(179, 143, 76, 0.06);
+  }
+}
+
 .parallel-verse-row.is-target .parallel-cell {
-  background: rgba(179, 143, 76, 0.16);
+  background: rgba(179, 143, 76, 0.18);
 }
 
 .parallel-cell {
@@ -396,6 +499,14 @@
   hyphens: auto;
 }
 
+.verse-missing {
+  padding-top: 4px;
+  font-size: 0.9rem;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--faint);
+}
+
 .greek-text {
   font-size: calc(21px * var(--reader-font-scale));
   line-height: 1.6;
@@ -426,6 +537,53 @@
   color: inherit;
   text-decoration-color: rgba(107, 84, 53, 0.45);
   text-underline-offset: 2px;
+}
+
+/* The maker's mark closes the page, as a printer's device closed a book. */
+.colophon {
+  display: block;
+  width: 72px;
+  height: 72px;
+  margin: 22px auto 0;
+}
+
+/* Reading guide */
+
+.guide {
+  width: min(640px, calc(100vw - 32px));
+  max-height: calc(100svh - 48px);
+  padding: 0;
+  border: 3px solid var(--rubric);
+  background: #faf3de;
+  color: var(--ink);
+  box-shadow: 0 24px 60px rgba(60, 40, 15, 0.3);
+}
+
+.guide::backdrop {
+  background: rgba(47, 36, 24, 0.45);
+}
+
+.guide-body {
+  padding: 24px 28px;
+  text-align: left;
+}
+
+.guide-body h2 {
+  margin-bottom: 12px;
+}
+
+.guide-body ul {
+  margin: 0 0 20px;
+  padding-left: 1.2em;
+}
+
+.guide-body li {
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.guide-body form {
+  text-align: right;
 }
 
 /* One column on phones */
@@ -460,17 +618,7 @@
     width: 100%;
   }
 
-  .segmented.text-size {
-    width: auto;
-  }
-
-  .segmented.text-size .segment {
-    flex: 0 0 auto;
-    min-width: 64px;
-  }
-
-  .segmented .segment,
-  .column-tabs .segment {
+  .segmented .segment {
     flex: 1 1 0;
     min-width: 0;
     padding: 6px 4px;
@@ -495,13 +643,35 @@
     width: 72px;
   }
 
-  .column-tabs {
-    display: flex;
-    margin-top: 8px;
+  .reader-tools {
+    margin-top: 6px;
+    padding-top: 6px;
+  }
+
+  .reader-tools .column-toggles {
+    width: 100%;
+  }
+
+  /* Text size and help share one line under the gospel and translation. */
+  .setting {
+    flex: 1 1 0;
+  }
+
+  .setting:nth-child(-n + 2) {
+    flex-basis: 100%;
+  }
+
+  .setting .segmented .segment {
+    min-height: 40px;
+  }
+
+  .welcome p {
+    flex-basis: 100%;
   }
 
   .parallel-reader,
-  .parallel-verse-row {
+  .parallel-verse-row,
+  .chapter-divider {
     grid-template-columns: 1fr;
   }
 
@@ -510,13 +680,12 @@
     outline-offset: -7px;
   }
 
-  /* The mobile column tabs replace the column headers. */
+  /* The column buttons in the nav name the languages. */
   .parallel-header {
     display: none;
   }
 
   .chapter-divider {
-    grid-template-columns: 1fr;
     scroll-margin-top: calc(var(--nav-height, 0px) + 8px);
   }
 
@@ -535,26 +704,8 @@
     border-bottom: 1px solid #efe4d3;
   }
 
-  /* One language at a time */
-  .show-vernacular .col-greek,
-  .show-vernacular .col-latin,
-  .show-greek .col-vernacular,
-  .show-greek .col-latin,
-  .show-latin .col-vernacular,
-  .show-latin .col-greek {
-    display: none;
-  }
-
-  .show-vernacular .chapter-divider span,
-  .show-greek .chapter-divider span,
-  .show-latin .chapter-divider span {
-    border-bottom: none;
-    padding-bottom: 0;
-    margin-bottom: 0;
-  }
-
-  /* All languages: verse number once per row, language code per cell */
-  .show-all .parallel-verse-row::before {
+  /* Several languages: verse number once per row, language code per cell */
+  .is-multi .parallel-verse-row::before {
     content: attr(data-verse);
     padding: 10px 12px 0;
     color: #775d3c;
@@ -562,15 +713,15 @@
     font-weight: 500;
   }
 
-  .show-all .verse-number {
+  .is-multi .verse-number {
     display: none;
   }
 
-  .show-all .cell-lang {
+  .is-multi .cell-lang {
     display: block;
   }
 
-  .show-all .parallel-cell {
+  .is-multi .parallel-cell {
     padding-top: 4px;
     padding-bottom: 4px;
   }
@@ -578,6 +729,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .segment,
+  .text-button,
   .chapter-chip,
   .reference-submit {
     transition: none;
