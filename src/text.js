@@ -57,8 +57,10 @@ export function parseReference(input) {
     return null;
   }
 
-  return {
-    chapter: Number(match[1]),
-    verse: match[2] ? Number(match[2]) : null,
-  };
+  const chapter = Number(match[1]);
+  const verse = match[2] ? Number(match[2]) : null;
+  if (chapter === 0 || verse === 0) {
+    return null;
+  }
+  return { chapter, verse };
 }

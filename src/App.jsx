@@ -1,6 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
-import { CHAPTER_LABELS, FONT_SCALE, GOSPELS, LANG, VERNACULARS } from "./config.js";
+import sello from "./assets/sello.png";
+import {
+  CHAPTER_LABELS,
+  COLUMN_IDS,
+  FONT_SCALES,
+  GOSPELS,
+  LANG,
+  VERNACULARS,
+} from "./config.js";
+import { UI } from "./i18n.js";
+import { loadSettings, parseLocation, saveSettings, writeLocation } from "./settings.js";
 import {
   bindPunctuation,
   parseReference,
@@ -14,8 +24,26 @@ function scrollBehavior() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
 }
 
-function roundScale(value) {
-  return Math.round(value * 100) / 100;
+// Scrolls to a chapter heading or a verse row; false if it is not on the page.
+function scrollToPlace(chapter, verse, behavior = scrollBehavior()) {
+  const element = document.getElementById(
+    verse ? `verse-${chapter}-${verse}` : `chapter-${chapter}`,
+  );
+  if (!element) {
+    return false;
+  }
+  element.scrollIntoView({ behavior, block: verse ? "center" : "start" });
+  return true;
+}
+
+function initialState() {
+  const settings = loadSettings();
+  const place = parseLocation(window.location.hash);
+  return {
+    ...settings,
+    gospel: place?.gospel ?? settings.gospel,
+    place: place?.chapter ? { chapter: place.chapter, verse: place.verse } : null,
+  };
 }
 
 // The chapter whose divider has scrolled past the bottom of the sticky nav.
@@ -30,7 +58,7 @@ function useCurrentChapter(chapters, navRef) {
     let frame = 0;
     const update = () => {
       frame = 0;
-      const line = (navRef.current?.getBoundingClientRect().bottom ?? 0) + 72;
+      const line = (navRef.current?.getBoundingClientRect().bottom ?? 0) + 100;
       let found = chapters[0];
       for (const chapter of chapters) {
         const divider = document.getElementById(`chapter-${chapter}`);
@@ -61,21 +89,28 @@ function useCurrentChapter(chapters, navRef) {
 }
 
 function App() {
-  const [selectedGospel, setSelectedGospel] = useState("john");
-  const [selectedVernacular, setSelectedVernacular] = useState("spanish");
+  const [initial] = useState(initialState);
+  const [selectedGospel, setSelectedGospel] = useState(initial.gospel);
+  const [selectedVernacular, setSelectedVernacular] = useState(initial.vernacular);
+  const [columns, setColumns] = useState(initial.columns);
+  const [fontScale, setFontScale] = useState(initial.fontScale);
+  const [welcomed, setWelcomed] = useState(initial.welcomed);
   const [loaded, setLoaded] = useState({ gospel: null, verses: NO_VERSES, error: null });
-  const [target, setTarget] = useState(null);
+  const [target, setTarget] = useState(initial.place?.verse ? initial.place : null);
   const [reference, setReference] = useState("");
   const [referenceError, setReferenceError] = useState("");
-  const [fontScale, setFontScale] = useState(1);
-  const [mobileColumn, setMobileColumn] = useState("all");
   const navRef = useRef(null);
   const chipsRef = useRef(null);
+  const guideRef = useRef(null);
+  // A place to scroll to once its Gospel has loaded (from the address).
+  const pendingPlaceRef = useRef(initial.place);
 
   const currentGospel = GOSPELS.find((gospel) => gospel.id === selectedGospel);
   const currentVernacular = VERNACULARS.find(
     (vernacular) => vernacular.id === selectedVernacular,
   );
+  const ui = UI[currentVernacular.lang];
+  const gospelName = ui.gospels[selectedGospel];
   const isLoading = loaded.gospel !== selectedGospel;
   const verses = isLoading ? NO_VERSES : loaded.verses;
 
@@ -102,6 +137,54 @@ function App() {
       cancelled = true;
     };
   }, [selectedGospel]);
+
+  // Jump to the place named in the address once the text is on the page.
+  useEffect(() => {
+    const place = pendingPlaceRef.current;
+    if (isLoading || !place) {
+      return;
+    }
+    pendingPlaceRef.current = null;
+    scrollToPlace(place.chapter, place.verse, "auto");
+  }, [isLoading]);
+
+  // An address edited by hand, or back/forward between shared links.
+  useEffect(() => {
+    const onHashChange = () => {
+      const place = parseLocation(window.location.hash);
+      if (!place) {
+        return;
+      }
+      setTarget(place.verse ? { chapter: place.chapter, verse: place.verse } : null);
+      if (place.gospel === selectedGospel) {
+        if (place.chapter) {
+          scrollToPlace(place.chapter, place.verse);
+        }
+        return;
+      }
+      pendingPlaceRef.current = place.chapter ? place : null;
+      setSelectedGospel(place.gospel);
+      setReference("");
+      setReferenceError("");
+    };
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, [selectedGospel]);
+
+  useEffect(() => {
+    saveSettings({
+      gospel: selectedGospel,
+      vernacular: selectedVernacular,
+      columns,
+      fontScale,
+      welcomed,
+    });
+  }, [selectedGospel, selectedVernacular, columns, fontScale, welcomed]);
+
+  useEffect(() => {
+    document.documentElement.lang = currentVernacular.lang;
+    document.title = `${gospelName.full} · Euangelion`;
+  }, [currentVernacular.lang, gospelName.full]);
 
   // Sticky column headers and scroll targets sit below the sticky nav.
   useEffect(() => {
@@ -139,22 +222,38 @@ function App() {
     list.scrollTo({ left: chip.offsetLeft - (list.clientWidth - chip.offsetWidth) / 2 });
   }, [currentChapter]);
 
-  const columns = [
-    { id: "all", label: "All" },
-    { id: "vernacular", label: currentVernacular.label, lang: currentVernacular.lang },
-    { id: "greek", label: "Ελληνικά", lang: LANG.greekCaps },
-    { id: "latin", label: "Latina", lang: LANG.latin },
-  ];
+  const columnDefs = {
+    vernacular: {
+      textLang: currentVernacular.lang,
+      textClass: "vernacular-text",
+      text: (verse) => verse[currentVernacular.field],
+      dividerLang: currentVernacular.lang,
+      divider: (chapter) => `${ui.chapter} ${chapter}`,
+    },
+    greek: {
+      textLang: LANG.greekText,
+      textClass: "greek-text",
+      text: (verse) => verse.greek,
+      missing: ui.missingGreek,
+      dividerLang: LANG.greekCaps,
+      divider: (chapter) => `${CHAPTER_LABELS.greek} ${toGreekNumeral(chapter)}`,
+    },
+    latin: {
+      textLang: LANG.latin,
+      textClass: "latin-text",
+      text: (verse) => verse.latin,
+      dividerLang: LANG.latin,
+      divider: (chapter) => `${CHAPTER_LABELS.latin} ${toRomanNumeral(chapter)}`,
+    },
+  };
+  const visibleColumns = columns.map((id) => ({ id, ...ui.columns[id], ...columnDefs[id] }));
 
   function goTo(chapter, verse = null) {
-    const element = document.getElementById(
-      verse ? `verse-${chapter}-${verse}` : `chapter-${chapter}`,
-    );
-    if (!element) {
+    if (!scrollToPlace(chapter, verse)) {
       return false;
     }
     setTarget(verse ? { chapter, verse } : null);
-    element.scrollIntoView({ behavior: scrollBehavior(), block: verse ? "center" : "start" });
+    writeLocation(selectedGospel, chapter, verse);
     return true;
   }
 
@@ -165,10 +264,12 @@ function App() {
       return;
     }
     const parsed = parseReference(text);
-    if (parsed && goTo(parsed.chapter, parsed.verse)) {
+    if (!parsed) {
+      setReferenceError(ui.badReference);
+    } else if (goTo(parsed.chapter, parsed.verse)) {
       setReferenceError("");
     } else {
-      setReferenceError(`${currentGospel.label} ${text} is not available.`);
+      setReferenceError(ui.notFound(gospelName.short, text));
     }
   }
 
@@ -180,19 +281,53 @@ function App() {
     setTarget(null);
     setReference("");
     setReferenceError("");
+    pendingPlaceRef.current = null;
+    writeLocation(id);
     window.scrollTo({ top: 0, behavior: scrollBehavior() });
   }
 
-  function changeFontScale(delta) {
-    setFontScale((scale) =>
-      roundScale(Math.min(FONT_SCALE.max, Math.max(FONT_SCALE.min, scale + delta))),
+  function selectVernacular(id) {
+    setSelectedVernacular(id);
+    setReferenceError("");
+  }
+
+  function toggleColumn(id) {
+    setColumns((shown) =>
+      shown.includes(id)
+        ? shown.filter((column) => column !== id)
+        : COLUMN_IDS.filter((column) => column === id || shown.includes(column)),
     );
   }
+
+  function toggleVerse(verse) {
+    // A click that ends a text selection is not a request to highlight.
+    if (window.getSelection()?.toString()) {
+      return;
+    }
+    const isTarget = target?.chapter === verse.chapter && target?.verse === verse.verse;
+    setTarget(isTarget ? null : { chapter: verse.chapter, verse: verse.verse });
+    writeLocation(selectedGospel, verse.chapter, isTarget ? null : verse.verse);
+  }
+
+  function changeFontScale(step) {
+    setFontScale((scale) => {
+      const index = FONT_SCALES.indexOf(scale);
+      return FONT_SCALES[Math.min(FONT_SCALES.length - 1, Math.max(0, index + step))];
+    });
+  }
+
+  function openGuide() {
+    setWelcomed(true);
+    guideRef.current?.showModal();
+  }
+
+  const fontIndex = FONT_SCALES.indexOf(fontScale);
 
   return (
     <div className="app-shell" style={{ "--reader-font-scale": fontScale }}>
       <header className="masthead">
-        <h1 lang={LANG.latin}>Evangelium Heptaglotton</h1>
+        <h1>Euangelion</h1>
+        <p className="masthead-title">{gospelName.full}</p>
         <p className="masthead-subtitle">
           <span lang={LANG.greekCaps}>{currentGospel.heading}</span>
           <span aria-hidden="true"> · </span>
@@ -200,70 +335,104 @@ function App() {
         </p>
 
         <div className="settings">
-          <div className="segmented" role="group" aria-label="Gospel">
-            {GOSPELS.map((gospel) => (
-              <button
-                key={gospel.id}
-                type="button"
-                className="segment"
-                aria-pressed={selectedGospel === gospel.id}
-                disabled={!gospel.available}
-                onClick={() => selectGospel(gospel.id)}
-              >
-                {gospel.label}
-                {!gospel.available && <span className="soon">soon</span>}
-              </button>
-            ))}
+          <div className="setting">
+            <span id="gospel-label" className="setting-label">
+              {ui.gospelGroup}
+            </span>
+            <div className="segmented" role="group" aria-labelledby="gospel-label">
+              {GOSPELS.map((gospel) => (
+                <button
+                  key={gospel.id}
+                  type="button"
+                  className="segment"
+                  aria-pressed={selectedGospel === gospel.id}
+                  onClick={() => selectGospel(gospel.id)}
+                >
+                  {ui.gospels[gospel.id].short}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="segmented" role="group" aria-label="Translation">
-            {VERNACULARS.map((vernacular) => (
-              <button
-                key={vernacular.id}
-                type="button"
-                className="segment"
-                lang={vernacular.lang}
-                aria-pressed={selectedVernacular === vernacular.id}
-                disabled={!vernacular.available}
-                onClick={() => setSelectedVernacular(vernacular.id)}
-              >
-                {vernacular.label}
-                {!vernacular.available && (
-                  <span className="soon" lang="en">
-                    soon
-                  </span>
-                )}
-              </button>
-            ))}
+          <div className="setting">
+            <span id="language-label" className="setting-label">
+              {ui.languageGroup}
+            </span>
+            <div className="segmented" role="group" aria-labelledby="language-label">
+              {VERNACULARS.map((vernacular) => (
+                <button
+                  key={vernacular.id}
+                  type="button"
+                  className="segment"
+                  lang={vernacular.lang}
+                  aria-pressed={selectedVernacular === vernacular.id}
+                  onClick={() => selectVernacular(vernacular.id)}
+                >
+                  {vernacular.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="segmented text-size" role="group" aria-label="Text size">
-            <button
-              type="button"
-              className="segment"
-              aria-label="Decrease text size"
-              disabled={fontScale <= FONT_SCALE.min}
-              onClick={() => changeFontScale(-FONT_SCALE.step)}
-            >
-              A−
-            </button>
-            <button
-              type="button"
-              className="segment"
-              aria-label="Increase text size"
-              disabled={fontScale >= FONT_SCALE.max}
-              onClick={() => changeFontScale(FONT_SCALE.step)}
-            >
-              A+
-            </button>
+          <div className="setting">
+            <span id="text-size-label" className="setting-label">
+              {ui.textSize}
+            </span>
+            <div className="segmented text-size" role="group" aria-labelledby="text-size-label">
+              <button
+                type="button"
+                className="segment"
+                aria-label={ui.smaller}
+                title={ui.smaller}
+                disabled={fontIndex <= 0}
+                onClick={() => changeFontScale(-1)}
+              >
+                A−
+              </button>
+              <button
+                type="button"
+                className="segment"
+                aria-label={ui.larger}
+                title={ui.larger}
+                disabled={fontIndex >= FONT_SCALES.length - 1}
+                onClick={() => changeFontScale(1)}
+              >
+                A+
+              </button>
+            </div>
+          </div>
+
+          <div className="setting">
+            <span id="help-label" className="setting-label">
+              {ui.help}
+            </span>
+            <div className="segmented" role="group" aria-labelledby="help-label">
+              <button type="button" className="segment guide-button" onClick={openGuide}>
+                <span aria-hidden="true">?</span> {ui.guide}
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
-      <nav ref={navRef} className="reader-nav" aria-label="Reading navigation">
+      {!welcomed && (
+        <aside className="welcome">
+          <p>{ui.welcome}</p>
+          <div className="welcome-actions">
+            <button type="button" className="text-button" onClick={openGuide}>
+              {ui.guide}
+            </button>
+            <button type="button" className="text-button" onClick={() => setWelcomed(true)}>
+              {ui.dismiss}
+            </button>
+          </div>
+        </aside>
+      )}
+
+      <nav ref={navRef} className="reader-nav" aria-label={gospelName.full}>
         <div className="reader-nav-row">
           <span className="nav-label" aria-hidden="true">
-            Chapter
+            {ui.chapter}
           </span>
           <div ref={chipsRef} className="chapter-chips">
             {chapters.map((chapter) => (
@@ -271,7 +440,7 @@ function App() {
                 key={chapter}
                 type="button"
                 className="chapter-chip"
-                aria-label={`Chapter ${chapter}`}
+                aria-label={`${ui.chapter} ${chapter}`}
                 aria-current={chapter === currentChapter ? "true" : undefined}
                 onClick={() => goTo(chapter)}
               >
@@ -282,7 +451,7 @@ function App() {
 
           <form className="reference-form" role="search" onSubmit={handleReferenceSubmit}>
             <label className="visually-hidden" htmlFor="reference">
-              Go to chapter and verse
+              {ui.referenceLabel}
             </label>
             <input
               id="reference"
@@ -290,7 +459,7 @@ function App() {
               type="text"
               inputMode="decimal"
               autoComplete="off"
-              placeholder="3:16"
+              placeholder={ui.referencePlaceholder}
               value={reference}
               aria-invalid={Boolean(referenceError)}
               aria-describedby="reference-error"
@@ -299,8 +468,8 @@ function App() {
                 setReferenceError("");
               }}
             />
-            <button type="submit" className="reference-submit" aria-label="Go">
-              →
+            <button type="submit" className="reference-submit">
+              {ui.go}
             </button>
             <p id="reference-error" className="reference-error" aria-live="polite">
               {referenceError}
@@ -308,41 +477,48 @@ function App() {
           </form>
         </div>
 
-        <div className="column-tabs" role="group" aria-label="Columns">
-          {columns.map((column) => (
-            <button
-              key={column.id}
-              type="button"
-              className="segment"
-              lang={column.lang}
-              aria-pressed={mobileColumn === column.id}
-              onClick={() => setMobileColumn(column.id)}
-            >
-              {column.label}
-            </button>
-          ))}
+        <div className="reader-nav-row reader-tools">
+          <span id="columns-label" className="nav-label">
+            {ui.columnsGroup}
+          </span>
+          <div className="segmented column-toggles" role="group" aria-labelledby="columns-label">
+            {COLUMN_IDS.map((id) => {
+              const shown = columns.includes(id);
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  className="segment"
+                  aria-pressed={shown}
+                  disabled={shown && columns.length === 1}
+                  onClick={() => toggleColumn(id)}
+                >
+                  <span className="check" aria-hidden="true">
+                    {shown ? "✓" : ""}
+                  </span>
+                  {ui.columns[id].label}
+                </button>
+              );
+            })}
+          </div>
+
         </div>
       </nav>
 
-      <main className={`reader show-${mobileColumn}`}>
+      <main className={`reader ${visibleColumns.length > 1 ? "is-multi" : "is-single"}`}>
         {isLoading ? (
-          <p className="status-message">Setting the folio…</p>
+          <p className="status-message">{ui.loading}</p>
         ) : loaded.error ? (
-          <p className="status-message">
-            The Gospel of {currentGospel.label} could not be loaded. Please try again later.
-          </p>
+          <p className="status-message">{ui.loadError}</p>
         ) : (
-          <div className="parallel-reader">
+          <div className="parallel-reader" style={{ "--columns": visibleColumns.length }}>
             <div className="folio-rule" aria-hidden="true" />
-            <div className="parallel-header col-vernacular" lang={currentVernacular.lang}>
-              {currentVernacular.label}
-            </div>
-            <div className="parallel-header col-greek" lang={LANG.greekCaps}>
-              Ελληνικά
-            </div>
-            <div className="parallel-header col-latin" lang={LANG.latin}>
-              Latina
-            </div>
+            {visibleColumns.map((column) => (
+              <div key={column.id} className="parallel-header">
+                <span className="parallel-header-label">{column.label}</span>
+                <span className="parallel-header-note">{column.note}</span>
+              </div>
+            ))}
 
             {chapterGroups.map((group) => (
               <section
@@ -351,15 +527,11 @@ function App() {
                 aria-labelledby={`chapter-${group.chapter}`}
               >
                 <h2 id={`chapter-${group.chapter}`} className="chapter-divider">
-                  <span className="col-vernacular" lang={currentVernacular.lang}>
-                    {CHAPTER_LABELS[selectedVernacular] || "Chapter"} {group.chapter}
-                  </span>
-                  <span className="col-greek" lang={LANG.greekCaps}>
-                    {CHAPTER_LABELS.greek} {toGreekNumeral(group.chapter)}
-                  </span>
-                  <span className="col-latin" lang={LANG.latin}>
-                    {CHAPTER_LABELS.latin} {toRomanNumeral(group.chapter)}
-                  </span>
+                  {visibleColumns.map((column) => (
+                    <span key={column.id} lang={column.dividerLang}>
+                      {column.divider(group.chapter)}
+                    </span>
+                  ))}
                 </h2>
 
                 {group.verses.map((verse) => {
@@ -371,36 +543,26 @@ function App() {
                       id={`verse-${verse.chapter}-${verse.verse}`}
                       className={`parallel-verse-row ${isTarget ? "is-target" : ""}`}
                       data-verse={verse.verse}
+                      onClick={() => toggleVerse(verse)}
                     >
-                      <article className="parallel-cell col-vernacular">
-                        <span className="verse-number">{verse.verse}</span>
-                        <span className="cell-lang" aria-hidden="true">
-                          {currentVernacular.lang.toUpperCase()}
-                        </span>
-                        <p className="verse vernacular-text" lang={currentVernacular.lang}>
-                          {bindPunctuation(verse[currentVernacular.field] || "—")}
-                        </p>
-                      </article>
-
-                      <article className="parallel-cell col-greek">
-                        <span className="verse-number">{verse.verse}</span>
-                        <span className="cell-lang" aria-hidden="true">
-                          ΕΛ
-                        </span>
-                        <p className="verse greek-text" lang={LANG.greekText}>
-                          {bindPunctuation(verse.greek || "—")}
-                        </p>
-                      </article>
-
-                      <article className="parallel-cell col-latin">
-                        <span className="verse-number">{verse.verse}</span>
-                        <span className="cell-lang" aria-hidden="true">
-                          LA
-                        </span>
-                        <p className="verse latin-text" lang={LANG.latin}>
-                          {bindPunctuation(verse.latin || "—")}
-                        </p>
-                      </article>
+                      {visibleColumns.map((column) => {
+                        const text = column.text(verse);
+                        return (
+                          <article key={column.id} className="parallel-cell">
+                            <span className="verse-number">{verse.verse}</span>
+                            <span className="cell-lang" aria-hidden="true">
+                              {column.code}
+                            </span>
+                            {text ? (
+                              <p className={`verse ${column.textClass}`} lang={column.textLang}>
+                                {bindPunctuation(text)}
+                              </p>
+                            ) : (
+                              <p className="verse verse-missing">{column.missing ?? ui.missing}</p>
+                            )}
+                          </article>
+                        );
+                      })}
                     </div>
                   );
                 })}
@@ -412,28 +574,53 @@ function App() {
 
       <footer className="credits">
         <p>
-          Greek:{" "}
+          {ui.credits.greek}:{" "}
           <a href="https://github.com/Faithlife/SBLGNT">SBL Greek New Testament</a>, © 2010
-          Society of Biblical Literature and Logos Bible Software,{" "}
-          <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>; text-critical
-          signs removed.
+          Society of Biblical Literature {ui.credits.and} Logos Bible Software,{" "}
+          <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>;{" "}
+          {ui.credits.greekNote}.
         </p>
         <p>
-          Latin:{" "}
+          {ui.credits.latin}:{" "}
           <a href="https://github.com/BibleGet-I-O/Clementine-Vulgate">
             Clementine Vulgate Project
           </a>
-          , public domain; layout marks removed. Spanish:{" "}
+          , {ui.credits.publicDomain}; {ui.credits.latinNote}. {ui.credits.spanish}:{" "}
           <a href="https://es.wikisource.org/wiki/La_Sagrada_Biblia_(XIII)">
             Torres Amat, 1836
           </a>
-          , public domain. Polish:{" "}
-          <a href="https://pl.wikisource.org/wiki/Biblia_Wujka_(1923)">
-            Biblia Wujka, 1923 edition
-          </a>
-          , public domain.
+          , {ui.credits.publicDomain}. {ui.credits.polish}:{" "}
+          <a href="https://pl.wikisource.org/wiki/Biblia_Wujka_(1923)">Biblia Wujka, 1923</a>,{" "}
+          {ui.credits.publicDomain}.
         </p>
+        <img className="colophon" src={sello} alt="JB" width="72" height="72" />
       </footer>
+
+      <dialog
+        ref={guideRef}
+        className="guide"
+        aria-labelledby="guide-title"
+        onClick={(event) => {
+          // A click on the backdrop lands on the <dialog> itself.
+          if (event.target === guideRef.current) {
+            guideRef.current.close();
+          }
+        }}
+      >
+        <div className="guide-body">
+          <h2 id="guide-title">{ui.guideTitle}</h2>
+          <ul>
+            {ui.guideItems.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+          <form method="dialog">
+            <button type="submit" className="text-button">
+              {ui.close}
+            </button>
+          </form>
+        </div>
+      </dialog>
     </div>
   );
 }
