@@ -18,12 +18,18 @@ export function saveSettings(settings) {
   }
 }
 
+// The first of the browser's languages, in the reader's order of preference,
+// that has a translation here.
 function browserVernacular() {
   const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
-  const match = VERNACULARS.find((vernacular) =>
-    languages.some((language) => language?.toLowerCase().startsWith(vernacular.lang)),
-  );
-  return match?.id ?? FALLBACK_VERNACULAR;
+  for (const language of languages) {
+    const code = language?.toLowerCase().split("-")[0];
+    const match = VERNACULARS.find((vernacular) => vernacular.lang === code);
+    if (match) {
+      return match.id;
+    }
+  }
+  return FALLBACK_VERNACULAR;
 }
 
 // Stored settings are validated: an old or hand-edited value falls back to the default.
