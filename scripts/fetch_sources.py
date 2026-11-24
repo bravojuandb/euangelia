@@ -4,11 +4,11 @@ Usage: python3 scripts/fetch_sources.py [--dest DIR]
 
 Files are written to scripts/sources/ (not committed) as
 gr/<gospel>.txt, la/<gospel>.lat, es/<gospel>.json, pl/<gospel>.json,
-kjv/<gospel>.usfm and dra/<gospel>.usfm. GitHub files are pinned to a commit.
-Wikisource pages are rendered by the MediaWiki API from the current
-transcription, and eBible.org serves its current edition of each English
-Bible, so both can change; build_data.py stops if a correction or the verse
-numbering no longer matches.
+fr/<gospel>.json, it/<gospel>.json, kjv/<gospel>.usfm and dra/<gospel>.usfm.
+GitHub files are pinned to a commit. Wikisource pages are rendered by the
+MediaWiki API from the current transcription, and eBible.org and Parola Viva
+serve their current editions, so these can change; build_data.py stops if a
+correction or the verse numbering no longer matches.
 """
 
 import argparse
@@ -38,6 +38,10 @@ CLEMENTINE = (
 KJV_ZIP = "https://ebible.org/Scriptures/eng-kjv_usfm.zip"
 DRA_ZIP = "https://ebible.org/Scriptures/engDRA_usfm.zip"
 
+# Antonio Martini's Italian translation, one JSON file per chapter, from
+# Parola Viva's open data (https://parolaviva.art/opendata).
+MARTINI = "https://parolaviva.art/api/v1/bibbia/{}/{}.json"
+
 SOURCES = {
     "matthew": {
         "greek": "Matt",
@@ -46,6 +50,8 @@ SOURCES = {
         "latin": "Mt",
         "spanish": "La Sagrada Biblia (XIII)/Mateo",
         "polish": "Biblia Wujka (1923)/Ewangelia wg św. Mateusza (całość)",
+        "french": "Bible Crampon 1923/Matthieu",
+        "italian": ("mt", 28),
     },
     "mark": {
         "greek": "Mark",
@@ -54,6 +60,8 @@ SOURCES = {
         "latin": "Mc",
         "spanish": "La Sagrada Biblia (XIII)/Marcos",
         "polish": "Biblia Wujka (1923)/Ewangelia wg św. Marka (całość)",
+        "french": "Bible Crampon 1923/Marc",
+        "italian": ("mc", 16),
     },
     "luke": {
         "greek": "Luke",
@@ -62,6 +70,8 @@ SOURCES = {
         "latin": "Lc",
         "spanish": "La Sagrada Biblia (XIII)/Lucas",
         "polish": "Biblia Wujka (1923)/Ewangelia wg św. Łukasza (całość)",
+        "french": "Bible Crampon 1923/Luc",
+        "italian": ("lc", 24),
     },
     "john": {
         "greek": "John",
@@ -70,6 +80,8 @@ SOURCES = {
         "latin": "Jo",
         "spanish": "La Sagrada Biblia (XIII)/Juan",
         "polish": "Biblia Wujka (1923)/Ewangelia wg św. Jana (całość)",
+        "french": "Bible Crampon 1923/Jean",
+        "italian": ("gv", 21),
     },
 }
 
@@ -100,13 +112,22 @@ def wikisource_page(language, title):
     return body
 
 
+def martini_book(book, chapters):
+    """Parola Viva's chapter files of one book, as one JSON list."""
+    files = []
+    for chapter in range(1, chapters + 1):
+        files.append(json.loads(get(MARTINI.format(book, chapter))))
+        time.sleep(1)  # one small file a second
+    return json.dumps(files, ensure_ascii=False).encode("utf-8")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--dest", type=pathlib.Path,
                         default=pathlib.Path(__file__).resolve().parent / "sources")
     args = parser.parse_args()
 
-    for folder in ("gr", "la", "es", "pl", "kjv", "dra"):
+    for folder in ("gr", "la", "es", "pl", "fr", "it", "kjv", "dra"):
         (args.dest / folder).mkdir(parents=True, exist_ok=True)
 
     print("King James Version and Douay-Rheims (eBible.org)")
@@ -116,13 +137,15 @@ def main():
     }
 
     for gospel, source in SOURCES.items():
-        print(f"{gospel}: Greek, Latin, Spanish, Polish, English")
+        print(f"{gospel}: Greek, Latin, Spanish, Polish, French, Italian, English")
         for folder, archive in english.items():
             (args.dest / folder / f"{gospel}.usfm").write_bytes(archive.read(source[folder]))
         (args.dest / "gr" / f"{gospel}.txt").write_bytes(get(SBLGNT.format(source["greek"])))
         (args.dest / "la" / f"{gospel}.lat").write_bytes(get(CLEMENTINE.format(source["latin"])))
         (args.dest / "es" / f"{gospel}.json").write_bytes(wikisource_page("es", source["spanish"]))
         (args.dest / "pl" / f"{gospel}.json").write_bytes(wikisource_page("pl", source["polish"]))
+        (args.dest / "fr" / f"{gospel}.json").write_bytes(wikisource_page("fr", source["french"]))
+        (args.dest / "it" / f"{gospel}.json").write_bytes(martini_book(*source["italian"]))
     print(f"sources written to {args.dest}")
 
 

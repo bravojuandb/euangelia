@@ -695,6 +695,11 @@
     margin-top: 14px;
   }
 
+  /* Tighter spacing keeps long labels ("Dimensione testo") on one line. */
+  .setting-label {
+    letter-spacing: 0.14em;
+  }
+
   /* Each group spans the width; the underline stays the width of its word. */
   .segmented {
     display: flex;
