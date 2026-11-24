@@ -2,9 +2,9 @@
 
 A parallel reader for the Gospels: a vernacular translation, the Greek text and the Latin text side by side, verse by verse.
 
-The four Gospels are available, complete, in Greek, Latin, Spanish, Polish and English (two translations: the King James Version and the Douay-Rheims).
+The four Gospels are available, complete, in Greek, Latin, Spanish, French, Italian, Polish and English (two translations: the King James Version and the Douay-Rheims).
 
-The interface follows the language of the chosen translation (Spanish, English or Polish); a browser in another language gets English, in the King James Version.
+The interface follows the language of the chosen translation (Spanish, English, French, Italian or Polish); a browser in another language gets English, in the King James Version.
 
 ## Development
 
@@ -18,7 +18,7 @@ npm run lint
 The texts live in `public/data/<gospel>/`, one file per text, so the reader downloads only the columns it shows:
 
 - `verses.json`: the verses in reading order, as `[chapter, verse]` pairs: `[[1, 1], [1, 2], …]`
-- `greek.json`, `latin.json`, and one file per translation, named by its id in [src/config.js](src/config.js) (`torres-amat.json`, `wujek.json`, `kjv.json`, `douay-rheims.json`): one string per verse, in the same order; `""` where that text lacks the verse
+- `greek.json`, `latin.json`, and one file per translation, named by its id in [src/config.js](src/config.js) (`torres-amat.json`, `wujek.json`, `crampon.json`, `martini.json`, `kjv.json`, `douay-rheims.json`): one string per verse, in the same order; `""` where that text lacks the verse
 
 A language can have several translations: each is an entry in `VERNACULARS` in [src/config.js](src/config.js), and its description for the reading guide goes under `about` in [src/i18n.js](src/i18n.js).
 
@@ -32,7 +32,7 @@ python3 scripts/build_data.py --check   # report: renumbering, gaps, length outl
 python3 scripts/build_data.py           # write public/data/<gospel>/*.json
 ```
 
-The GitHub sources are pinned to a commit; the Wikisource pages and the eBible.org English Bibles are fetched as currently published. Every re-numbering and correction described below is listed per book in [scripts/build_data.py](scripts/build_data.py), and the build stops if one no longer matches the text.
+The GitHub sources are pinned to a commit; the Wikisource pages, the eBible.org English Bibles and Parola Viva's Italian text are fetched as currently published. Every re-numbering and correction described below is listed per book in [scripts/build_data.py](scripts/build_data.py), and the build stops if one no longer matches the text.
 
 ## Text sources
 
@@ -42,6 +42,8 @@ The GitHub sources are pinned to a commit; the Wikisource pages and the eBible.o
 | Latin   | Clementine Vulgate (1592), Clementine Vulgate Project text, digitized by Michael Tweedale | [BibleGet-I-O/Clementine-Vulgate](https://github.com/BibleGet-I-O/Clementine-Vulgate) (`src/utf8/{Mt,Mc,Lc,Jo}.lat`) | Public domain |
 | Spanish | La Sagrada Biblia, tr. Félix Torres Amat, vol. XIII (1836) | [es.wikisource.org](https://es.wikisource.org/wiki/La_Sagrada_Biblia_(XIII)) | Public domain |
 | Polish  | Biblia Wujka, 1923 edition | [pl.wikisource.org](https://pl.wikisource.org/wiki/Biblia_Wujka_(1923)) | Public domain |
+| French  | La Sainte Bible, tr. Augustin Crampon, revised edition of 1923 | [fr.wikisource.org](https://fr.wikisource.org/wiki/Bible_Crampon_1923) | Public domain |
+| Italian | La Sacra Bibbia, tr. Antonio Martini (1769–1781) | [Parola Viva open data](https://parolaviva.art/opendata) (`/api/v1/bibbia/{mt,mc,lc,gv}/<chapter>.json`), by Giovanni Novelli | Text in the public domain; Parola Viva's data [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | English | King James Version (1611), standard text of 1769 | [eBible.org](https://ebible.org/find/details.php?id=eng-kjv) (`eng-kjv_usfm.zip`) | Public domain (outside the UK, where printing it is under Crown letters patent) |
 | English | Douay-Rheims, Challoner revision (1749–1752), American edition of 1899 | [eBible.org](https://ebible.org/find/details.php?id=engDRA) (`engDRA_usfm.zip`) | Public domain |
 
@@ -53,9 +55,13 @@ The Spanish text is the Wikisource transcription of the 1836 edition, with its o
 
 The Polish text is kept as transcribed on Wikisource, including the 1923 orthography (e.g. *jéj*, *woléj*). Where Wikisource marks a misprint, the corrected form is used. Chapter numbers are taken from the sequence of verses, since a few anchors carry the previous chapter's number.
 
+The French text is the Wikisource transcription of the 1923 Crampon, with its notes and section headings left out. It follows the Greek verse numbering, except that, like the Vulgate, it joins Matthew 17:14–15 and Mark 4:40–41, divides Matthew 17:27 in two and numbers Mark 9:1 as 8:39; these are re-keyed.
+
+The Italian text is Parola Viva's digital edition of Martini, which follows the Vulgate numbering. Five reading slips are corrected (`|oro`, `accontarono`, `l'Angolo`, `Silone`, `parificarsi`), and the sentence the Greek numbers John 11:57 is missing from it.
+
 The English texts are the eBible.org USFM editions. Their markup is removed: Strong's numbers, the paragraph signs (¶), and the styles for words in italics (added by the translators), words of Jesus and LORD are kept as plain text. The KJV was translated from the Greek Textus Receptus, so in places it has words the SBLGNT omits (e.g. Matthew 27:35, Luke 9:55–56). The Douay-Rheims was translated from the Latin Vulgate and follows it closely.
 
-Rows follow the Greek verse numbering, which the KJV shares. The Latin, Spanish and Douay-Rheims texts use the Vulgate numbering and are re-keyed where it differs:
+Rows follow the Greek verse numbering, which the KJV shares. The Latin, Spanish, Douay-Rheims and Italian texts use the Vulgate numbering and are re-keyed where it differs:
 
 - Matthew 17:14 is split into 17:14–15 (17:15–26 become 17:16–27).
 - Mark 4:40 is split into 4:40–41, and Mark 8:39 becomes 9:1 (9:1–49 become 9:2–50; the Polish text follows the Vulgate here too).

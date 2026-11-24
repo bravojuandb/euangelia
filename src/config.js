@@ -25,6 +25,8 @@ export const VERNACULARS = [
     note: "Douay-Rheims, 1899",
     lang: "en",
   },
+  { id: "crampon", label: "Français", note: "Crampon, 1923", lang: "fr" },
+  { id: "martini", label: "Italiano", note: "Martini, 1769–1781", lang: "it" },
   { id: "wujek", label: "Polski", note: "Biblia Wujka, 1923", lang: "pl" },
 ];
 

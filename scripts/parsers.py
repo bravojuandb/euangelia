@@ -95,6 +95,67 @@ def parse_usfm(text):
     return verses
 
 
+# --- Bible Crampon (1923), fr.wikisource -------------------------------------
+
+
+def parse_crampon(page_html):
+    """Rendered Wikisource HTML of a book of the Bible Crampon (1923).
+
+    Each verse opens with <span id="C-V"> holding its number. The text runs
+    to the next verse, or to a chapter number, a section heading or the
+    notes, whichever comes first. Footnote calls are dropped; the drop cap
+    that opens a chapter is joined to the rest of its word.
+    """
+    t = page_html
+    i = t.find('<ol class="references"')
+    if i != -1:
+        t = t[:i]
+    t = re.sub(r'<sup[^>]*class="reference"[^>]*>.*?</sup>', "", t, flags=re.S)
+    t = re.sub(r'<sup class="verset-num".*?</sup>', "", t, flags=re.S)
+    t = re.sub(r'<span[^>]*class="pagenum[^"]*"[^>]*>.*?</span>', "", t, flags=re.S)
+
+    marker_re = re.compile(r'<span id="(\d+)-(\d+)">')
+    stop_re = re.compile(r'<span id="CH\d+"|<div style="margin-left|<div class="alinea|<h[1-6]\b')
+
+    marks = list(marker_re.finditer(t))
+    verses = {}
+    for idx, m in enumerate(marks):
+        end = marks[idx + 1].start() if idx + 1 < len(marks) else len(t)
+        segment = t[m.end():end]
+        stop = stop_re.search(segment)
+        if stop:
+            segment = segment[: stop.start()]
+        text = re.sub(r"</?(?:p|div|br|li|dd|dt)\b[^>]*>", " ", segment)
+        text = re.sub(r"<[^>]+>", "", text)
+        text = html.unescape(text).replace(NBSP, " ").replace(" ", " ")
+        text = re.sub(r"\s+", " ", text).strip()
+        # The drop cap and the rest of its word are separate blocks: "A u".
+        text = re.sub(r"^([A-ZÀ-Ý]) (?=[a-zà-ÿ])", r"\1", text)
+        # French spacing around «» ; : ! ? is kept, as printed.
+        key = _key(int(m.group(1)), int(m.group(2)))
+        if key in verses:
+            raise ValueError(f"duplicate verse {key}")
+        verses[key] = unicodedata.normalize("NFC", text)
+    return verses
+
+
+# --- Antonio Martini (1769-1781), Parola Viva open data ---------------------
+
+
+def parse_martini(chapters):
+    """Parola Viva's chapter files for one book: a list of
+    {"c": chapter, "v": [{"n": verse, "t": text}, …]}."""
+    verses = {}
+    for chapter in chapters:
+        for verse in chapter["v"]:
+            key = _key(int(chapter["c"]), int(verse["n"]))
+            if key in verses:
+                raise ValueError(f"duplicate verse {key}")
+            text = re.sub(r"\s+", " ", verse["t"]).strip()
+            verses[key] = unicodedata.normalize("NFC", text)
+    return verses
+
+
 # --- Torres Amat (1836), es.wikisource --------------------------------------
 
 

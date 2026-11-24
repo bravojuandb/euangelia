@@ -621,7 +621,14 @@ function App() {
           </a>
           , {ui.credits.publicDomain}. {ui.credits.polish}:{" "}
           <a href="https://pl.wikisource.org/wiki/Biblia_Wujka_(1923)">Biblia Wujka, 1923</a>,{" "}
-          {ui.credits.publicDomain}. {ui.credits.english}:{" "}
+          {ui.credits.publicDomain}. {ui.credits.french}:{" "}
+          <a href="https://fr.wikisource.org/wiki/Bible_Crampon_1923">Bible Crampon, 1923</a>,{" "}
+          {ui.credits.publicDomain}. {ui.credits.italian}:{" "}
+          <a href="https://parolaviva.art/bibbia">Bibbia Martini, 1769–1781</a>,{" "}
+          {ui.credits.publicDomain}; {ui.credits.digitalText}{" "}
+          <a href="https://parolaviva.art/opendata">Parola Viva</a> (Giovanni Novelli),{" "}
+          <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.{" "}
+          {ui.credits.english}:{" "}
           <a href="https://ebible.org/find/details.php?id=eng-kjv">
             King James Version, 1769
           </a>{" "}

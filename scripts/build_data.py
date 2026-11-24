@@ -5,7 +5,8 @@ Usage: python3 scripts/build_data.py [--sources DIR] [--out DIR] [--check]
 Run scripts/fetch_sources.py first. Rows follow the Greek (modern) verse
 numbering, which the King James Version already uses; each other source is
 re-keyed to it with the operations listed per book, written in the source's
-own numbering (the Douay-Rheims follows the Vulgate's, like the Latin):
+own numbering (the Douay-Rheims and Martini follow the Vulgate's, like the
+Latin, and so does the Crampon in Mark):
 
   ("merge", c, a, b)      verses c:a..c:b form one verse c:a; later verses move up
   ("split", c, v, marks)  verse c:v is cut where marks[source] begins; later verses move down
@@ -13,9 +14,9 @@ own numbering (the Douay-Rheims follows the Vulgate's, like the Latin):
 
 Each Gospel gets a folder with verses.json, the list of [chapter, verse] in
 reading order, and one file per text, named after it (greek.json, latin.json,
-torres-amat.json, wujek.json, kjv.json, douay-rheims.json): a list of strings
-in the same order, "" where a text lacks the verse. The reader downloads only
-the texts it shows.
+torres-amat.json, wujek.json, crampon.json, martini.json, kjv.json,
+douay-rheims.json): a list of strings in the same order, "" where a text
+lacks the verse. The reader downloads only the texts it shows.
 
 The script stops if a correction or a split mark no longer matches the text
 exactly once. --check prints the report without writing files; it includes a
@@ -33,6 +34,8 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from parsers import (  # noqa: E402
     parse_clementine,
+    parse_crampon,
+    parse_martini,
     parse_sblgnt,
     parse_torres_amat,
     parse_usfm,
@@ -45,6 +48,12 @@ BOOKS = {
     "matthew": {
         "vulgate_ops": [("split", 17, 14, {"latin": "dicens : Domine", "spanish": "le dijo: Señor"})],
         "douay_ops": [("split", 17, 14, {"douay": "saying: Lord"})],
+        "martini_ops": [("split", 17, 14, {"martini": "dicendo: Signore"})],
+        # This edition joins 17:14-15 as the Vulgate does, and divides 17:27 in two.
+        "crampon_ops": [
+            ("split", 17, 14, {"crampon": "il lui dit : « Seigneur"}),
+            ("merge", 17, 26, 27),
+        ],
         "polish_ops": [],
         # The 1836 printing skips from 14:11 "...en una fuente," to 14:13.
         "spanish_missing": ["14:12"],
@@ -59,6 +68,13 @@ BOOKS = {
             "26:35": [("discípulos..", "discípulos.")],
         },
         "polish_fixes": {},
+        "martini_missing": [],
+        # Reading slips in the digital text, in the Vulgate numbering.
+        "martini_fixes": {
+            "17:23": [("accontarono", "accostarono")],
+            "19:13": [("|oro", "loro")],
+            "28:2": [("l'Angolo", "l'Angelo")],
+        },
     },
     "mark": {
         "vulgate_ops": [
@@ -66,6 +82,8 @@ BOOKS = {
             ("to_next", 8),
         ],
         "douay_ops": [("split", 4, 40, {"douay": "And they feared exceedingly"}), ("to_next", 8)],
+        "martini_ops": [("split", 4, 40, {"martini": "Ed essi furono ripieni"}), ("to_next", 8)],
+        "crampon_ops": [("split", 4, 40, {"crampon": "Et ils furent saisis"}), ("to_next", 8)],
         "polish_ops": [("to_next", 8)],
         "spanish_missing": [],
         "spanish_fixes": {
@@ -74,10 +92,14 @@ BOOKS = {
             "13:2": [("mag- níficos", "magníficos")],
         },
         "polish_fixes": {},
+        "martini_missing": [],
+        "martini_fixes": {},
     },
     "luke": {
         "vulgate_ops": [],
         "douay_ops": [],
+        "martini_ops": [],
+        "crampon_ops": [],
         # The Wikisource transcription of Wujek splits three verses in two.
         "polish_ops": [("merge", 3, 28, 29), ("merge", 4, 42, 43), ("merge", 19, 47, 48)],
         "spanish_missing": [],
@@ -89,6 +111,8 @@ BOOKS = {
             "9:3": [("defenderos'", "defenderos")],
         },
         "polish_fixes": {"12:57": [("57 Przeczże", "Przeczże")]},
+        "martini_missing": [],
+        "martini_fixes": {"10:13": [("Silone", "Sidone")]},
     },
     "john": {
         "vulgate_ops": [
@@ -97,6 +121,8 @@ BOOKS = {
         ],
         # This edition already divides 11:56-57 as the Greek does.
         "douay_ops": [("merge", 6, 51, 52)],
+        "martini_ops": [("merge", 6, 51, 52)],
+        "crampon_ops": [],
         "polish_ops": [],
         "spanish_missing": [],
         "spanish_fixes": {
@@ -112,11 +138,24 @@ BOOKS = {
             "18:27": [("y a] punto", "y al punto")],
         },
         "polish_fixes": {},
+        # Parola Viva's text ends 11:56 at "…alla festa?": the sentence the
+        # Greek numbers 11:57 is missing.
+        "martini_missing": ["11:57"],
+        "martini_fixes": {"11:55": [("parificarsi", "purificarsi")]},
     },
 }
 
 # The texts written for each Gospel, named as the reader asks for them.
-TEXT_FIELDS = ("greek", "latin", "torres-amat", "wujek", "kjv", "douay-rheims")
+TEXT_FIELDS = (
+    "greek",
+    "latin",
+    "torres-amat",
+    "wujek",
+    "crampon",
+    "martini",
+    "kjv",
+    "douay-rheims",
+)
 
 # The 1836 edition closes some paragraphs with a dash after the last verse.
 TRAILING_DASH = re.compile(r"\s*—$")
@@ -195,12 +234,28 @@ def build(gospel, cfg, sources):
     polish = apply_fixes(polish, cfg["polish_fixes"], "polish")
     polish = apply_ops(polish, cfg["polish_ops"], "polish")
 
+    french = parse_crampon(wikisource_html(sources / "fr" / f"{gospel}.json"))
+    french = apply_ops(french, cfg["crampon_ops"], "crampon")
+
+    italian = parse_martini(json.loads((sources / "it" / f"{gospel}.json").read_text(encoding="utf-8")))
+    italian = apply_fixes(italian, cfg["martini_fixes"], "martini")
+    italian = apply_ops(italian, cfg["martini_ops"], "martini")
+    for k in cfg["martini_missing"]:
+        italian[k] = ""
+
     kjv = parse_usfm((sources / "kjv" / f"{gospel}.usfm").read_text(encoding="utf-8-sig"))
     douay = parse_usfm((sources / "dra" / f"{gospel}.usfm").read_text(encoding="utf-8-sig"))
     douay = apply_ops(douay, cfg["douay_ops"], "douay")
 
     # Every source must cover the same verses, except those the Greek omits.
-    named = (("spanish", spanish), ("polish", polish), ("kjv", kjv), ("douay", douay))
+    named = (
+        ("spanish", spanish),
+        ("polish", polish),
+        ("french", french),
+        ("italian", italian),
+        ("kjv", kjv),
+        ("douay", douay),
+    )
     for name, texts in named:
         if set(texts) != set(latin):
             missing = sorted(set(latin) - set(texts), key=split_key)[:8]
@@ -219,6 +274,8 @@ def build(gospel, cfg, sources):
             "latin": latin[k],
             "torres-amat": spanish[k],
             "wujek": polish[k],
+            "crampon": french[k],
+            "martini": italian[k],
             "kjv": kjv[k],
             "douay-rheims": douay[k],
         })
@@ -242,6 +299,8 @@ def length_outliers(rows):
         ("latin", "greek"),
         ("torres-amat", "latin"),
         ("wujek", "latin"),
+        ("crampon", "greek"),
+        ("martini", "latin"),
         ("kjv", "greek"),
         ("douay-rheims", "latin"),
     )
