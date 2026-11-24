@@ -1,4 +1,4 @@
-"""Build public/data/<gospel>.json from the downloaded sources.
+"""Build public/data/<gospel>/ from the downloaded sources.
 
 Usage: python3 scripts/build_data.py [--sources DIR] [--out DIR] [--check]
 
@@ -10,6 +10,11 @@ own numbering:
   ("merge", c, a, b)      verses c:a..c:b form one verse c:a; later verses move up
   ("split", c, v, marks)  verse c:v is cut where marks[source] begins; later verses move down
   ("to_next", c)          the last verse of chapter c becomes (c+1):1
+
+Each Gospel gets a folder with verses.json, the list of [chapter, verse] in
+reading order, and one file per text (greek.json, latin.json, spanish.json,
+polski.json, english.json): a list of strings in the same order, "" where a
+text lacks the verse. The reader downloads only the texts it shows.
 
 The script stops if a correction or a split mark no longer matches the text
 exactly once. --check prints the report without writing files; it includes a
@@ -37,7 +42,6 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 BOOKS = {
     "matthew": {
-        "name": "Matthew",
         "vulgate_ops": [("split", 17, 14, {"latin": "dicens : Domine", "spanish": "le dijo: Señor"})],
         "polish_ops": [],
         # The 1836 printing skips from 14:11 "...en una fuente," to 14:13.
@@ -55,7 +59,6 @@ BOOKS = {
         "polish_fixes": {},
     },
     "mark": {
-        "name": "Mark",
         "vulgate_ops": [
             ("split", 4, 40, {"latin": "et timuerunt", "spanish": "Y quedaron sobrecogidos"}),
             ("to_next", 8),
@@ -70,7 +73,6 @@ BOOKS = {
         "polish_fixes": {},
     },
     "luke": {
-        "name": "Luke",
         "vulgate_ops": [],
         # The Wikisource transcription of Wujek splits three verses in two.
         "polish_ops": [("merge", 3, 28, 29), ("merge", 4, 42, 43), ("merge", 19, 47, 48)],
@@ -85,7 +87,6 @@ BOOKS = {
         "polish_fixes": {"12:57": [("57 Przeczże", "Przeczże")]},
     },
     "john": {
-        "name": "John",
         "vulgate_ops": [
             ("merge", 6, 51, 52),
             ("split", 11, 56, {"latin": "Dederant autem pontifices", "spanish": "Pero los pontífices"}),
@@ -107,6 +108,9 @@ BOOKS = {
         "polish_fixes": {},
     },
 }
+
+# The texts written for each Gospel, named as the reader asks for them.
+TEXT_FIELDS = ("greek", "latin", "spanish", "polski", "english")
 
 # The 1836 edition closes some paragraphs with a dash after the last verse.
 TRAILING_DASH = re.compile(r"\s*—$")
@@ -200,7 +204,6 @@ def build(gospel, cfg, sources):
     for k in sorted(latin, key=split_key):
         chapter, verse = split_key(k)
         rows.append({
-            "book": cfg["name"],
             "chapter": chapter,
             "verse": verse,
             "greek": greek.get(k, ""),
@@ -236,6 +239,18 @@ def length_outliers(rows):
     return flagged
 
 
+def write_gospel(rows, folder):
+    """Writes verses.json and one file per text, one entry per line."""
+    folder.mkdir(parents=True, exist_ok=True)
+    pairs = ",\n".join(json.dumps([row["chapter"], row["verse"]]) for row in rows)
+    (folder / "verses.json").write_text(f"[\n{pairs}\n]\n", encoding="utf-8")
+    for field in TEXT_FIELDS:
+        texts = [row[field] for row in rows]
+        (folder / f"{field}.json").write_text(
+            json.dumps(texts, ensure_ascii=False, indent=0) + "\n", encoding="utf-8"
+        )
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     here = pathlib.Path(__file__).resolve().parent
@@ -249,9 +264,9 @@ def main():
         if args.check:
             print("\n".join(report))
         else:
-            path = args.out / f"{gospel}.json"
-            path.write_text(json.dumps(rows, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-            print(f"{report[0]} -> {path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}")
+            folder = args.out / gospel
+            write_gospel(rows, folder)
+            print(f"{report[0]} -> {folder.relative_to(ROOT) if folder.is_relative_to(ROOT) else folder}/")
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ import {
   LANG,
   VERNACULARS,
 } from "./config.js";
+import { useGospelData } from "./data.js";
 import { UI } from "./i18n.js";
 import { loadSettings, parseLocation, saveSettings, writeLocation } from "./settings.js";
 import {
@@ -95,7 +96,6 @@ function App() {
   const [columns, setColumns] = useState(initial.columns);
   const [fontScale, setFontScale] = useState(initial.fontScale);
   const [welcomed, setWelcomed] = useState(initial.welcomed);
-  const [loaded, setLoaded] = useState({ gospel: null, verses: NO_VERSES, error: null });
   const [target, setTarget] = useState(initial.place?.verse ? initial.place : null);
   const [reference, setReference] = useState("");
   const [referenceError, setReferenceError] = useState("");
@@ -111,42 +111,28 @@ function App() {
   );
   const ui = UI[currentVernacular.lang];
   const gospelName = ui.gospels[selectedGospel];
-  const isLoading = loaded.gospel !== selectedGospel;
-  const verses = isLoading ? NO_VERSES : loaded.verses;
 
-  useEffect(() => {
-    let cancelled = false;
-    fetch(`${import.meta.env.BASE_URL}data/${selectedGospel}.json`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (!cancelled) {
-          setLoaded({ gospel: selectedGospel, verses: data, error: null });
-        }
-      })
-      .catch((error) => {
-        if (!cancelled) {
-          setLoaded({ gospel: selectedGospel, verses: NO_VERSES, error });
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedGospel]);
+  // Only the texts of the visible columns are downloaded. Greek and Latin
+  // columns are named after their files; the vernacular column reads the
+  // selected translation.
+  const textNames = columns.map((id) => (id === "vernacular" ? currentVernacular.field : id));
+  const data = useGospelData(selectedGospel, textNames);
+  // While a newly chosen translation loads, the column keeps the one it had.
+  const shownVernacular = data.text(currentVernacular.field)
+    ? currentVernacular
+    : VERNACULARS.find((vernacular) => data.text(vernacular.field));
+  const allTextsShown = Boolean(data.verses) && textNames.every((name) => data.text(name));
 
-  // Jump to the place named in the address once the text is on the page.
+  // Jump to the place named in the address once its text is on the page.
   useEffect(() => {
     const place = pendingPlaceRef.current;
-    if (isLoading || !place) {
+    if (!allTextsShown || !place) {
       return;
     }
     pendingPlaceRef.current = null;
     scrollToPlace(place.chapter, place.verse, "auto");
-  }, [isLoading]);
+    // The Gospel is a dependency too: one already loaded is ready at once.
+  }, [allTextsShown, selectedGospel]);
 
   // An address edited by hand, or back/forward between shared links.
   useEffect(() => {
@@ -198,7 +184,8 @@ function App() {
 
   const chapterGroups = useMemo(() => {
     const groups = [];
-    for (const verse of verses) {
+    for (const [index, [chapter, number]] of (data.verses ?? NO_VERSES).entries()) {
+      const verse = { chapter, verse: number, index };
       const last = groups[groups.length - 1];
       if (last?.chapter === verse.chapter) {
         last.verses.push(verse);
@@ -207,7 +194,7 @@ function App() {
       }
     }
     return groups;
-  }, [verses]);
+  }, [data.verses]);
 
   const chapters = useMemo(() => chapterGroups.map((group) => group.chapter), [chapterGroups]);
   const currentChapter = useCurrentChapter(chapters, navRef);
@@ -224,16 +211,16 @@ function App() {
 
   const columnDefs = {
     vernacular: {
-      textLang: currentVernacular.lang,
+      textLang: shownVernacular?.lang,
       textClass: "vernacular-text",
-      text: (verse) => verse[currentVernacular.field],
+      texts: shownVernacular ? data.text(shownVernacular.field) : null,
       dividerLang: currentVernacular.lang,
       divider: (chapter) => `${ui.chapter} ${chapter}`,
     },
     greek: {
       textLang: LANG.greekText,
       textClass: "greek-text",
-      text: (verse) => verse.greek,
+      texts: data.text("greek"),
       missing: ui.missingGreek,
       dividerLang: LANG.greekCaps,
       divider: (chapter) => `${CHAPTER_LABELS.greek} ${toGreekNumeral(chapter)}`,
@@ -241,12 +228,16 @@ function App() {
     latin: {
       textLang: LANG.latin,
       textClass: "latin-text",
-      text: (verse) => verse.latin,
+      texts: data.text("latin"),
       dividerLang: LANG.latin,
       divider: (chapter) => `${CHAPTER_LABELS.latin} ${toRomanNumeral(chapter)}`,
     },
   };
-  const visibleColumns = columns.map((id) => ({ id, ...ui.columns[id], ...columnDefs[id] }));
+  // A column just switched on appears once its text has arrived.
+  const visibleColumns = columns
+    .map((id) => ({ id, ...ui.columns[id], ...columnDefs[id] }))
+    .filter((column) => column.texts);
+  const isLoading = !data.error && visibleColumns.length === 0;
 
   function goTo(chapter, verse = null) {
     if (!scrollToPlace(chapter, verse)) {
@@ -506,10 +497,10 @@ function App() {
       </nav>
 
       <main className={`reader ${visibleColumns.length > 1 ? "is-multi" : "is-single"}`}>
-        {isLoading ? (
-          <p className="status-message">{ui.loading}</p>
-        ) : loaded.error ? (
+        {data.error ? (
           <p className="status-message">{ui.loadError}</p>
+        ) : isLoading ? (
+          <p className="status-message">{ui.loading}</p>
         ) : (
           <div className="parallel-reader" style={{ "--columns": visibleColumns.length }}>
             <div className="folio-rule" aria-hidden="true" />
@@ -546,7 +537,7 @@ function App() {
                       onClick={() => toggleVerse(verse)}
                     >
                       {visibleColumns.map((column) => {
-                        const text = column.text(verse);
+                        const text = column.texts[verse.index];
                         return (
                           <article key={column.id} className="parallel-cell">
                             <span className="verse-number">{verse.verse}</span>
