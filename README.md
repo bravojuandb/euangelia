@@ -15,11 +15,10 @@ npm run build   # production build in dist/
 npm run lint
 ```
 
-The texts live in `public/data/<gospel>.json`, one entry per verse:
+The texts live in `public/data/<gospel>/`, one file per text, so the reader downloads only the columns it shows:
 
-```json
-{ "book": "John", "chapter": 1, "verse": 1, "greek": "…", "latin": "…", "spanish": "…", "polski": "…", "english": "…" }
-```
+- `verses.json`: the verses in reading order, as `[chapter, verse]` pairs: `[[1, 1], [1, 2], …]`
+- `greek.json`, `latin.json`, `spanish.json`, `polski.json`, `english.json`: one string per verse, in the same order; `""` where that text lacks the verse
 
 ### Regenerating the data
 
@@ -28,7 +27,7 @@ The data files are built from the sources below with Python 3.9+ (standard libra
 ```sh
 python3 scripts/fetch_sources.py        # download into scripts/sources/ (not committed)
 python3 scripts/build_data.py --check   # report: renumbering, gaps, length outliers
-python3 scripts/build_data.py           # write public/data/*.json
+python3 scripts/build_data.py           # write public/data/<gospel>/*.json
 ```
 
 The GitHub sources are pinned to a commit; the Wikisource pages and the eBible.org KJV are fetched as currently published. Every re-numbering and correction described below is listed per book in [scripts/build_data.py](scripts/build_data.py), and the build stops if one no longer matches the text.
