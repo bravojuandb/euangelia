@@ -7,7 +7,6 @@
   --rule: rgba(84, 65, 38, 0.28);
   --rubric: #b53520;
   --control-text: #5f4b33;
-  --control-bg: rgba(249, 242, 226, 0.78);
   --control-hover: rgba(239, 224, 190, 0.6);
   --control-border: rgba(137, 111, 73, 0.32);
   --active-bg: linear-gradient(180deg, #efe0be 0%, #e3d0aa 100%);
@@ -96,15 +95,12 @@
   color: var(--muted);
 }
 
-/* Segmented controls (gospel, translation, columns, text size) */
+/* Segmented controls (gospel, translation, columns, text size): plain words;
+   the chosen one is darker and underlined in red, like a rubric. */
 
 .segmented {
   display: inline-flex;
-  border: 1px solid var(--control-border);
-  background: var(--control-bg);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 250, 241, 0.9),
-    0 6px 16px rgba(141, 106, 57, 0.06);
+  gap: 4px;
 }
 
 .segment {
@@ -112,23 +108,22 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 44px;
-  min-height: 42px;
-  padding: 6px 14px;
+  box-sizing: border-box;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 4px 10px;
   border: 0;
-  border-left: 1px solid var(--control-border);
+  border-bottom: 1px solid transparent;
   background: transparent;
-  color: var(--control-text);
+  color: var(--muted);
   font: inherit;
   font-size: 0.95rem;
   line-height: 1.1;
   letter-spacing: 0.03em;
   cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.segment:first-child {
-  border-left: 0;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
 }
 
 /* A language with several translations: the whole button opens a menu of
@@ -208,14 +203,13 @@
 }
 
 .segment:hover:not(:disabled) {
-  background: var(--control-hover);
+  color: var(--ink-strong);
 }
 
 .segment[aria-pressed="true"],
 .segment.is-current {
-  background: var(--active-bg);
   color: var(--ink-strong);
-  box-shadow: inset 0 0 0 1px var(--active-border);
+  border-bottom-color: var(--rubric);
 }
 
 .segment:disabled {
@@ -242,17 +236,20 @@
 
 .text-button {
   min-height: 40px;
-  padding: 0 16px;
-  border: 1px solid var(--control-border);
-  background: var(--control-bg);
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
   color: var(--ink-strong);
   font: inherit;
   font-size: 0.95rem;
+  text-decoration: underline;
+  text-decoration-color: var(--control-border);
+  text-underline-offset: 4px;
   cursor: pointer;
 }
 
 .text-button:hover {
-  background: var(--control-hover);
+  text-decoration-color: var(--rubric);
 }
 
 /* First visit */
@@ -342,7 +339,7 @@
   display: flex;
   flex: 1 1 auto;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 2px;
   min-width: 0;
   padding: 3px;
   scrollbar-width: none;
@@ -356,27 +353,33 @@
 .reference-submit {
   flex: 0 0 auto;
   box-sizing: border-box;
-  min-width: 40px;
+  min-width: 36px;
   height: 40px;
-  padding: 0 10px;
-  border: 1px solid var(--control-border);
-  background: var(--control-bg);
-  color: var(--control-text);
+  padding: 0 8px;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
   font: inherit;
   font-size: 1rem;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .chapter-chip:hover,
 .reference-submit:hover {
-  background: var(--control-hover);
+  color: var(--ink-strong);
 }
 
 .chapter-chip[aria-current="true"] {
-  background: var(--active-bg);
-  border-color: var(--active-border);
+  border-bottom-color: var(--rubric);
   color: var(--ink-strong);
+}
+
+.reference-submit {
+  color: var(--control-text);
 }
 
 .reference-form {
@@ -391,9 +394,10 @@
 .reference-input {
   width: 96px;
   height: 40px;
-  padding: 0 10px;
-  border: 1px solid var(--control-border);
-  background: rgba(255, 251, 240, 0.75);
+  padding: 0 4px;
+  border: 0;
+  border-bottom: 1px solid var(--control-border);
+  background: transparent;
   color: var(--ink-strong);
   font: inherit;
   font-size: 1rem;
@@ -405,7 +409,7 @@
 }
 
 .reference-input[aria-invalid="true"] {
-  border-color: var(--rubric);
+  border-bottom-color: var(--rubric);
 }
 
 .reference-error {
@@ -691,15 +695,17 @@
     margin-top: 14px;
   }
 
+  /* Each group spans the width; the underline stays the width of its word. */
   .segmented {
     display: flex;
+    justify-content: space-around;
     width: 100%;
   }
 
   .segmented .segment {
-    flex: 1 1 0;
+    flex: 0 1 auto;
     min-width: 0;
-    padding: 6px 4px;
+    padding: 6px 6px;
     font-size: 0.9rem;
   }
 
