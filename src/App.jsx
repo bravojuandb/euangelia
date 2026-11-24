@@ -7,6 +7,7 @@ import {
   FONT_SCALES,
   GOSPELS,
   LANG,
+  VERNACULAR_LANGUAGES,
   VERNACULARS,
 } from "./config.js";
 import { useGospelData } from "./data.js";
@@ -115,12 +116,12 @@ function App() {
   // Only the texts of the visible columns are downloaded. Greek and Latin
   // columns are named after their files; the vernacular column reads the
   // selected translation.
-  const textNames = columns.map((id) => (id === "vernacular" ? currentVernacular.field : id));
+  const textNames = columns.map((id) => (id === "vernacular" ? currentVernacular.id : id));
   const data = useGospelData(selectedGospel, textNames);
   // While a newly chosen translation loads, the column keeps the one it had.
-  const shownVernacular = data.text(currentVernacular.field)
+  const shownVernacular = data.text(currentVernacular.id)
     ? currentVernacular
-    : VERNACULARS.find((vernacular) => data.text(vernacular.field));
+    : VERNACULARS.find((vernacular) => data.text(vernacular.id));
   const allTextsShown = Boolean(data.verses) && textNames.every((name) => data.text(name));
 
   // Jump to the place named in the address once its text is on the page.
@@ -213,7 +214,8 @@ function App() {
     vernacular: {
       textLang: shownVernacular?.lang,
       textClass: "vernacular-text",
-      texts: shownVernacular ? data.text(shownVernacular.field) : null,
+      note: shownVernacular?.note,
+      texts: shownVernacular ? data.text(shownVernacular.id) : null,
       dividerLang: currentVernacular.lang,
       divider: (chapter) => `${ui.chapter} ${chapter}`,
     },
@@ -350,18 +352,55 @@ function App() {
               {ui.languageGroup}
             </span>
             <div className="segmented" role="group" aria-labelledby="language-label">
-              {VERNACULARS.map((vernacular) => (
-                <button
-                  key={vernacular.id}
-                  type="button"
-                  className="segment"
-                  lang={vernacular.lang}
-                  aria-pressed={selectedVernacular === vernacular.id}
-                  onClick={() => selectVernacular(vernacular.id)}
-                >
-                  {vernacular.label}
-                </button>
-              ))}
+              {VERNACULAR_LANGUAGES.map(({ lang, label, translations }) => {
+                if (translations.length === 1) {
+                  const [vernacular] = translations;
+                  return (
+                    <button
+                      key={lang}
+                      type="button"
+                      className="segment"
+                      lang={lang}
+                      aria-pressed={selectedVernacular === vernacular.id}
+                      onClick={() => selectVernacular(vernacular.id)}
+                    >
+                      {label}
+                    </button>
+                  );
+                }
+                // While another language is chosen the menu shows no choice,
+                // so that picking any translation counts as a change.
+                const isCurrent = currentVernacular.lang === lang;
+                return (
+                  <label
+                    key={lang}
+                    className={`segment segment-menu${isCurrent ? " is-current" : ""}`}
+                    lang={lang}
+                  >
+                    <span>
+                      {label}
+                      <span className="segment-arrow" aria-hidden="true">
+                        ▾
+                      </span>
+                    </span>
+                    {isCurrent && (
+                      <span className="segment-edition">{currentVernacular.edition}</span>
+                    )}
+                    <select
+                      aria-label={label}
+                      value={isCurrent ? currentVernacular.id : ""}
+                      onChange={(event) => selectVernacular(event.target.value)}
+                    >
+                      {!isCurrent && <option value="" disabled hidden />}
+                      {translations.map((vernacular) => (
+                        <option key={vernacular.id} value={vernacular.id}>
+                          {vernacular.note}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                );
+              })}
             </div>
           </div>
 
@@ -585,8 +624,10 @@ function App() {
           {ui.credits.publicDomain}. {ui.credits.english}:{" "}
           <a href="https://ebible.org/find/details.php?id=eng-kjv">
             King James Version, 1769
-          </a>
-          , {ui.credits.publicDomain}.
+          </a>{" "}
+          {ui.credits.and}{" "}
+          <a href="https://ebible.org/find/details.php?id=engDRA">Douay-Rheims, 1899</a>,{" "}
+          {ui.credits.publicDomain}.
         </p>
         <img className="colophon" src={sello} alt="JB" width="72" height="72" />
       </footer>
@@ -605,7 +646,7 @@ function App() {
         <div className="guide-body">
           <h2 id="guide-title">{ui.guideTitle}</h2>
           <ul>
-            {ui.guideItems.map((item) => (
+            {[...ui.guideItems, ui.about[currentVernacular.id]].map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>

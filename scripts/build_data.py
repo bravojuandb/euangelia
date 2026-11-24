@@ -5,16 +5,17 @@ Usage: python3 scripts/build_data.py [--sources DIR] [--out DIR] [--check]
 Run scripts/fetch_sources.py first. Rows follow the Greek (modern) verse
 numbering, which the King James Version already uses; each other source is
 re-keyed to it with the operations listed per book, written in the source's
-own numbering:
+own numbering (the Douay-Rheims follows the Vulgate's, like the Latin):
 
   ("merge", c, a, b)      verses c:a..c:b form one verse c:a; later verses move up
   ("split", c, v, marks)  verse c:v is cut where marks[source] begins; later verses move down
   ("to_next", c)          the last verse of chapter c becomes (c+1):1
 
 Each Gospel gets a folder with verses.json, the list of [chapter, verse] in
-reading order, and one file per text (greek.json, latin.json, spanish.json,
-polski.json, english.json): a list of strings in the same order, "" where a
-text lacks the verse. The reader downloads only the texts it shows.
+reading order, and one file per text, named after it (greek.json, latin.json,
+torres-amat.json, wujek.json, kjv.json, douay-rheims.json): a list of strings
+in the same order, "" where a text lacks the verse. The reader downloads only
+the texts it shows.
 
 The script stops if a correction or a split mark no longer matches the text
 exactly once. --check prints the report without writing files; it includes a
@@ -43,6 +44,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 BOOKS = {
     "matthew": {
         "vulgate_ops": [("split", 17, 14, {"latin": "dicens : Domine", "spanish": "le dijo: Señor"})],
+        "douay_ops": [("split", 17, 14, {"douay": "saying: Lord"})],
         "polish_ops": [],
         # The 1836 printing skips from 14:11 "...en una fuente," to 14:13.
         "spanish_missing": ["14:12"],
@@ -63,6 +65,7 @@ BOOKS = {
             ("split", 4, 40, {"latin": "et timuerunt", "spanish": "Y quedaron sobrecogidos"}),
             ("to_next", 8),
         ],
+        "douay_ops": [("split", 4, 40, {"douay": "And they feared exceedingly"}), ("to_next", 8)],
         "polish_ops": [("to_next", 8)],
         "spanish_missing": [],
         "spanish_fixes": {
@@ -74,6 +77,7 @@ BOOKS = {
     },
     "luke": {
         "vulgate_ops": [],
+        "douay_ops": [],
         # The Wikisource transcription of Wujek splits three verses in two.
         "polish_ops": [("merge", 3, 28, 29), ("merge", 4, 42, 43), ("merge", 19, 47, 48)],
         "spanish_missing": [],
@@ -91,6 +95,8 @@ BOOKS = {
             ("merge", 6, 51, 52),
             ("split", 11, 56, {"latin": "Dederant autem pontifices", "spanish": "Pero los pontífices"}),
         ],
+        # This edition already divides 11:56-57 as the Greek does.
+        "douay_ops": [("merge", 6, 51, 52)],
         "polish_ops": [],
         "spanish_missing": [],
         "spanish_fixes": {
@@ -110,7 +116,7 @@ BOOKS = {
 }
 
 # The texts written for each Gospel, named as the reader asks for them.
-TEXT_FIELDS = ("greek", "latin", "spanish", "polski", "english")
+TEXT_FIELDS = ("greek", "latin", "torres-amat", "wujek", "kjv", "douay-rheims")
 
 # The 1836 edition closes some paragraphs with a dash after the last verse.
 TRAILING_DASH = re.compile(r"\s*—$")
@@ -189,10 +195,13 @@ def build(gospel, cfg, sources):
     polish = apply_fixes(polish, cfg["polish_fixes"], "polish")
     polish = apply_ops(polish, cfg["polish_ops"], "polish")
 
-    english = parse_usfm((sources / "en" / f"{gospel}.usfm").read_text(encoding="utf-8-sig"))
+    kjv = parse_usfm((sources / "kjv" / f"{gospel}.usfm").read_text(encoding="utf-8-sig"))
+    douay = parse_usfm((sources / "dra" / f"{gospel}.usfm").read_text(encoding="utf-8-sig"))
+    douay = apply_ops(douay, cfg["douay_ops"], "douay")
 
     # Every source must cover the same verses, except those the Greek omits.
-    for name, texts in (("spanish", spanish), ("polish", polish), ("english", english)):
+    named = (("spanish", spanish), ("polish", polish), ("kjv", kjv), ("douay", douay))
+    for name, texts in named:
         if set(texts) != set(latin):
             missing = sorted(set(latin) - set(texts), key=split_key)[:8]
             extra = sorted(set(texts) - set(latin), key=split_key)[:8]
@@ -208,9 +217,10 @@ def build(gospel, cfg, sources):
             "verse": verse,
             "greek": greek.get(k, ""),
             "latin": latin[k],
-            "spanish": spanish[k],
-            "polski": polish[k],
-            "english": english[k],
+            "torres-amat": spanish[k],
+            "wujek": polish[k],
+            "kjv": kjv[k],
+            "douay-rheims": douay[k],
         })
 
     report = [
@@ -228,7 +238,14 @@ def build(gospel, cfg, sources):
 
 def length_outliers(rows):
     flagged = []
-    for a, b in (("latin", "greek"), ("spanish", "latin"), ("polski", "latin"), ("english", "greek")):
+    pairs = (
+        ("latin", "greek"),
+        ("torres-amat", "latin"),
+        ("wujek", "latin"),
+        ("kjv", "greek"),
+        ("douay-rheims", "latin"),
+    )
+    for a, b in pairs:
         ratios = [(row, len(row[a]) / len(row[b])) for row in rows if row[a] and row[b]]
         median = statistics.median(ratio for _, ratio in ratios)
         flagged += [
