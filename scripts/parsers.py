@@ -115,7 +115,12 @@ def parse_crampon(page_html):
     t = re.sub(r'<span[^>]*class="pagenum[^"]*"[^>]*>.*?</span>', "", t, flags=re.S)
 
     marker_re = re.compile(r'<span id="(\d+)-(\d+)">')
-    stop_re = re.compile(r'<span id="CH\d+"|<div style="margin-left|<div class="alinea|<h[1-6]\b')
+    # Section headings come as headings, as indented or centred blocks, or as
+    # a paragraph opening with a numbered title in small capitals.
+    stop_re = re.compile(
+        r'<span id="CH\d+"|<div style="margin-left|<div class="alinea|<h[1-6]\b'
+        r'|<div style="text-align:center|<p><span class="sc">'
+    )
 
     marks = list(marker_re.finditer(t))
     verses = {}
