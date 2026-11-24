@@ -2,9 +2,9 @@
 
 A parallel reader for the Gospels: a vernacular translation, the Greek text and the Latin text side by side, verse by verse.
 
-The four Gospels are available, complete, in Greek, Latin, Spanish, Polish and English.
+The four Gospels are available, complete, in Greek, Latin, Spanish, Polish and English (two translations: the King James Version and the Douay-Rheims).
 
-The interface follows the chosen translation (Spanish, English or Polish); a browser in another language gets English.
+The interface follows the language of the chosen translation (Spanish, English or Polish); a browser in another language gets English, in the King James Version.
 
 ## Development
 
@@ -18,7 +18,9 @@ npm run lint
 The texts live in `public/data/<gospel>/`, one file per text, so the reader downloads only the columns it shows:
 
 - `verses.json`: the verses in reading order, as `[chapter, verse]` pairs: `[[1, 1], [1, 2], …]`
-- `greek.json`, `latin.json`, `spanish.json`, `polski.json`, `english.json`: one string per verse, in the same order; `""` where that text lacks the verse
+- `greek.json`, `latin.json`, and one file per translation, named by its id in [src/config.js](src/config.js) (`torres-amat.json`, `wujek.json`, `kjv.json`, `douay-rheims.json`): one string per verse, in the same order; `""` where that text lacks the verse
+
+A language can have several translations: each is an entry in `VERNACULARS` in [src/config.js](src/config.js), and its description for the reading guide goes under `about` in [src/i18n.js](src/i18n.js).
 
 ### Regenerating the data
 
@@ -30,7 +32,7 @@ python3 scripts/build_data.py --check   # report: renumbering, gaps, length outl
 python3 scripts/build_data.py           # write public/data/<gospel>/*.json
 ```
 
-The GitHub sources are pinned to a commit; the Wikisource pages and the eBible.org KJV are fetched as currently published. Every re-numbering and correction described below is listed per book in [scripts/build_data.py](scripts/build_data.py), and the build stops if one no longer matches the text.
+The GitHub sources are pinned to a commit; the Wikisource pages and the eBible.org English Bibles are fetched as currently published. Every re-numbering and correction described below is listed per book in [scripts/build_data.py](scripts/build_data.py), and the build stops if one no longer matches the text.
 
 ## Text sources
 
@@ -41,6 +43,7 @@ The GitHub sources are pinned to a commit; the Wikisource pages and the eBible.o
 | Spanish | La Sagrada Biblia, tr. Félix Torres Amat, vol. XIII (1836) | [es.wikisource.org](https://es.wikisource.org/wiki/La_Sagrada_Biblia_(XIII)) | Public domain |
 | Polish  | Biblia Wujka, 1923 edition | [pl.wikisource.org](https://pl.wikisource.org/wiki/Biblia_Wujka_(1923)) | Public domain |
 | English | King James Version (1611), standard text of 1769 | [eBible.org](https://ebible.org/find/details.php?id=eng-kjv) (`eng-kjv_usfm.zip`) | Public domain (outside the UK, where printing it is under Crown letters patent) |
+| English | Douay-Rheims, Challoner revision (1749–1752), American edition of 1899 | [eBible.org](https://ebible.org/find/details.php?id=engDRA) (`engDRA_usfm.zip`) | Public domain |
 
 The SBLGNT is copyright 2010 by the Society of Biblical Literature and Logos Bible Software. Here its variation-unit signs (⸀ ⸁ ⸂ ⸃ ⸄ ⸅) are removed, since the apparatus is not included; the double brackets ⟦ ⟧ are kept because they mark passages as later additions (the shorter ending after Mark 16:8, Mark 16:9–20 and John 7:53–8:11). As a critical text it omits Matthew 17:21, 18:11, 23:14; Mark 7:16, 9:44, 9:46, 11:26, 15:28; Luke 17:36, 23:17; and John 5:4, so those verses have no Greek.
 
@@ -50,16 +53,16 @@ The Spanish text is the Wikisource transcription of the 1836 edition, with its o
 
 The Polish text is kept as transcribed on Wikisource, including the 1923 orthography (e.g. *jéj*, *woléj*). Where Wikisource marks a misprint, the corrected form is used. Chapter numbers are taken from the sequence of verses, since a few anchors carry the previous chapter's number.
 
-The English text is the eBible.org USFM edition of the KJV. Its markup is removed: Strong's numbers, the paragraph signs (¶), and the styles for words in italics (added by the translators), words of Jesus and LORD are kept as plain text. The KJV was translated from the Greek Textus Receptus, so in places it has words the SBLGNT omits (e.g. Matthew 27:35, Luke 9:55–56).
+The English texts are the eBible.org USFM editions. Their markup is removed: Strong's numbers, the paragraph signs (¶), and the styles for words in italics (added by the translators), words of Jesus and LORD are kept as plain text. The KJV was translated from the Greek Textus Receptus, so in places it has words the SBLGNT omits (e.g. Matthew 27:35, Luke 9:55–56). The Douay-Rheims was translated from the Latin Vulgate and follows it closely.
 
-Rows follow the Greek verse numbering, which the KJV shares. The Latin and Spanish texts use the Vulgate numbering and are re-keyed where it differs:
+Rows follow the Greek verse numbering, which the KJV shares. The Latin, Spanish and Douay-Rheims texts use the Vulgate numbering and are re-keyed where it differs:
 
 - Matthew 17:14 is split into 17:14–15 (17:15–26 become 17:16–27).
 - Mark 4:40 is split into 4:40–41, and Mark 8:39 becomes 9:1 (9:1–49 become 9:2–50; the Polish text follows the Vulgate here too).
-- John 6:51–52 form 6:51 (6:53–72 become 6:52–71), and John 11:56 is split into 11:56–57.
+- John 6:51–52 form 6:51 (6:53–72 become 6:52–71), and John 11:56 is split into 11:56–57 (the Douay-Rheims already divides it there).
 
 The Polish transcription splits Luke 3:28, 4:42 and 19:47 into two verses each; they are joined again. In a few places the Vulgate ends a verse a few words earlier or later than the Greek (e.g. Luke 1:32–33, 9:42–44; Matthew 15:5–6, 16:2–3), so a phrase may sit in the neighbouring row.
-Nácar-Colunga, Bover-Cantera and the Biblia de Navarra were considered for Spanish but are still under copyright.
+Nácar-Colunga, Bover-Cantera, the Biblia de Navarra and the Biblia de Jerusalén were considered for Spanish but are still under copyright.
 
 The typeface is [EB Garamond](https://github.com/octaviopardo/EBGaramond12) (SIL Open Font License 1.1), bundled through [Fontsource](https://fontsource.org/fonts/eb-garamond).
 

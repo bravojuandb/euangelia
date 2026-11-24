@@ -1,4 +1,11 @@
-import { COLUMN_IDS, FALLBACK_VERNACULAR, FONT_SCALES, GOSPEL_IDS, VERNACULARS } from "./config.js";
+import {
+  COLUMN_IDS,
+  FALLBACK_VERNACULAR,
+  FONT_SCALES,
+  FORMER_VERNACULAR_IDS,
+  GOSPEL_IDS,
+  VERNACULARS,
+} from "./config.js";
 
 const STORAGE_KEY = "euangelion:settings";
 
@@ -36,11 +43,10 @@ function browserVernacular() {
 export function loadSettings() {
   const stored = readStorage();
   const columns = COLUMN_IDS.filter((id) => stored.columns?.includes(id));
+  const vernacular = FORMER_VERNACULAR_IDS[stored.vernacular] ?? stored.vernacular;
   return {
     gospel: GOSPEL_IDS.includes(stored.gospel) ? stored.gospel : "john",
-    vernacular: VERNACULARS.some((v) => v.id === stored.vernacular)
-      ? stored.vernacular
-      : browserVernacular(),
+    vernacular: VERNACULARS.some((v) => v.id === vernacular) ? vernacular : browserVernacular(),
     columns: columns.length ? columns : COLUMN_IDS,
     fontScale: FONT_SCALES.includes(stored.fontScale) ? stored.fontScale : 1,
     welcomed: stored.welcomed === true,

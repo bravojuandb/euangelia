@@ -1,5 +1,7 @@
 // Interface text, keyed by the `lang` of the selected translation: the
-// interface speaks the language the reader chose to read in.
+// interface speaks the language the reader chose to read in. `about` closes
+// the reading guide with a word on each translation in that language, keyed
+// by its id in config.js.
 
 export const UI = {
   es: {
@@ -13,7 +15,7 @@ export const UI = {
     languageGroup: "Traducción",
     columnsGroup: "Columnas",
     columns: {
-      vernacular: { label: "Español", note: "Torres Amat, 1836", code: "ES" },
+      vernacular: { label: "Español", code: "ES" },
       greek: { label: "Griego", note: "Texto original", code: "GR" },
       latin: { label: "Latín", note: "Vulgata", code: "LA" },
     },
@@ -46,8 +48,11 @@ export const UI = {
       "Para saltar a otro lugar, elige un capítulo o escribe una cita como 3:16 y pulsa «Ir».",
       "En el griego, los corchetes [ ] marcan palabras de autenticidad dudosa, y los dobles ⟦ ⟧, pasajes añadidos más tarde, como Juan 7:53–8:11.",
       "Algunos versículos no tienen griego: faltan en los manuscritos más antiguos y el texto crítico los omite. Las traducciones antiguas sí los incluyen.",
-      "La traducción española es la de Félix Torres Amat (1836) y conserva la ortografía de su época: á, Jesus, habia.",
     ],
+    about: {
+      "torres-amat":
+        "La traducción española es la de Félix Torres Amat (1836) y conserva la ortografía de su época: á, Jesus, habia.",
+    },
     credits: {
       greek: "Griego",
       latin: "Latín",
@@ -72,7 +77,7 @@ export const UI = {
     languageGroup: "Przekład",
     columnsGroup: "Kolumny",
     columns: {
-      vernacular: { label: "Polski", note: "Biblia Wujka, 1923", code: "PL" },
+      vernacular: { label: "Polski", code: "PL" },
       greek: { label: "Grecki", note: "Tekst oryginalny", code: "GR" },
       latin: { label: "Łacina", note: "Wulgata", code: "ŁA" },
     },
@@ -105,8 +110,11 @@ export const UI = {
       "Aby przejść w inne miejsce, wybierz rozdział albo wpisz np. 3,16 i naciśnij „Przejdź”.",
       "W tekście greckim nawiasy [ ] oznaczają słowa o wątpliwej autentyczności, a podwójne ⟦ ⟧ – fragmenty dodane później, np. J 7,53–8,11.",
       "Niektóre wersety nie mają tekstu greckiego: brak ich w najstarszych rękopisach, więc wydanie krytyczne je pomija. Dawne przekłady je zawierają.",
-      "Przekład polski to Biblia ks. Jakuba Wujka w wydaniu z 1923 r., z ówczesną pisownią (np. jéj, woléj).",
     ],
+    about: {
+      wujek:
+        "Przekład polski to Biblia ks. Jakuba Wujka w wydaniu z 1923 r., z ówczesną pisownią (np. jéj, woléj).",
+    },
     credits: {
       greek: "Grecki",
       latin: "Łaciński",
@@ -131,7 +139,7 @@ export const UI = {
     languageGroup: "Translation",
     columnsGroup: "Columns",
     columns: {
-      vernacular: { label: "English", note: "King James Version", code: "EN" },
+      vernacular: { label: "English", code: "EN" },
       greek: { label: "Greek", note: "Original text", code: "GR" },
       latin: { label: "Latin", note: "Vulgate", code: "LA" },
     },
@@ -164,8 +172,12 @@ export const UI = {
       "To go somewhere else, pick a chapter or type a reference such as 3:16 and press “Go”.",
       "In the Greek, brackets [ ] mark words of doubtful authenticity, and double brackets ⟦ ⟧ passages added later, such as John 7:53–8:11.",
       "Some verses have no Greek: they are missing from the oldest manuscripts, so the critical text leaves them out. Older translations keep them.",
-      "The English is the King James Version of 1611, in the standard text of 1769, with its original wording (thee, saith). It was translated from the Greek text of its day, so now and then it has words the modern critical text leaves out. Words its translators printed in italics, added for sense, appear here as plain text.",
     ],
+    about: {
+      kjv: "The English is the King James Version of 1611, in the standard text of 1769, with its original wording (thee, saith). It was translated from the Greek text of its day, so now and then it has words the modern critical text leaves out. Words its translators printed in italics, added for sense, appear here as plain text.",
+      "douay-rheims":
+        "The English is the Douay-Rheims, the Catholic translation made from the Latin Vulgate (its New Testament first appeared at Rheims in 1582), in Bishop Challoner’s revision of 1749–1752 as printed in 1899. Because it follows the Latin, it reads closely alongside the Vulgate column, and its names and wording come from the Latin: Jonas, pasch, “Hail, full of grace”.",
+    },
     credits: {
       greek: "Greek",
       latin: "Latin",

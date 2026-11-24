@@ -3,11 +3,12 @@
 Usage: python3 scripts/fetch_sources.py [--dest DIR]
 
 Files are written to scripts/sources/ (not committed) as
-gr/<gospel>.txt, la/<gospel>.lat, es/<gospel>.json, pl/<gospel>.json and
-en/<gospel>.usfm. GitHub files are pinned to a commit. Wikisource pages are
-rendered by the MediaWiki API from the current transcription, and eBible.org
-serves its current edition of the KJV, so both can change; build_data.py
-stops if a correction or the verse numbering no longer matches.
+gr/<gospel>.txt, la/<gospel>.lat, es/<gospel>.json, pl/<gospel>.json,
+kjv/<gospel>.usfm and dra/<gospel>.usfm. GitHub files are pinned to a commit.
+Wikisource pages are rendered by the MediaWiki API from the current
+transcription, and eBible.org serves its current edition of each English
+Bible, so both can change; build_data.py stops if a correction or the verse
+numbering no longer matches.
 """
 
 import argparse
@@ -31,34 +32,41 @@ CLEMENTINE = (
     "d57e2cde0cceda0d073ea9efc1fee616bcfeb2c1/src/utf8/{}.lat"
 )
 
-# King James Version, standard text of 1769, one USFM file per book.
+# One USFM file per book: the King James Version in the standard text of
+# 1769, and the Douay-Rheims in the American edition of 1899 (Challoner's
+# revision).
 KJV_ZIP = "https://ebible.org/Scriptures/eng-kjv_usfm.zip"
+DRA_ZIP = "https://ebible.org/Scriptures/engDRA_usfm.zip"
 
 SOURCES = {
     "matthew": {
         "greek": "Matt",
-        "english": "70-MATeng-kjv.usfm",
+        "kjv": "70-MATeng-kjv.usfm",
+        "dra": "70-MATengDRA.usfm",
         "latin": "Mt",
         "spanish": "La Sagrada Biblia (XIII)/Mateo",
         "polish": "Biblia Wujka (1923)/Ewangelia wg św. Mateusza (całość)",
     },
     "mark": {
         "greek": "Mark",
-        "english": "71-MRKeng-kjv.usfm",
+        "kjv": "71-MRKeng-kjv.usfm",
+        "dra": "71-MRKengDRA.usfm",
         "latin": "Mc",
         "spanish": "La Sagrada Biblia (XIII)/Marcos",
         "polish": "Biblia Wujka (1923)/Ewangelia wg św. Marka (całość)",
     },
     "luke": {
         "greek": "Luke",
-        "english": "72-LUKeng-kjv.usfm",
+        "kjv": "72-LUKeng-kjv.usfm",
+        "dra": "72-LUKengDRA.usfm",
         "latin": "Lc",
         "spanish": "La Sagrada Biblia (XIII)/Lucas",
         "polish": "Biblia Wujka (1923)/Ewangelia wg św. Łukasza (całość)",
     },
     "john": {
         "greek": "John",
-        "english": "73-JHNeng-kjv.usfm",
+        "kjv": "73-JHNeng-kjv.usfm",
+        "dra": "73-JHNengDRA.usfm",
         "latin": "Jo",
         "spanish": "La Sagrada Biblia (XIII)/Juan",
         "polish": "Biblia Wujka (1923)/Ewangelia wg św. Jana (całość)",
@@ -98,15 +106,19 @@ def main():
                         default=pathlib.Path(__file__).resolve().parent / "sources")
     args = parser.parse_args()
 
-    for folder in ("gr", "la", "es", "pl", "en"):
+    for folder in ("gr", "la", "es", "pl", "kjv", "dra"):
         (args.dest / folder).mkdir(parents=True, exist_ok=True)
 
-    print("King James Version (eBible.org)")
-    kjv = zipfile.ZipFile(io.BytesIO(get(KJV_ZIP)))
+    print("King James Version and Douay-Rheims (eBible.org)")
+    english = {
+        "kjv": zipfile.ZipFile(io.BytesIO(get(KJV_ZIP))),
+        "dra": zipfile.ZipFile(io.BytesIO(get(DRA_ZIP))),
+    }
 
     for gospel, source in SOURCES.items():
         print(f"{gospel}: Greek, Latin, Spanish, Polish, English")
-        (args.dest / "en" / f"{gospel}.usfm").write_bytes(kjv.read(source["english"]))
+        for folder, archive in english.items():
+            (args.dest / folder / f"{gospel}.usfm").write_bytes(archive.read(source[folder]))
         (args.dest / "gr" / f"{gospel}.txt").write_bytes(get(SBLGNT.format(source["greek"])))
         (args.dest / "la" / f"{gospel}.lat").write_bytes(get(CLEMENTINE.format(source["latin"])))
         (args.dest / "es" / f"{gospel}.json").write_bytes(wikisource_page("es", source["spanish"]))
