@@ -80,6 +80,11 @@ p {
   margin: 0;
 }
 
+.noscript {
+  padding: 2rem;
+  text-align: center;
+}
+
 code,
 .counter {
   font-family: var(--mono);
