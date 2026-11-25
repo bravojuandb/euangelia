@@ -11,7 +11,7 @@ import { parseISODate } from "./liturgy.js";
 // The two ways of reading: a whole Gospel, or the Gospel of the day.
 export const VIEWS = ["reader", "daily"];
 
-const STORAGE_KEY = "euangelion:settings";
+const STORAGE_KEY = "euangelia:settings";
 
 function readStorage() {
   try {
