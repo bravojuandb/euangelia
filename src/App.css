@@ -254,32 +254,6 @@
 
 /* First visit */
 
-.welcome {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 12px 20px;
-  max-width: 860px;
-  margin: 0 auto 18px;
-  padding: 14px 18px;
-  border: 1px solid var(--control-border);
-  background: rgba(252, 246, 232, 0.85);
-}
-
-.welcome p {
-  flex: 1 1 360px;
-  text-align: left;
-  font-size: 1rem;
-  line-height: 1.45;
-  color: var(--ink);
-}
-
-.welcome-actions {
-  display: flex;
-  gap: 8px;
-}
-
 .segment:focus-visible,
 .segment-menu:has(select:focus-visible),
 .text-button:focus-visible,
@@ -908,6 +882,92 @@
   text-align: right;
 }
 
+/* Welcome window: the language to start in */
+
+.welcome-dialog {
+  width: min(600px, calc(100vw - 32px));
+}
+
+.welcome-body {
+  padding: 26px 26px 24px;
+  text-align: center;
+}
+
+.welcome-title {
+  margin: 0;
+  padding-left: 0.24em;
+  font-size: 1.9rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.welcome-subtitle {
+  margin: 6px 0 20px;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+}
+
+.welcome-choices {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.welcome-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--control-border);
+  background: rgba(252, 246, 232, 0.7);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.welcome-choice:hover {
+  border-color: var(--active-border);
+  background: var(--control-hover);
+}
+
+.welcome-choice:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* The language the browser prefers */
+.welcome-choice[data-current] {
+  border-color: var(--active-border);
+  box-shadow: inset 3px 0 0 var(--rubric);
+}
+
+.welcome-language {
+  font-size: 1.15rem;
+  color: var(--ink-strong);
+}
+
+.welcome-edition {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.welcome-line {
+  margin-top: 4px;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
 /* One column on phones */
 
 /* Arrows to the head of the page and the end of the text */
@@ -1040,8 +1100,12 @@
     min-height: 40px;
   }
 
-  .welcome p {
-    flex-basis: 100%;
+  .welcome-choices {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome-line {
+    display: none;
   }
 
   .parallel-reader,
@@ -1135,7 +1199,8 @@
   .text-button,
   .chapter-chip,
   .reference-submit,
-  .scroll-arrow {
+  .scroll-arrow,
+  .welcome-choice {
     transition: none;
   }
 }

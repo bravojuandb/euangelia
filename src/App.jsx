@@ -16,6 +16,7 @@ import { DailyHeading, DailyNav } from "./DailyGospel.jsx";
 import { useCatena, useGospelData, useLectionary } from "./data.js";
 import ParallelReader from "./ParallelReader.jsx";
 import { ScrollArrows } from "./ScrollArrows.jsx";
+import { WelcomeDialog } from "./WelcomeDialog.jsx";
 import { UI } from "./i18n.js";
 import { lectionaryEntry, liturgicalDay, todayISO } from "./liturgy.js";
 import { COLUMN_WORDS, LITURGY } from "./liturgyText.js";
@@ -111,6 +112,15 @@ function useCurrentChapter(chapters, navRef) {
   return chapters.includes(current) ? current : (chapters[0] ?? null);
 }
 
+// A link to another site, opened in a new tab so the reader keeps their place.
+function ExternalLink({ href, children }) {
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer">
+      {children}
+    </a>
+  );
+}
+
 function App() {
   const [initial] = useState(initialState);
   const [selectedGospel, setSelectedGospel] = useState(initial.gospel);
@@ -135,7 +145,6 @@ function App() {
   const chipsRef = useRef(null);
   const guideRef = useRef(null);
   const dailyHeadingRef = useRef(null);
-  const mainRef = useRef(null);
   // A place to scroll to once its Gospel has loaded (from the address).
   const pendingPlaceRef = useRef(initial.view === "reader" ? initial.place : null);
 
@@ -149,8 +158,11 @@ function App() {
   const today = todayISO();
   const shownDate = dailyDate ?? today;
   const lectionary = useLectionary(isDaily);
-  const day = isDaily ? liturgicalDay(shownDate) : null;
-  const entry = day && lectionary.entries ? lectionaryEntry(lectionary.entries, day) : null;
+  const day = useMemo(() => (isDaily ? liturgicalDay(shownDate) : null), [isDaily, shownDate]);
+  const entry = useMemo(
+    () => (day && lectionary.entries ? lectionaryEntry(lectionary.entries, day) : null),
+    [day, lectionary.entries],
+  );
   const optionIndex = chosenOption ?? entry?.main ?? 0;
   const reading = entry?.options[optionIndex] ?? null;
 
@@ -623,17 +635,11 @@ function App() {
       </header>
 
       {!welcomed && (
-        <aside className="welcome">
-          <p>{ui.welcome}</p>
-          <div className="welcome-actions">
-            <button type="button" className="text-button" onClick={openGuide}>
-              {ui.guide}
-            </button>
-            <button type="button" className="text-button" onClick={() => setWelcomed(true)}>
-              {ui.dismiss}
-            </button>
-          </div>
-        </aside>
+        <WelcomeDialog
+          current={selectedVernacular}
+          onChoose={selectVernacular}
+          onClose={() => setWelcomed(true)}
+        />
       )}
 
       <nav ref={navRef} className="reader-nav" aria-label={pageTitle}>
@@ -735,10 +741,7 @@ function App() {
         </div>
       </nav>
 
-      <main
-        ref={mainRef}
-        className={`reader ${visibleColumns.length > 1 ? "is-multi" : "is-single"}`}
-      >
+      <main className={`reader ${visibleColumns.length > 1 ? "is-multi" : "is-single"}`}>
         {loadError ? (
           <p className="status-message">{ui.loadError}</p>
         ) : isLoading ? (
@@ -780,53 +783,64 @@ function App() {
         )}
       </main>
 
-      <ScrollArrows endRef={mainRef} words={ui.scroll} />
+      <ScrollArrows words={ui.scroll} />
 
       <footer className="credits">
         <p>
           {ui.credits.greek}:{" "}
-          <a href="https://github.com/Faithlife/SBLGNT">SBL Greek New Testament</a>, © 2010
+          <ExternalLink href="https://github.com/Faithlife/SBLGNT">SBL Greek New Testament</ExternalLink>, © 2010
           Society of Biblical Literature {ui.credits.and} Logos Bible Software,{" "}
-          <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>;{" "}
+          <ExternalLink href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</ExternalLink>;{" "}
           {ui.credits.greekNote}.
         </p>
         <p>
           {ui.credits.latin}:{" "}
-          <a href="https://github.com/BibleGet-I-O/Clementine-Vulgate">
+          <ExternalLink href="https://github.com/BibleGet-I-O/Clementine-Vulgate">
             Clementine Vulgate Project
-          </a>
+          </ExternalLink>
           , {ui.credits.publicDomain}; {ui.credits.latinNote}. {ui.credits.spanish}:{" "}
-          <a href="https://es.wikisource.org/wiki/La_Sagrada_Biblia_(XIII)">
+          <ExternalLink href="https://es.wikisource.org/wiki/La_Sagrada_Biblia_(XIII)">
             Torres Amat, 1836
-          </a>
+          </ExternalLink>
           , {ui.credits.publicDomain}. {ui.credits.polish}:{" "}
-          <a href="https://pl.wikisource.org/wiki/Biblia_Wujka_(1923)">Biblia Wujka, 1923</a>,{" "}
+          <ExternalLink href="https://pl.wikisource.org/wiki/Biblia_Wujka_(1923)">Biblia Wujka, 1923</ExternalLink>,{" "}
           {ui.credits.publicDomain}. {ui.credits.french}:{" "}
-          <a href="https://fr.wikisource.org/wiki/Bible_Crampon_1923">Bible Crampon, 1923</a>,{" "}
+          <ExternalLink href="https://fr.wikisource.org/wiki/Bible_Crampon_1923">Bible Crampon, 1923</ExternalLink>,{" "}
           {ui.credits.publicDomain}. {ui.credits.italian}:{" "}
-          <a href="https://parolaviva.art/bibbia">Bibbia Martini, 1769–1781</a>,{" "}
+          <ExternalLink href="https://parolaviva.art/bibbia">Bibbia Martini, 1769–1781</ExternalLink>,{" "}
           {ui.credits.publicDomain}; {ui.credits.digitalText}{" "}
-          <a href="https://parolaviva.art/opendata">Parola Viva</a> (Giovanni Novelli),{" "}
-          <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.{" "}
+          <ExternalLink href="https://parolaviva.art/opendata">Parola Viva</ExternalLink> (Giovanni Novelli),{" "}
+          <ExternalLink href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</ExternalLink>.{" "}
           {ui.credits.english}:{" "}
-          <a href="https://ebible.org/find/details.php?id=eng-kjv">
+          <ExternalLink href="https://ebible.org/find/details.php?id=eng-kjv">
             King James Version, 1769
-          </a>{" "}
-          {ui.credits.and}{" "}
-          <a href="https://ebible.org/find/details.php?id=engDRA">Douay-Rheims, 1899</a>,{" "}
+          </ExternalLink>
+          ,{" "}
+          <ExternalLink href="https://www.gov.uk/government/publications/copyright-notice-duration-of-copyright-term/copyright-notice-duration-of-copyright-term#king-james-bible">
+            {ui.credits.kjvRights}
+          </ExternalLink>
+          .{" "}
+          <ExternalLink href="https://ebible.org/find/details.php?id=engDRA">Douay-Rheims, 1899</ExternalLink>,{" "}
           {ui.credits.publicDomain}.
         </p>
         <p>
           {ui.credits.commentary}:{" "}
-          <a href="https://github.com/HistoricalChristianFaith/Writings-Database">
+          <ExternalLink href="https://github.com/HistoricalChristianFaith/Writings-Database">
             Catena Aurea, Oxford 1841–1845
-          </a>
+          </ExternalLink>
           , {ui.credits.publicDomain}; {ui.credits.digitalText} HistoricalChristianFaith{" "}
-          {ui.credits.and} <a href="https://ccel.org/ccel/aquinas/catena1">CCEL</a>.
+          {ui.credits.and} <ExternalLink href="https://ccel.org/ccel/aquinas/catena1">CCEL</ExternalLink>.
+        </p>
+        <p>
+          <ExternalLink href={`${import.meta.env.BASE_URL}THIRD-PARTY-NOTICES.txt`}>
+            Tabler Icons · Paweł Kuna · MIT
+          </ExternalLink>
         </p>
         <img className="colophon" src={sello} alt="JB" width="72" height="72" />
         <p className="version">
-          <a href="https://github.com/bravojuandb/euangelia">Euangelia {version}</a>
+          <ExternalLink href="https://github.com/bravojuandb/euangelia">
+            Euangelia {version}
+          </ExternalLink>
         </p>
       </footer>
 
