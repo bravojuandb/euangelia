@@ -833,7 +833,7 @@ function App() {
         </p>
         <p>
           <ExternalLink href={`${import.meta.env.BASE_URL}THIRD-PARTY-NOTICES.txt`}>
-            Tabler Icons · Paweł Kuna · MIT
+            {ui.credits.notices}
           </ExternalLink>
         </p>
         <img className="colophon" src={sello} alt="JB" width="72" height="72" />

@@ -639,6 +639,16 @@
   margin-top: 12px;
 }
 
+/* A long choice of Gospels, as a list */
+.reference-input.daily-select {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  margin: 12px auto 0;
+  padding: 0 4px;
+  cursor: pointer;
+}
+
 /* On a line of its own, under the choice of Gospels. */
 .daily-context {
   display: block;

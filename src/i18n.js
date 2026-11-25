@@ -80,6 +80,7 @@ export const UI = {
       greekNote: "sin los signos de crítica textual",
       latinNote: "sin las marcas de maquetación",
       commentary: "Comentario",
+      notices: "Licencias de terceros",
     },
   },
 
@@ -158,6 +159,7 @@ export const UI = {
       greekNote: "bez znaków aparatu krytycznego",
       latinNote: "bez znaków układu tekstu",
       commentary: "Komentarz",
+      notices: "Licencje podmiotów trzecich",
     },
   },
 
@@ -237,6 +239,7 @@ export const UI = {
       greekNote: "text-critical signs removed",
       latinNote: "layout marks removed",
       commentary: "Commentary",
+      notices: "Third-party notices",
     },
   },
 
@@ -313,6 +316,7 @@ export const UI = {
       greekNote: "sans les signes de critique textuelle",
       latinNote: "sans les marques de mise en page",
       commentary: "Commentaire",
+      notices: "Licences tierces",
     },
   },
 
@@ -389,6 +393,7 @@ export const UI = {
       greekNote: "senza i segni di critica testuale",
       latinNote: "senza i segni di impaginazione",
       commentary: "Commento",
+      notices: "Licenze di terze parti",
     },
   },
 };
