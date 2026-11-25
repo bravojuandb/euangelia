@@ -10,6 +10,8 @@ import { parseISODate } from "./liturgy.js";
 
 // The two ways of reading: a whole Gospel, or the Gospel of the day.
 export const VIEWS = ["reader", "daily"];
+export const FIRST_DAILY_DATE = "1583-01-01";
+export const LAST_DAILY_DATE = "9999-12-31";
 
 const STORAGE_KEY = "euangelia:settings";
 
@@ -59,15 +61,18 @@ export function loadSettings() {
   };
 }
 
+export function isDailyDate(date) {
+  return date >= FIRST_DAILY_DATE && date <= LAST_DAILY_DATE && parseISODate(date) !== null;
+}
+
 // The address names the place being read: "#john", "#john/3" or "#john/3/16";
-// or the day whose Gospel is read: "#today" or "#2026-11-24" (from 1583, the
-// first year of the Gregorian calendar).
+// or the day whose Gospel is read: "#today" or "#2026-11-24".
 export function parseLocation(hash) {
   const text = hash.replace(/^#/, "");
   if (text === "today") {
     return { daily: true, date: null };
   }
-  if (parseISODate(text) !== null && text >= "1583") {
+  if (isDailyDate(text)) {
     return { daily: true, date: text };
   }
   const [gospel, chapter, verse] = text.split("/");

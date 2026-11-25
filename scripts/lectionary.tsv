@@ -7,7 +7,7 @@
 # the ones src/liturgy.js gives a day; "@A", "@B" or "@C" ties a line to that
 # Sunday cycle, and a line without one serves every year. Each Gospel may
 # carry labels before a colon ("vigil:", "passion,short:"), named in
-# src/i18n.js under `liturgy.labels`; a "*" marks the one shown first when it
+# src/liturgyText.js under `LITURGY` labels; a "*" marks the one shown first when it
 # is not the first. Verse letters (5a, 12b) keep the reference as the
 # Lectionary prints it; the reader shows those verses whole.
 #
@@ -45,7 +45,7 @@ advent-2-fri	Mt 11:16-19
 advent-2-sat	Mt 17:9a, 10-13
 advent-3-mon	Mt 21:23-27
 advent-3-tue	Mt 21:28-32
-advent-3-wed	Lk 7:18b-23
+advent-3-wed	Lk 7:19-23
 advent-3-thu	Lk 7:24-30
 advent-3-fri	Jn 5:33-36
 dec-17	Mt 1:1-17
@@ -95,14 +95,14 @@ lent-2@A	Mt 17:1-9
 lent-2@B	Mk 9:2-10
 lent-2@C	Lk 9:28b-36
 lent-3@A	Jn 4:5-42	short:Jn 4:5-15, 19b-26, 39a, 40-42
-lent-3@B	Jn 2:13-25	yearA:Jn 4:5-42
-lent-3@C	Lk 13:1-9	yearA:Jn 4:5-42
+lent-3@B	Jn 2:13-25	yearA:Jn 4:5-42	yearA,short:Jn 4:5-15, 19b-26, 39a, 40-42
+lent-3@C	Lk 13:1-9	yearA:Jn 4:5-42	yearA,short:Jn 4:5-15, 19b-26, 39a, 40-42
 lent-4@A	Jn 9:1-41	short:Jn 9:1, 6-9, 13-17, 34-38
-lent-4@B	Jn 3:14-21	yearA:Jn 9:1-41
-lent-4@C	Lk 15:1-3, 11-32	yearA:Jn 9:1-41
+lent-4@B	Jn 3:14-21	yearA:Jn 9:1-41	yearA,short:Jn 9:1, 6-9, 13-17, 34-38
+lent-4@C	Lk 15:1-3, 11-32	yearA:Jn 9:1-41	yearA,short:Jn 9:1, 6-9, 13-17, 34-38
 lent-5@A	Jn 11:1-45	short:Jn 11:3-7, 17, 20-27, 33b-45
-lent-5@B	Jn 12:20-33	yearA:Jn 11:1-45
-lent-5@C	Jn 8:1-11	yearA:Jn 11:1-45
+lent-5@B	Jn 12:20-33	yearA:Jn 11:1-45	yearA,short:Jn 11:3-7, 17, 20-27, 33b-45
+lent-5@C	Jn 8:1-11	yearA:Jn 11:1-45	yearA,short:Jn 11:3-7, 17, 20-27, 33b-45
 palm@A	procession:Mt 21:1-11	*passion:Mt 26:14-27:66	passion,short:Mt 27:11-54
 palm@B	procession:Mk 11:1-10	procession:Jn 12:12-16	*passion:Mk 14:1-15:47	passion,short:Mk 15:1-39
 palm@C	procession:Lk 19:28-40	*passion:Lk 22:14-23:56	passion,short:Lk 23:1-49
@@ -595,7 +595,8 @@ ot-34-sat	Lk 21:34-36
 10-18	Lk 10:1-9
 10-28	Lk 6:12-19
 11-01	Mt 5:1-12a
-11-02	Jn 6:37-40	Mt 5:1-12a	Mt 11:25-30	Mt 25:31-46	Lk 7:11-17	Lk 23:44-46, 50, 52-53; 24:1-6a	Lk 24:13-16, 28-35	Jn 5:24-29	Jn 6:51-59	Jn 11:17-27	Jn 11:32-45	Jn 14:1-6
+# All Souls: the Gospels from the Masses for the Dead (OLM 1016).
+11-02	Mt 5:1-12a	Mt 11:25-30	Mt 25:1-13	Mt 25:31-46	Mk 15:33-39; 16:1-6	short:Mk 15:33-39	Lk 7:11-17	Lk 12:35-40	Lk 23:33, 39-43	Lk 23:44-46, 50, 52-53; 24:1-6a	short:Lk 23:44-46, 50, 52-53	Lk 24:13-35	short:Lk 24:13-16, 28-35	Jn 5:24-29	*Jn 6:37-40	Jn 6:51-58	Jn 11:17-27	short:Jn 11:21-27	Jn 11:32-45	Jn 12:23-28	short:Jn 12:23-26	Jn 14:1-6	Jn 17:24-26	Jn 19:17-18, 25-39
 11-09	Jn 2:13-22
 11-30	Mt 4:18-22
 12-08	Lk 1:26-38

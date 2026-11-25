@@ -4,8 +4,8 @@
 //
 // liturgicalDay("2026-11-24") gives the day's key in the Lectionary
 // (public/data/lectionary.json), its Sunday cycle and a title, which i18n.js
-// puts into words. Only what decides the Gospel is followed: memorials whose
-// Gospel is that of the weekday are left out, and so are optional memorials.
+// puts into words. Most memorials leave the weekday's Gospel in place. The
+// calendar follows memorials with a proper Gospel and offers some alternatives.
 //
 // Dates are counted in whole days since 1970-01-01, so that time zones and
 // summer time play no part.
@@ -13,9 +13,8 @@
 const MS_PER_DAY = 86400000;
 const WEEKDAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
-// Where the bishops have moved these days to a Sunday. The defaults are those
-// of most countries: Epiphany kept on January 6, the Ascension and Corpus
-// Christi on the following Sunday.
+// The reader keeps Epiphany on January 6 and uses the Sunday observance for
+// Ascension and Corpus Christi. Options also support the other local dates.
 export const DEFAULT_OPTIONS = {
   epiphanyOnSunday: false,
   ascensionOnSunday: true,
@@ -49,13 +48,11 @@ const SANCTORAL = {
   "05-03": RANK.feast, // Saints Philip and James
   "05-14": RANK.feast, // Saint Matthias
   "05-31": RANK.feast, // The Visitation
-  "06-11": RANK.memorial, // Saint Barnabas
   "06-24": RANK.solemnity, // The Nativity of Saint John the Baptist
   "06-29": RANK.solemnity, // Saints Peter and Paul
   "07-03": RANK.feast, // Saint Thomas
   "07-22": RANK.feast, // Saint Mary Magdalene
   "07-25": RANK.feast, // Saint James
-  "07-26": RANK.memorial, // Saints Joachim and Anne
   "07-29": RANK.memorial, // Saints Martha, Mary and Lazarus
   "08-06": RANK.lordFeast, // The Transfiguration of the Lord
   "08-10": RANK.feast, // Saint Lawrence
@@ -79,6 +76,21 @@ const SANCTORAL = {
   "12-27": RANK.feast, // Saint John
   "12-28": RANK.feast, // The Holy Innocents
 };
+
+// These obligatory memorials keep the weekday Gospel as the first choice.
+const MEMORIALS_WITH_ALTERNATIVE_GOSPEL = new Set(["06-11", "07-26"]);
+
+// General Calendar memorials that can occur on the date of the Immaculate
+// Heart. When they coincide, both are optional (CDW notification 2671/98/L).
+const IMMACULATE_HEART_COLLISIONS = new Set([
+  "06-01", // Saint Justin Martyr
+  "06-03", // Saints Charles Lwanga and Companions
+  "06-05", // Saint Boniface
+  "06-11", // Saint Barnabas
+  "06-13", // Saint Anthony of Padua
+  "06-21", // Saint Aloysius Gonzaga
+  "06-28", // Saint Irenaeus
+]);
 
 export function dayNumber(year, month, day) {
   return Math.round(Date.UTC(year, month - 1, day) / MS_PER_DAY);
@@ -475,7 +487,9 @@ function movableMemorial(n, options) {
     return named("mary-mother-of-the-church", RANK.memorial);
   }
   if (n === easter + 69) {
-    return named("immaculate-heart", RANK.memorial);
+    return named("immaculate-heart", RANK.memorial, {
+      optional: IMMACULATE_HEART_COLLISIONS.has(monthDay(n)),
+    });
   }
   return null;
 }
@@ -495,11 +509,26 @@ export function liturgicalDay(iso, options = DEFAULT_OPTIONS) {
     throw new Error(`not a date: ${iso}`);
   }
   const temporal = temporalDay(n, options);
+  const marianMemorial = movableMemorial(n, options);
   // The higher rank wins; on equal rank, the Proper of Seasons does.
   let day = temporal;
-  for (const candidate of [sanctoralDay(n, options), movableMemorial(n, options)]) {
-    if (candidate && candidate.rank < day.rank) {
+  for (const candidate of [sanctoralDay(n, options), marianMemorial]) {
+    if (candidate && !candidate.optional && candidate.rank < day.rank) {
       day = candidate;
+    }
+  }
+  const optionalMemorials = [];
+  let title = day.title;
+  if (day.rank > RANK.memorial) {
+    const date = monthDay(n);
+    if (marianMemorial?.optional) {
+      optionalMemorials.push(marianMemorial.key);
+    }
+    if (MEMORIALS_WITH_ALTERNATIVE_GOSPEL.has(date)) {
+      optionalMemorials.push(date);
+      if (!marianMemorial?.optional) {
+        title = { kind: "named", id: date };
+      }
     }
   }
   return {
@@ -507,13 +536,21 @@ export function liturgicalDay(iso, options = DEFAULT_OPTIONS) {
     weekday: weekdayOf(n),
     cycle: sundayCycle(n),
     key: day.key,
-    title: day.title,
+    title,
     transferred: Boolean(day.transferred),
+    optionalMemorials,
   };
 }
 
 // The day's entry in the Lectionary: its own for the year's cycle, or the one
 // for every year.
 export function lectionaryEntry(lectionary, day) {
-  return lectionary[`${day.key}@${day.cycle}`] ?? lectionary[day.key] ?? null;
+  const entry = lectionary[`${day.key}@${day.cycle}`] ?? lectionary[day.key] ?? null;
+  if (!entry || !day.optionalMemorials?.length) {
+    return entry;
+  }
+  const alternatives = day.optionalMemorials.flatMap((memorial) =>
+    (lectionary[memorial]?.options ?? []).map((option) => ({ ...option, memorial })),
+  );
+  return { ...entry, options: [...entry.options, ...alternatives] };
 }
