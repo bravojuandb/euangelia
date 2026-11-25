@@ -1,5 +1,6 @@
 import { addDays } from "./liturgy.js";
 import { dayTitle, LITURGY, longDate } from "./liturgyText.js";
+import { FIRST_DAILY_DATE, isDailyDate, LAST_DAILY_DATE } from "./settings.js";
 
 const capitalize = (text) => text.charAt(0).toLocaleUpperCase() + text.slice(1);
 
@@ -16,6 +17,7 @@ export function DailyNav({ lang, date, today, onGoTo }) {
         className="chapter-chip"
         aria-label={words.previous}
         title={words.previous}
+        disabled={date === FIRST_DAILY_DATE}
         onClick={() => onGoTo(addDays(date, -1))}
       >
         ‹
@@ -23,11 +25,12 @@ export function DailyNav({ lang, date, today, onGoTo }) {
       <input
         className="reference-input date-input"
         type="date"
-        min="1583-01-01"
+        min={FIRST_DAILY_DATE}
+        max={LAST_DAILY_DATE}
         aria-label={words.date}
         value={date}
         onChange={(event) => {
-          if (event.target.value >= "1583") {
+          if (isDailyDate(event.target.value)) {
             onGoTo(event.target.value);
           }
         }}
@@ -37,6 +40,7 @@ export function DailyNav({ lang, date, today, onGoTo }) {
         className="chapter-chip"
         aria-label={words.next}
         title={words.next}
+        disabled={date === LAST_DAILY_DATE}
         onClick={() => onGoTo(addDays(date, 1))}
       >
         ›
@@ -57,6 +61,7 @@ export function DailyNav({ lang, date, today, onGoTo }) {
 export function DailyHeading({ lang, day, entry, chosen, onChoose, contextHref }) {
   const words = LITURGY[lang];
   const reference = (option) => `${words.books[option.gospel]} ${words.reference(option.ref)}`;
+  const hasMemorialOption = entry.options.some((option) => option.memorial);
   return (
     <header className="daily-heading">
       <p className="daily-date">{capitalize(longDate(lang, day.date))}</p>
@@ -64,24 +69,32 @@ export function DailyHeading({ lang, day, entry, chosen, onChoose, contextHref }
       {day.transferred && <p className="daily-note">{words.transferred}</p>}
       {entry.options.length > 1 && (
         <div className="segmented daily-options" role="group" aria-label={words.options}>
-          {entry.options.map((option, i) => (
-            <button
-              key={`${i}-${option.ref}`}
-              type="button"
-              className="segment"
-              aria-pressed={i === chosen}
-              onClick={() => onChoose(i)}
-            >
-              {option.labels ? (
-                <>
-                  <span>{option.labels.map((label) => words.labels[label]).join(" · ")}</span>
-                  <span className="segment-edition">{reference(option)}</span>
-                </>
-              ) : (
-                <span>{reference(option)}</span>
-              )}
-            </button>
-          ))}
+          {entry.options.map((option, i) => {
+            const labels = option.labels?.map((label) => words.labels[label]) ?? [];
+            if (option.memorial) {
+              labels.unshift(words.names[option.memorial]);
+            } else if (hasMemorialOption && i === entry.main) {
+              labels.unshift(words.weekdayGospel);
+            }
+            return (
+              <button
+                key={`${i}-${option.ref}`}
+                type="button"
+                className="segment"
+                aria-pressed={i === chosen}
+                onClick={() => onChoose(i)}
+              >
+                {labels.length ? (
+                  <>
+                    <span>{labels.join(" · ")}</span>
+                    <span className="segment-edition">{reference(option)}</span>
+                  </>
+                ) : (
+                  <span>{reference(option)}</span>
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
       <a className="text-button daily-context" href={contextHref}>

@@ -143,6 +143,7 @@ export const LITURGY = {
     options: "Evangelios de este día",
     inContext: "Leer en su contexto",
     transferred: "Trasladada a este día",
+    weekdayGospel: "Evangelio de la feria",
     incipit: {
       matthew: "Lectura del santo Evangelio según san Mateo",
       mark: "Lectura del santo Evangelio según san Marcos",
@@ -245,6 +246,7 @@ export const LITURGY = {
     options: "Gospels of this day",
     inContext: "Read it in context",
     transferred: "Transferred to this day",
+    weekdayGospel: "Weekday Gospel",
     incipit: {
       matthew: "A reading from the holy Gospel according to Matthew",
       mark: "A reading from the holy Gospel according to Mark",
@@ -353,6 +355,7 @@ export const LITURGY = {
     options: "Évangiles de ce jour",
     inContext: "Lire dans son contexte",
     transferred: "Reportée à ce jour",
+    weekdayGospel: "Évangile de la férie",
     incipit: {
       matthew: "Évangile de Jésus Christ selon saint Matthieu",
       mark: "Évangile de Jésus Christ selon saint Marc",
@@ -457,6 +460,7 @@ export const LITURGY = {
     options: "Vangeli di questo giorno",
     inContext: "Leggi nel suo contesto",
     transferred: "Trasferita a questo giorno",
+    weekdayGospel: "Vangelo della feria",
     incipit: {
       matthew: "Dal Vangelo secondo Matteo",
       mark: "Dal Vangelo secondo Marco",
@@ -561,6 +565,7 @@ export const LITURGY = {
     options: "Ewangelie tego dnia",
     inContext: "Czytaj w kontekście",
     transferred: "Przeniesiona na ten dzień",
+    weekdayGospel: "Ewangelia dnia powszedniego",
     incipit: {
       matthew: "Słowa Ewangelii według świętego Mateusza",
       mark: "Słowa Ewangelii według świętego Marka",

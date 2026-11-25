@@ -9,6 +9,7 @@ import {
   parseISODate,
   toISODate,
 } from "./liturgy.js";
+import { FIRST_DAILY_DATE, LAST_DAILY_DATE, parseLocation } from "./settings.js";
 
 const lectionary = JSON.parse(
   readFileSync(new URL("../public/data/lectionary.json", import.meta.url), "utf8"),
@@ -39,6 +40,15 @@ test("dates", () => {
   assert.equal(addDays("2024-03-01", -1), "2024-02-29");
 });
 
+test("daily links use the date picker's range", () => {
+  for (const date of [FIRST_DAILY_DATE, LAST_DAILY_DATE]) {
+    assert.deepEqual(parseLocation(`#${date}`), { daily: true, date });
+  }
+  for (const date of ["1582-12-31", "10000-01-01", "2026-02-30"]) {
+    assert.equal(parseLocation(`#${date}`), null);
+  }
+});
+
 test("Sunday cycle", () => {
   assert.equal(liturgicalDay("2025-11-29").cycle, "C");
   assert.equal(liturgicalDay("2025-11-30").cycle, "A");
@@ -52,6 +62,8 @@ test("Advent and Christmas", () => {
   assert.equal(keyOf("1994-11-28"), "advent-1-mon");
   assert.equal(keyOf("2026-11-30"), "11-30"); // Saint Andrew
   assert.equal(keyOf("2026-12-16"), "advent-3-wed");
+  const thirdWednesday = lectionaryEntry(lectionary, liturgicalDay("2026-12-16"));
+  assert.equal(thirdWednesday.options[thirdWednesday.main].ref, "7:19-23");
   assert.equal(keyOf("2026-12-17"), "dec-17");
   assert.equal(keyOf("2026-12-20"), "advent-4");
   assert.equal(keyOf("2026-12-25"), "christmas");
@@ -118,12 +130,72 @@ test("Ordinary Time after Pentecost", () => {
   assert.equal(keyOf("2026-05-31"), "trinity");
   assert.equal(keyOf("2026-06-07"), "corpus-christi");
   assert.equal(keyOf("2026-06-12"), "sacred-heart");
-  assert.equal(keyOf("2026-06-13"), "immaculate-heart");
+  assert.equal(keyOf("2023-06-17"), "immaculate-heart");
   assert.equal(keyOf("2026-11-01"), "11-01"); // All Saints on a Sunday
   assert.equal(keyOf("2026-11-22"), "christ-the-king");
   assert.equal(keyOf("2026-11-24"), "ot-34-tue");
   assert.equal(keyOf("2025-06-10"), "ot-10-tue");
   assert.equal(keyOf("2028-08-06"), "08-06"); // the Transfiguration on a Sunday
+});
+
+test("memorials can keep the weekday Gospel and offer another reading", () => {
+  const cases = [
+    ["2026-06-11", "06-11", "ot-10-thu", "5:20-26", "10:7-13"],
+    ["2025-07-26", "07-26", "ot-16-sat", "13:24-30", "13:16-17"],
+  ];
+  for (const [date, memorial, key, weekdayRef, memorialRef] of cases) {
+    const day = liturgicalDay(date);
+    assert.equal(day.key, key);
+    assert.deepEqual(day.title, { kind: "named", id: memorial });
+    const entry = lectionaryEntry(lectionary, day);
+    assert.equal(entry.options[entry.main].ref, weekdayRef);
+    assert.equal(entry.options.find((option) => option.memorial === memorial)?.ref, memorialRef);
+  }
+
+  // An Ordinary Time Sunday and an obligatory Marian memorial take precedence.
+  assert.deepEqual(liturgicalDay("2026-07-26").optionalMemorials, []);
+  const motherOfTheChurch = liturgicalDay("2057-06-11");
+  assert.equal(motherOfTheChurch.key, "mary-mother-of-the-church");
+  assert.deepEqual(motherOfTheChurch.optionalMemorials, []);
+});
+
+test("the Immaculate Heart is optional when another obligatory memorial coincides", () => {
+  const dates = [
+    "1940-06-01", "2062-06-03", "2027-06-05", "1994-06-11", "2026-06-13", "2031-06-21",
+    "2025-06-28",
+  ];
+  for (const date of dates) {
+    const day = liturgicalDay(date);
+    assert.equal(day.title.kind, "weekday", date);
+    const entry = lectionaryEntry(lectionary, day);
+    assert.equal(entry.options[entry.main].memorial, undefined, date);
+    const marianReading = entry.options.find((option) => option.memorial === "immaculate-heart");
+    assert.equal(marianReading?.ref, "2:41-51", date);
+  }
+  assert.deepEqual(liturgicalDay("1994-06-11").optionalMemorials, ["immaculate-heart", "06-11"]);
+  assert.equal(keyOf("2028-06-24"), "06-24");
+  assert.deepEqual(liturgicalDay("2028-06-24").optionalMemorials, []);
+});
+
+test("Years B and C can use the shorter Year A Lenten Sunday readings", () => {
+  for (const week of [3, 4, 5]) {
+    const yearA = lectionary[`lent-${week}@A`].options.find((option) => option.labels?.includes("short"));
+    for (const cycle of ["B", "C"]) {
+      const options = lectionary[`lent-${week}@${cycle}`].options;
+      assert.deepEqual(options.find((option) => option.labels?.includes("short")), {
+        ...yearA,
+        labels: ["yearA", "short"],
+      });
+    }
+  }
+});
+
+test("All Souls uses the Gospels from the Masses for the Dead", () => {
+  const entry = lectionaryEntry(lectionary, liturgicalDay("2026-11-02"));
+  assert.equal(entry.options.length, 24);
+  assert.equal(entry.options[entry.main].ref, "6:37-40");
+  assert.ok(entry.options.some((option) => option.gospel === "john" && option.ref === "6:51-58"));
+  assert.ok(entry.options.some((option) => option.gospel === "john" && option.ref === "19:17-18, 25-39"));
 });
 
 test("transferred solemnities", () => {
@@ -167,6 +239,9 @@ test("every Gospel in the Lectionary is reached", () => {
     for (let date = "1990-01-01"; date < "2101-01-01"; date = addDays(date, 1)) {
       const day = liturgicalDay(date, options);
       reached.add(lectionary[`${day.key}@${day.cycle}`] ? `${day.key}@${day.cycle}` : day.key);
+      for (const memorial of day.optionalMemorials) {
+        reached.add(memorial);
+      }
     }
   }
   const unreached = Object.keys(lectionary).filter((key) => !reached.has(key));
