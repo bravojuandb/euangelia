@@ -1,0 +1,604 @@
+# The Gospel of each day in the Roman Rite, after the Ordo Lectionum Missae,
+# editio typica altera (1981), with the later additions to the General Roman
+# Calendar. build_lectionary.py checks every reference against the verse
+# lists and writes public/data/lectionary.json.
+#
+# One line per day: a key, then its Gospels, separated by tabs. The keys are
+# the ones src/liturgy.js gives a day; "@A", "@B" or "@C" ties a line to that
+# Sunday cycle, and a line without one serves every year. Each Gospel may
+# carry labels before a colon ("vigil:", "passion,short:"), named in
+# src/i18n.js under `liturgy.labels`; a "*" marks the one shown first when it
+# is not the first. Verse letters (5a, 12b) keep the reference as the
+# Lectionary prints it; the reader shows those verses whole.
+#
+# Verse numbers are those of the Nova Vulgata, which are the rows of the
+# reader (the Greek numbering).
+
+# Advent: Sundays
+
+advent-1@A	Mt 24:37-44
+advent-1@B	Mk 13:33-37
+advent-1@C	Lk 21:25-28, 34-36
+advent-2@A	Mt 3:1-12
+advent-2@B	Mk 1:1-8
+advent-2@C	Lk 3:1-6
+advent-3@A	Mt 11:2-11
+advent-3@B	Jn 1:6-8, 19-28
+advent-3@C	Lk 3:10-18
+advent-4@A	Mt 1:18-24
+advent-4@B	Lk 1:26-38
+advent-4@C	Lk 1:39-45
+
+# Advent: weekdays to December 16, then by date
+
+advent-1-mon	Mt 8:5-11
+advent-1-tue	Lk 10:21-24
+advent-1-wed	Mt 15:29-37
+advent-1-thu	Mt 7:21, 24-27
+advent-1-fri	Mt 9:27-31
+advent-1-sat	Mt 9:35-10:1, 5a, 6-8
+advent-2-mon	Lk 5:17-26
+advent-2-tue	Mt 18:12-14
+advent-2-wed	Mt 11:28-30
+advent-2-thu	Mt 11:11-15
+advent-2-fri	Mt 11:16-19
+advent-2-sat	Mt 17:9a, 10-13
+advent-3-mon	Mt 21:23-27
+advent-3-tue	Mt 21:28-32
+advent-3-wed	Lk 7:18b-23
+advent-3-thu	Lk 7:24-30
+advent-3-fri	Jn 5:33-36
+dec-17	Mt 1:1-17
+dec-18	Mt 1:18-24
+dec-19	Lk 1:5-25
+dec-20	Lk 1:26-38
+dec-21	Lk 1:39-45
+dec-22	Lk 1:46-56
+dec-23	Lk 1:57-66
+dec-24	Lk 1:67-79
+
+# Christmas
+
+christmas	vigil:Mt 1:1-25	vigil,short:Mt 1:18-25	night:Lk 2:1-14	dawn:Lk 2:15-20	*day:Jn 1:1-18	day,short:Jn 1:1-5, 9-14
+holy-family@A	Mt 2:13-15, 19-23
+holy-family@B	Lk 2:22-40	short:Lk 2:22, 39-40
+holy-family@C	Lk 2:41-52
+dec-29	Lk 2:22-35
+dec-30	Lk 2:36-40
+dec-31	Jn 1:1-18
+mary-mother-of-god	Lk 2:16-21
+christmas-2	Jn 1:1-18	short:Jn 1:1-5, 9-14
+jan-2	Jn 1:19-28
+jan-3	Jn 1:29-34
+jan-4	Jn 1:35-42
+jan-5	Jn 1:43-51
+jan-6	Mk 1:7-11	Lk 3:23-38	short:Lk 3:23, 31-34, 36, 38
+jan-7	Jn 2:1-11
+epiphany	Mt 2:1-12
+after-epiphany-1	Mt 4:12-17, 23-25
+after-epiphany-2	Mk 6:34-44
+after-epiphany-3	Mk 6:45-52
+after-epiphany-4	Lk 4:14-22a
+after-epiphany-5	Lk 5:12-16
+after-epiphany-6	Jn 3:22-30
+baptism@A	Mt 3:13-17
+baptism@B	Mk 1:7-11
+baptism@C	Lk 3:15-16, 21-22
+
+# Lent: Sundays. In Years B and C the Gospels of Year A may be read on the
+# Third, Fourth and Fifth Sundays.
+
+lent-1@A	Mt 4:1-11
+lent-1@B	Mk 1:12-15
+lent-1@C	Lk 4:1-13
+lent-2@A	Mt 17:1-9
+lent-2@B	Mk 9:2-10
+lent-2@C	Lk 9:28b-36
+lent-3@A	Jn 4:5-42	short:Jn 4:5-15, 19b-26, 39a, 40-42
+lent-3@B	Jn 2:13-25	yearA:Jn 4:5-42
+lent-3@C	Lk 13:1-9	yearA:Jn 4:5-42
+lent-4@A	Jn 9:1-41	short:Jn 9:1, 6-9, 13-17, 34-38
+lent-4@B	Jn 3:14-21	yearA:Jn 9:1-41
+lent-4@C	Lk 15:1-3, 11-32	yearA:Jn 9:1-41
+lent-5@A	Jn 11:1-45	short:Jn 11:3-7, 17, 20-27, 33b-45
+lent-5@B	Jn 12:20-33	yearA:Jn 11:1-45
+lent-5@C	Jn 8:1-11	yearA:Jn 11:1-45
+palm@A	procession:Mt 21:1-11	*passion:Mt 26:14-27:66	passion,short:Mt 27:11-54
+palm@B	procession:Mk 11:1-10	procession:Jn 12:12-16	*passion:Mk 14:1-15:47	passion,short:Mk 15:1-39
+palm@C	procession:Lk 19:28-40	*passion:Lk 22:14-23:56	passion,short:Lk 23:1-49
+
+# Lent: weekdays. In the Third, Fourth and Fifth Weeks, the Mass of that
+# week's Year A Gospel may be said on any weekday.
+
+ash-wed	Mt 6:1-6, 16-18
+ash-thu	Lk 9:22-25
+ash-fri	Mt 9:14-15
+ash-sat	Lk 5:27-32
+lent-1-mon	Mt 25:31-46
+lent-1-tue	Mt 6:7-15
+lent-1-wed	Lk 11:29-32
+lent-1-thu	Mt 7:7-12
+lent-1-fri	Mt 5:20-26
+lent-1-sat	Mt 5:43-48
+lent-2-mon	Lk 6:36-38
+lent-2-tue	Mt 23:1-12
+lent-2-wed	Mt 20:17-28
+lent-2-thu	Lk 16:19-31
+lent-2-fri	Mt 21:33-43, 45-46
+lent-2-sat	Lk 15:1-3, 11-32
+lent-3-mon	Lk 4:24-30	optional:Jn 4:5-42
+lent-3-tue	Mt 18:21-35	optional:Jn 4:5-42
+lent-3-wed	Mt 5:17-19	optional:Jn 4:5-42
+lent-3-thu	Lk 11:14-23	optional:Jn 4:5-42
+lent-3-fri	Mk 12:28b-34	optional:Jn 4:5-42
+lent-3-sat	Lk 18:9-14	optional:Jn 4:5-42
+lent-4-mon	Jn 4:43-54	optional:Jn 9:1-41
+lent-4-tue	Jn 5:1-3a, 5-16	optional:Jn 9:1-41
+lent-4-wed	Jn 5:17-30	optional:Jn 9:1-41
+lent-4-thu	Jn 5:31-47	optional:Jn 9:1-41
+lent-4-fri	Jn 7:1-2, 10, 25-30	optional:Jn 9:1-41
+lent-4-sat	Jn 7:40-53	optional:Jn 9:1-41
+lent-5-mon	Jn 8:1-11	optional:Jn 11:1-45
+lent-5-mon@C	Jn 8:12-20	optional:Jn 11:1-45
+lent-5-tue	Jn 8:21-30	optional:Jn 11:1-45
+lent-5-wed	Jn 8:31-42	optional:Jn 11:1-45
+lent-5-thu	Jn 8:51-59	optional:Jn 11:1-45
+lent-5-fri	Jn 10:31-42	optional:Jn 11:1-45
+lent-5-sat	Jn 11:45-56	optional:Jn 11:1-45
+holy-mon	Jn 12:1-11
+holy-tue	Jn 13:21-33, 36-38
+holy-wed	Mt 26:14-25
+
+# The Paschal Triduum
+
+holy-thu	chrism:Lk 4:16-21	*supper:Jn 13:1-15
+good-fri	Jn 18:1-19:42
+easter-vigil@A	vigil:Mt 28:1-10
+easter-vigil@B	vigil:Mk 16:1-7
+easter-vigil@C	vigil:Lk 24:1-12
+easter-1@A	vigil:Mt 28:1-10	*day:Jn 20:1-9	evening:Lk 24:13-35
+easter-1@B	vigil:Mk 16:1-7	*day:Jn 20:1-9	evening:Lk 24:13-35
+easter-1@C	vigil:Lk 24:1-12	*day:Jn 20:1-9	evening:Lk 24:13-35
+
+# Easter: Sundays and solemnities
+
+easter-2	Jn 20:19-31
+easter-3@A	Lk 24:13-35
+easter-3@B	Lk 24:35-48
+easter-3@C	Jn 21:1-19	short:Jn 21:1-14
+easter-4@A	Jn 10:1-10
+easter-4@B	Jn 10:11-18
+easter-4@C	Jn 10:27-30
+easter-5@A	Jn 14:1-12
+easter-5@B	Jn 15:1-8
+easter-5@C	Jn 13:31-33a, 34-35
+easter-6@A	Jn 14:15-21
+easter-6@B	Jn 15:9-17
+easter-6@C	Jn 14:23-29
+ascension@A	Mt 28:16-20
+ascension@B	Mk 16:15-20
+ascension@C	Lk 24:46-53
+easter-7@A	Jn 17:1-11a
+easter-7@B	Jn 17:11b-19
+easter-7@C	Jn 17:20-26
+pentecost@A	vigil:Jn 7:37-39	*day:Jn 20:19-23
+pentecost@B	vigil:Jn 7:37-39	*day:Jn 20:19-23	day:Jn 15:26-27; 16:12-15
+pentecost@C	vigil:Jn 7:37-39	*day:Jn 20:19-23	day:Jn 14:15-16, 23b-26
+
+# Easter: weekdays
+
+easter-1-mon	Mt 28:8-15
+easter-1-tue	Jn 20:11-18
+easter-1-wed	Lk 24:13-35
+easter-1-thu	Lk 24:35-48
+easter-1-fri	Jn 21:1-14
+easter-1-sat	Mk 16:9-15
+easter-2-mon	Jn 3:1-8
+easter-2-tue	Jn 3:7b-15
+easter-2-wed	Jn 3:16-21
+easter-2-thu	Jn 3:31-36
+easter-2-fri	Jn 6:1-15
+easter-2-sat	Jn 6:16-21
+easter-3-mon	Jn 6:22-29
+easter-3-tue	Jn 6:30-35
+easter-3-wed	Jn 6:35-40
+easter-3-thu	Jn 6:44-51
+easter-3-fri	Jn 6:52-59
+easter-3-sat	Jn 6:60-69
+easter-4-mon	Jn 10:1-10
+easter-4-mon@A	Jn 10:11-18
+easter-4-tue	Jn 10:22-30
+easter-4-wed	Jn 12:44-50
+easter-4-thu	Jn 13:16-20
+easter-4-fri	Jn 14:1-6
+easter-4-sat	Jn 14:7-14
+easter-5-mon	Jn 14:21-26
+easter-5-tue	Jn 14:27-31a
+easter-5-wed	Jn 15:1-8
+easter-5-thu	Jn 15:9-11
+easter-5-fri	Jn 15:12-17
+easter-5-sat	Jn 15:18-21
+easter-6-mon	Jn 15:26-16:4a
+easter-6-tue	Jn 16:5-11
+easter-6-wed	Jn 16:12-15
+easter-6-thu	Jn 16:16-20
+easter-6-fri	Jn 16:20-23
+easter-6-sat	Jn 16:23b-28
+easter-7-mon	Jn 16:29-33
+easter-7-tue	Jn 17:1-11a
+easter-7-wed	Jn 17:11b-19
+easter-7-thu	Jn 17:20-26
+easter-7-fri	Jn 21:15-19
+easter-7-sat	Jn 21:20-25
+
+# Solemnities and memorials of the Lord and of Mary after Pentecost
+
+mary-mother-of-the-church	Jn 19:25-34
+trinity@A	Jn 3:16-18
+trinity@B	Mt 28:16-20
+trinity@C	Jn 16:12-15
+corpus-christi@A	Jn 6:51-58
+corpus-christi@B	Mk 14:12-16, 22-26
+corpus-christi@C	Lk 9:11b-17
+sacred-heart@A	Mt 11:25-30
+sacred-heart@B	Jn 19:31-37
+sacred-heart@C	Lk 15:3-7
+immaculate-heart	Lk 2:41-51
+christ-the-king@A	Mt 25:31-46
+christ-the-king@B	Jn 18:33b-37
+christ-the-king@C	Lk 23:35-43
+
+# Ordinary Time: Sundays (the First is the Baptism of the Lord, the
+# Thirty-Fourth Christ the King)
+
+ot-2@A	Jn 1:29-34
+ot-2@B	Jn 1:35-42
+ot-2@C	Jn 2:1-11
+ot-3@A	Mt 4:12-23	short:Mt 4:12-17
+ot-3@B	Mk 1:14-20
+ot-3@C	Lk 1:1-4; 4:14-21
+ot-4@A	Mt 5:1-12a
+ot-4@B	Mk 1:21-28
+ot-4@C	Lk 4:21-30
+ot-5@A	Mt 5:13-16
+ot-5@B	Mk 1:29-39
+ot-5@C	Lk 5:1-11
+ot-6@A	Mt 5:17-37	short:Mt 5:20-22a, 27-28, 33-34a, 37
+ot-6@B	Mk 1:40-45
+ot-6@C	Lk 6:17, 20-26
+ot-7@A	Mt 5:38-48
+ot-7@B	Mk 2:1-12
+ot-7@C	Lk 6:27-38
+ot-8@A	Mt 6:24-34
+ot-8@B	Mk 2:18-22
+ot-8@C	Lk 6:39-45
+ot-9@A	Mt 7:21-27
+ot-9@B	Mk 2:23-3:6	short:Mk 2:23-28
+ot-9@C	Lk 7:1-10
+ot-10@A	Mt 9:9-13
+ot-10@B	Mk 3:20-35
+ot-10@C	Lk 7:11-17
+ot-11@A	Mt 9:36-10:8
+ot-11@B	Mk 4:26-34
+ot-11@C	Lk 7:36-8:3	short:Lk 7:36-50
+ot-12@A	Mt 10:26-33
+ot-12@B	Mk 4:35-41
+ot-12@C	Lk 9:18-24
+ot-13@A	Mt 10:37-42
+ot-13@B	Mk 5:21-43	short:Mk 5:21-24, 35-43
+ot-13@C	Lk 9:51-62
+ot-14@A	Mt 11:25-30
+ot-14@B	Mk 6:1-6
+ot-14@C	Lk 10:1-12, 17-20	short:Lk 10:1-9
+ot-15@A	Mt 13:1-23	short:Mt 13:1-9
+ot-15@B	Mk 6:7-13
+ot-15@C	Lk 10:25-37
+ot-16@A	Mt 13:24-43	short:Mt 13:24-30
+ot-16@B	Mk 6:30-34
+ot-16@C	Lk 10:38-42
+ot-17@A	Mt 13:44-52	short:Mt 13:44-46
+ot-17@B	Jn 6:1-15
+ot-17@C	Lk 11:1-13
+ot-18@A	Mt 14:13-21
+ot-18@B	Jn 6:24-35
+ot-18@C	Lk 12:13-21
+ot-19@A	Mt 14:22-33
+ot-19@B	Jn 6:41-51
+ot-19@C	Lk 12:32-48	short:Lk 12:35-40
+ot-20@A	Mt 15:21-28
+ot-20@B	Jn 6:51-58
+ot-20@C	Lk 12:49-53
+ot-21@A	Mt 16:13-20
+ot-21@B	Jn 6:60-69
+ot-21@C	Lk 13:22-30
+ot-22@A	Mt 16:21-27
+ot-22@B	Mk 7:1-8, 14-15, 21-23
+ot-22@C	Lk 14:1, 7-14
+ot-23@A	Mt 18:15-20
+ot-23@B	Mk 7:31-37
+ot-23@C	Lk 14:25-33
+ot-24@A	Mt 18:21-35
+ot-24@B	Mk 8:27-35
+ot-24@C	Lk 15:1-32	short:Lk 15:1-10
+ot-25@A	Mt 20:1-16a
+ot-25@B	Mk 9:30-37
+ot-25@C	Lk 16:1-13	short:Lk 16:10-13
+ot-26@A	Mt 21:28-32
+ot-26@B	Mk 9:38-43, 45, 47-48
+ot-26@C	Lk 16:19-31
+ot-27@A	Mt 21:33-43
+ot-27@B	Mk 10:2-16	short:Mk 10:2-12
+ot-27@C	Lk 17:5-10
+ot-28@A	Mt 22:1-14	short:Mt 22:1-10
+ot-28@B	Mk 10:17-30	short:Mk 10:17-27
+ot-28@C	Lk 17:11-19
+ot-29@A	Mt 22:15-21
+ot-29@B	Mk 10:35-45	short:Mk 10:42-45
+ot-29@C	Lk 18:1-8
+ot-30@A	Mt 22:34-40
+ot-30@B	Mk 10:46-52
+ot-30@C	Lk 18:9-14
+ot-31@A	Mt 23:1-12
+ot-31@B	Mk 12:28b-34
+ot-31@C	Lk 19:1-10
+ot-32@A	Mt 25:1-13
+ot-32@B	Mk 12:38-44	short:Mk 12:41-44
+ot-32@C	Lk 20:27-38	short:Lk 20:27, 34-38
+ot-33@A	Mt 25:14-30	short:Mt 25:14-15, 19-21
+ot-33@B	Mk 13:24-32
+ot-33@C	Lk 21:5-19
+
+# Ordinary Time: weekdays, the same in Years I and II. Mark is read in
+# Weeks 1 to 9, Matthew in 10 to 21, Luke in 22 to 34.
+
+ot-1-mon	Mk 1:14-20
+ot-1-tue	Mk 1:21-28
+ot-1-wed	Mk 1:29-39
+ot-1-thu	Mk 1:40-45
+ot-1-fri	Mk 2:1-12
+ot-1-sat	Mk 2:13-17
+ot-2-mon	Mk 2:18-22
+ot-2-tue	Mk 2:23-28
+ot-2-wed	Mk 3:1-6
+ot-2-thu	Mk 3:7-12
+ot-2-fri	Mk 3:13-19
+ot-2-sat	Mk 3:20-21
+ot-3-mon	Mk 3:22-30
+ot-3-tue	Mk 3:31-35
+ot-3-wed	Mk 4:1-20
+ot-3-thu	Mk 4:21-25
+ot-3-fri	Mk 4:26-34
+ot-3-sat	Mk 4:35-41
+ot-4-mon	Mk 5:1-20
+ot-4-tue	Mk 5:21-43
+ot-4-wed	Mk 6:1-6
+ot-4-thu	Mk 6:7-13
+ot-4-fri	Mk 6:14-29
+ot-4-sat	Mk 6:30-34
+ot-5-mon	Mk 6:53-56
+ot-5-tue	Mk 7:1-13
+ot-5-wed	Mk 7:14-23
+ot-5-thu	Mk 7:24-30
+ot-5-fri	Mk 7:31-37
+ot-5-sat	Mk 8:1-10
+ot-6-mon	Mk 8:11-13
+ot-6-tue	Mk 8:14-21
+ot-6-wed	Mk 8:22-26
+ot-6-thu	Mk 8:27-33
+ot-6-fri	Mk 8:34-9:1
+ot-6-sat	Mk 9:2-13
+ot-7-mon	Mk 9:14-29
+ot-7-tue	Mk 9:30-37
+ot-7-wed	Mk 9:38-40
+ot-7-thu	Mk 9:41-50
+ot-7-fri	Mk 10:1-12
+ot-7-sat	Mk 10:13-16
+ot-8-mon	Mk 10:17-27
+ot-8-tue	Mk 10:28-31
+ot-8-wed	Mk 10:32-45
+ot-8-thu	Mk 10:46-52
+ot-8-fri	Mk 11:11-26
+ot-8-sat	Mk 11:27-33
+ot-9-mon	Mk 12:1-12
+ot-9-tue	Mk 12:13-17
+ot-9-wed	Mk 12:18-27
+ot-9-thu	Mk 12:28b-34
+ot-9-fri	Mk 12:35-37
+ot-9-sat	Mk 12:38-44
+ot-10-mon	Mt 5:1-12
+ot-10-tue	Mt 5:13-16
+ot-10-wed	Mt 5:17-19
+ot-10-thu	Mt 5:20-26
+ot-10-fri	Mt 5:27-32
+ot-10-sat	Mt 5:33-37
+ot-11-mon	Mt 5:38-42
+ot-11-tue	Mt 5:43-48
+ot-11-wed	Mt 6:1-6, 16-18
+ot-11-thu	Mt 6:7-15
+ot-11-fri	Mt 6:19-23
+ot-11-sat	Mt 6:24-34
+ot-12-mon	Mt 7:1-5
+ot-12-tue	Mt 7:6, 12-14
+ot-12-wed	Mt 7:15-20
+ot-12-thu	Mt 7:21-29
+ot-12-fri	Mt 8:1-4
+ot-12-sat	Mt 8:5-17
+ot-13-mon	Mt 8:18-22
+ot-13-tue	Mt 8:23-27
+ot-13-wed	Mt 8:28-34
+ot-13-thu	Mt 9:1-8
+ot-13-fri	Mt 9:9-13
+ot-13-sat	Mt 9:14-17
+ot-14-mon	Mt 9:18-26
+ot-14-tue	Mt 9:32-38
+ot-14-wed	Mt 10:1-7
+ot-14-thu	Mt 10:7-15
+ot-14-fri	Mt 10:16-23
+ot-14-sat	Mt 10:24-33
+ot-15-mon	Mt 10:34-11:1
+ot-15-tue	Mt 11:20-24
+ot-15-wed	Mt 11:25-27
+ot-15-thu	Mt 11:28-30
+ot-15-fri	Mt 12:1-8
+ot-15-sat	Mt 12:14-21
+ot-16-mon	Mt 12:38-42
+ot-16-tue	Mt 12:46-50
+ot-16-wed	Mt 13:1-9
+ot-16-thu	Mt 13:10-17
+ot-16-fri	Mt 13:18-23
+ot-16-sat	Mt 13:24-30
+ot-17-mon	Mt 13:31-35
+ot-17-tue	Mt 13:36-43
+ot-17-wed	Mt 13:44-46
+ot-17-thu	Mt 13:47-53
+ot-17-fri	Mt 13:54-58
+ot-17-sat	Mt 14:1-12
+ot-18-mon	Mt 14:13-21
+ot-18-mon@A	Mt 14:22-36
+ot-18-tue	Mt 14:22-36
+ot-18-tue@A	Mt 15:1-2, 10-14
+ot-18-wed	Mt 15:21-28
+ot-18-thu	Mt 16:13-23
+ot-18-fri	Mt 16:24-28
+ot-18-sat	Mt 17:14-20
+ot-19-mon	Mt 17:22-27
+ot-19-tue	Mt 18:1-5, 10, 12-14
+ot-19-wed	Mt 18:15-20
+ot-19-thu	Mt 18:21-19:1
+ot-19-fri	Mt 19:3-12
+ot-19-sat	Mt 19:13-15
+ot-20-mon	Mt 19:16-22
+ot-20-tue	Mt 19:23-30
+ot-20-wed	Mt 20:1-16
+ot-20-thu	Mt 22:1-14
+ot-20-fri	Mt 22:34-40
+ot-20-sat	Mt 23:1-12
+ot-21-mon	Mt 23:13-22
+ot-21-tue	Mt 23:23-26
+ot-21-wed	Mt 23:27-32
+ot-21-thu	Mt 24:42-51
+ot-21-fri	Mt 25:1-13
+ot-21-sat	Mt 25:14-30
+ot-22-mon	Lk 4:16-30
+ot-22-tue	Lk 4:31-37
+ot-22-wed	Lk 4:38-44
+ot-22-thu	Lk 5:1-11
+ot-22-fri	Lk 5:33-39
+ot-22-sat	Lk 6:1-5
+ot-23-mon	Lk 6:6-11
+ot-23-tue	Lk 6:12-19
+ot-23-wed	Lk 6:20-26
+ot-23-thu	Lk 6:27-38
+ot-23-fri	Lk 6:39-42
+ot-23-sat	Lk 6:43-49
+ot-24-mon	Lk 7:1-10
+ot-24-tue	Lk 7:11-17
+ot-24-wed	Lk 7:31-35
+ot-24-thu	Lk 7:36-50
+ot-24-fri	Lk 8:1-3
+ot-24-sat	Lk 8:4-15
+ot-25-mon	Lk 8:16-18
+ot-25-tue	Lk 8:19-21
+ot-25-wed	Lk 9:1-6
+ot-25-thu	Lk 9:7-9
+ot-25-fri	Lk 9:18-22
+ot-25-sat	Lk 9:43b-45
+ot-26-mon	Lk 9:46-50
+ot-26-tue	Lk 9:51-56
+ot-26-wed	Lk 9:57-62
+ot-26-thu	Lk 10:1-12
+ot-26-fri	Lk 10:13-16
+ot-26-sat	Lk 10:17-24
+ot-27-mon	Lk 10:25-37
+ot-27-tue	Lk 10:38-42
+ot-27-wed	Lk 11:1-4
+ot-27-thu	Lk 11:5-13
+ot-27-fri	Lk 11:15-26
+ot-27-sat	Lk 11:27-28
+ot-28-mon	Lk 11:29-32
+ot-28-tue	Lk 11:37-41
+ot-28-wed	Lk 11:42-46
+ot-28-thu	Lk 11:47-54
+ot-28-fri	Lk 12:1-7
+ot-28-sat	Lk 12:8-12
+ot-29-mon	Lk 12:13-21
+ot-29-tue	Lk 12:35-38
+ot-29-wed	Lk 12:39-48
+ot-29-thu	Lk 12:49-53
+ot-29-fri	Lk 12:54-59
+ot-29-sat	Lk 13:1-9
+ot-30-mon	Lk 13:10-17
+ot-30-tue	Lk 13:18-21
+ot-30-wed	Lk 13:22-30
+ot-30-thu	Lk 13:31-35
+ot-30-fri	Lk 14:1-6
+ot-30-sat	Lk 14:1, 7-11
+ot-31-mon	Lk 14:12-14
+ot-31-tue	Lk 14:15-24
+ot-31-wed	Lk 14:25-33
+ot-31-thu	Lk 15:1-10
+ot-31-fri	Lk 16:1-8
+ot-31-sat	Lk 16:9-15
+ot-32-mon	Lk 17:1-6
+ot-32-tue	Lk 17:7-10
+ot-32-wed	Lk 17:11-19
+ot-32-thu	Lk 17:20-25
+ot-32-fri	Lk 17:26-37
+ot-32-sat	Lk 18:1-8
+ot-33-mon	Lk 18:35-43
+ot-33-tue	Lk 19:1-10
+ot-33-wed	Lk 19:11-28
+ot-33-thu	Lk 19:41-44
+ot-33-fri	Lk 19:45-48
+ot-33-sat	Lk 20:27-40
+ot-34-mon	Lk 21:1-4
+ot-34-tue	Lk 21:5-11
+ot-34-wed	Lk 21:12-19
+ot-34-thu	Lk 21:20-28
+ot-34-fri	Lk 21:29-33
+ot-34-sat	Lk 21:34-36
+
+# Saints: the solemnities, the feasts, and the obligatory memorials that
+# have a Gospel of their own (other memorials keep the weekday's Gospel).
+# Keyed by month and day.
+
+01-25	Mk 16:15-18
+02-02	Lk 2:22-40	short:Lk 2:22-32
+02-22	Mt 16:13-19
+03-19	Mt 1:16, 18-21, 24a	Lk 2:41-51a
+03-25	Lk 1:26-38
+04-25	Mk 16:15-20
+05-03	Jn 14:6-14
+05-14	Jn 15:9-17
+05-31	Lk 1:39-56
+06-11	Mt 10:7-13
+06-24	vigil:Lk 1:5-17	*day:Lk 1:57-66, 80
+06-29	vigil:Jn 21:15-19	*day:Mt 16:13-19
+07-03	Jn 20:24-29
+07-22	Jn 20:1-2, 11-18
+07-25	Mt 20:20-28
+07-26	Mt 13:16-17
+07-29	Jn 11:19-27	Lk 10:38-42
+08-06@A	Mt 17:1-9
+08-06@B	Mk 9:2-10
+08-06@C	Lk 9:28b-36
+08-10	Jn 12:24-26
+08-15	vigil:Lk 11:27-28	*day:Lk 1:39-56
+08-24	Jn 1:45-51
+08-29	Mk 6:17-29
+09-08	Mt 1:1-16, 18-23	short:Mt 1:18-23
+09-14	Jn 3:13-17
+09-15	Jn 19:25-27	Lk 2:33-35
+09-21	Mt 9:9-13
+09-29	Jn 1:47-51
+10-02	Mt 18:1-5, 10
+10-18	Lk 10:1-9
+10-28	Lk 6:12-19
+11-01	Mt 5:1-12a
+11-02	Jn 6:37-40	Mt 5:1-12a	Mt 11:25-30	Mt 25:31-46	Lk 7:11-17	Lk 23:44-46, 50, 52-53; 24:1-6a	Lk 24:13-16, 28-35	Jn 5:24-29	Jn 6:51-59	Jn 11:17-27	Jn 11:32-45	Jn 14:1-6
+11-09	Jn 2:13-22
+11-30	Mt 4:18-22
+12-08	Lk 1:26-38
+12-26	Mt 10:17-22
+12-27	Jn 20:1a, 2-8
+12-28	Mt 2:13-18

@@ -6,6 +6,10 @@ import {
   GOSPEL_IDS,
   VERNACULARS,
 } from "./config.js";
+import { parseISODate } from "./liturgy.js";
+
+// The two ways of reading: a whole Gospel, or the Gospel of the day.
+export const VIEWS = ["reader", "daily"];
 
 const STORAGE_KEY = "euangelion:settings";
 
@@ -50,12 +54,23 @@ export function loadSettings() {
     columns: columns.length ? columns : COLUMN_IDS,
     fontScale: FONT_SCALES.includes(stored.fontScale) ? stored.fontScale : 1,
     welcomed: stored.welcomed === true,
+    view: VIEWS.includes(stored.view) ? stored.view : "reader",
+    catena: stored.catena === true,
   };
 }
 
-// The address names the place being read: "#john", "#john/3" or "#john/3/16".
+// The address names the place being read: "#john", "#john/3" or "#john/3/16";
+// or the day whose Gospel is read: "#today" or "#2026-11-24" (from 1583, the
+// first year of the Gregorian calendar).
 export function parseLocation(hash) {
-  const [gospel, chapter, verse] = hash.replace(/^#/, "").split("/");
+  const text = hash.replace(/^#/, "");
+  if (text === "today") {
+    return { daily: true, date: null };
+  }
+  if (parseISODate(text) !== null && text >= "1583") {
+    return { daily: true, date: text };
+  }
+  const [gospel, chapter, verse] = text.split("/");
   if (!GOSPEL_IDS.includes(gospel)) {
     return null;
   }
@@ -71,4 +86,9 @@ export function parseLocation(hash) {
 export function writeLocation(gospel, chapter = null, verse = null) {
   const parts = [gospel, chapter, chapter ? verse : null].filter((part) => part != null);
   history.replaceState(null, "", `#${parts.join("/")}`);
+}
+
+// `date` null is today, whichever day that is when the page is opened.
+export function writeDailyLocation(date) {
+  history.replaceState(null, "", `#${date ?? "today"}`);
 }

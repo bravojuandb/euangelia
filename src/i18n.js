@@ -47,12 +47,25 @@ export const UI = {
       "Con los botones de «Columnas» eliges qué lenguas ver. Puedes dejar solo el español.",
       "Toca o haz clic en un versículo para resaltarlo en todas las columnas. La dirección de la página apunta entonces a ese versículo: cópiala para compartirlo.",
       "Para saltar a otro lugar, elige un capítulo o escribe una cita como 3:16 y pulsa «Ir».",
+      "«Hoy» muestra el Evangelio de la misa de cada día en el rito romano, según el calendario romano general, con la Ascensión y el Corpus Christi en domingo. Las flechas y la fecha llevan a otros días. El texto es el de estas columnas, no el de los leccionarios actuales; cuando la cita toma solo parte de un versículo (5a, 12b), se muestra el versículo entero.",
       "En el griego, los corchetes [ ] marcan palabras de autenticidad dudosa, y los dobles ⟦ ⟧, pasajes añadidos más tarde, como Juan 7:53–8:11.",
       "Algunos versículos no tienen griego: faltan en los manuscritos más antiguos y el texto crítico los omite. Las traducciones antiguas sí los incluyen.",
+      "«Catena Aurea», en la fila de las columnas, señala con una cruz (†) los versículos que comentan los Padres: los pasajes que santo Tomás de Aquino reunió de Crisóstomo, Agustín, Jerónimo y otros, en el orden en que los encadenó. Tócala para leerlos. Están en inglés, en la traducción de Oxford del siglo XIX.",
     ],
     about: {
       "torres-amat":
         "La traducción española es la de Félix Torres Amat (1836) y conserva la ortografía de su época: á, Jesus, habia.",
+    },
+    catena: {
+      group: "Comentario",
+      open: (reference) => `Comentario de los Padres a ${reference}`,
+      close: "Cerrar el comentario",
+      note: "Catena Aurea de santo Tomás de Aquino, en la traducción inglesa de la edición de Oxford (1841–1845), dirigida por John Henry Newman.",
+      unattributed: "Sin atribuir",
+    },
+    scroll: {
+      top: "Ir al principio",
+      end: "Ir al final del texto",
     },
     credits: {
       greek: "Griego",
@@ -67,6 +80,7 @@ export const UI = {
       publicDomain: "dominio público",
       greekNote: "sin los signos de crítica textual",
       latinNote: "sin las marcas de maquetación",
+      commentary: "Comentario",
     },
   },
 
@@ -112,12 +126,25 @@ export const UI = {
       "Przyciskami „Kolumny” wybierasz, które języki widać. Możesz zostawić sam polski.",
       "Dotknij lub kliknij werset, aby podświetlić go we wszystkich kolumnach. Adres strony wskazuje wtedy ten werset: skopiuj go, aby go komuś wysłać.",
       "Aby przejść w inne miejsce, wybierz rozdział albo wpisz np. 3,16 i naciśnij „Przejdź”.",
+      "„Dziś” pokazuje Ewangelię z Mszy każdego dnia w rycie rzymskim, według ogólnego kalendarza rzymskiego, z Wniebowstąpieniem i Bożym Ciałem w niedzielę. Strzałki i data prowadzą do innych dni. Tekst pochodzi z tych kolumn, a nie z obecnych lekcjonarzy; gdy odnośnik obejmuje tylko część wersetu (5a, 12b), pokazany jest cały werset.",
       "W tekście greckim nawiasy [ ] oznaczają słowa o wątpliwej autentyczności, a podwójne ⟦ ⟧ – fragmenty dodane później, np. J 7,53–8,11.",
       "Niektóre wersety nie mają tekstu greckiego: brak ich w najstarszych rękopisach, więc wydanie krytyczne je pomija. Dawne przekłady je zawierają.",
+      "„Catena Aurea” obok kolumn oznacza krzyżykiem (†) wersety komentowane przez Ojców: fragmenty, które św. Tomasz z Akwinu zebrał z Chryzostoma, Augustyna, Hieronima i innych, w kolejności, w jakiej je połączył. Dotknij go, aby je przeczytać. Są po angielsku, w oksfordzkim przekładzie z XIX wieku.",
     ],
     about: {
       wujek:
         "Przekład polski to Biblia ks. Jakuba Wujka w wydaniu z 1923 r., z ówczesną pisownią (np. jéj, woléj).",
+    },
+    catena: {
+      group: "Komentarz",
+      open: (reference) => `Komentarz Ojców do ${reference}`,
+      close: "Zamknij komentarz",
+      note: "Catena Aurea św. Tomasza z Akwinu w angielskim przekładzie wydania oksfordzkiego (1841–1845) pod redakcją Johna Henry’ego Newmana.",
+      unattributed: "Bez autora",
+    },
+    scroll: {
+      top: "Na początek",
+      end: "Na koniec tekstu",
     },
     credits: {
       greek: "Grecki",
@@ -132,6 +159,7 @@ export const UI = {
       publicDomain: "domena publiczna",
       greekNote: "bez znaków aparatu krytycznego",
       latinNote: "bez znaków układu tekstu",
+      commentary: "Komentarz",
     },
   },
 
@@ -177,13 +205,26 @@ export const UI = {
       "Use the “Columns” buttons to choose which languages to show. You can keep English alone.",
       "Tap or click a verse to highlight it in every column. The page address then points to that verse: copy it to share it.",
       "To go somewhere else, pick a chapter or type a reference such as 3:16 and press “Go”.",
+      "“Today” shows the Gospel of each day’s Mass in the Roman Rite, by the General Roman Calendar, with the Ascension and Corpus Christi on Sunday. The arrows and the date take you to other days. The text is that of these columns, not of today’s lectionaries; where the reference takes only part of a verse (5a, 12b), the whole verse is shown.",
       "In the Greek, brackets [ ] mark words of doubtful authenticity, and double brackets ⟦ ⟧ passages added later, such as John 7:53–8:11.",
       "Some verses have no Greek: they are missing from the oldest manuscripts, so the critical text leaves them out. Older translations keep them.",
+      "“Catena Aurea”, beside the columns, marks with a dagger (†) the verses the Fathers comment on: the passages Saint Thomas Aquinas gathered from Chrysostom, Augustine, Jerome and others, in the order he chained them. Tap it to read them. They are in English, in the Oxford translation of the 1840s.",
     ],
     about: {
       kjv: "The English is the King James Version of 1611, in the standard text of 1769, with its original wording (thee, saith). It was translated from the Greek text of its day, so now and then it has words the modern critical text leaves out. Words its translators printed in italics, added for sense, appear here as plain text.",
       "douay-rheims":
         "The English is the Douay-Rheims, the Catholic translation made from the Latin Vulgate (its New Testament first appeared at Rheims in 1582), in Bishop Challoner’s revision of 1749–1752 as printed in 1899. Because it follows the Latin, it reads closely alongside the Vulgate column, and its names and wording come from the Latin: Jonas, pasch, “Hail, full of grace”.",
+    },
+    catena: {
+      group: "Commentary",
+      open: (reference) => `Commentary of the Fathers on ${reference}`,
+      close: "Close the commentary",
+      note: "The Catena Aurea of Saint Thomas Aquinas, in the English of the Oxford edition (1841–1845), edited by John Henry Newman.",
+      unattributed: "Unattributed",
+    },
+    scroll: {
+      top: "Back to the top",
+      end: "To the end of the text",
     },
     credits: {
       greek: "Greek",
@@ -198,6 +239,7 @@ export const UI = {
       publicDomain: "public domain",
       greekNote: "text-critical signs removed",
       latinNote: "layout marks removed",
+      commentary: "Commentary",
     },
   },
 
@@ -241,11 +283,24 @@ export const UI = {
       "Les boutons « Colonnes » permettent de choisir les langues affichées. Vous pouvez ne garder que le français.",
       "Touchez ou cliquez un verset pour le mettre en évidence dans toutes les colonnes. L’adresse de la page désigne alors ce verset : copiez-la pour le partager.",
       "Pour aller ailleurs, choisissez un chapitre ou tapez une référence comme 3,16, puis appuyez sur « Aller ».",
+      "« Aujourd’hui » montre l’Évangile de la messe de chaque jour dans le rite romain, selon le calendrier romain général, avec l’Ascension et le Saint-Sacrement le dimanche. Les flèches et la date mènent aux autres jours. Le texte est celui de ces colonnes, non celui des lectionnaires actuels ; quand la référence ne prend qu’une partie d’un verset (5a, 12b), le verset est donné en entier.",
       "Dans le grec, les crochets [ ] signalent des mots d’authenticité douteuse, et les doubles crochets ⟦ ⟧ des passages ajoutés plus tard, comme Jean 7,53–8,11.",
       "Certains versets n’ont pas de grec : ils manquent dans les manuscrits les plus anciens, et le texte critique les omet. Les traductions anciennes les conservent.",
+      "« Catena Aurea », à côté des colonnes, marque d’une croix (†) les versets que commentent les Pères : les passages que saint Thomas d’Aquin a réunis de Chrysostome, Augustin, Jérôme et d’autres, dans l’ordre où il les a enchaînés. Touchez-la pour les lire. Ils sont en anglais, dans la traduction d’Oxford du XIXe siècle.",
     ],
     about: {
       crampon: "La traduction française est celle du chanoine Augustin Crampon, faite sur les textes originaux, dans l’édition révisée de 1923, qui fut la Bible catholique de référence en France jusqu’à la Bible de Jérusalem. Selon l’usage du temps, on y vouvoie Jésus : « Seigneur, ayez pitié de mon fils ».",
+    },
+    catena: {
+      group: "Commentaire",
+      open: (reference) => `Commentaire des Pères sur ${reference}`,
+      close: "Fermer le commentaire",
+      note: "La Catena Aurea de saint Thomas d’Aquin, dans la traduction anglaise de l’édition d’Oxford (1841–1845), dirigée par John Henry Newman.",
+      unattributed: "Sans attribution",
+    },
+    scroll: {
+      top: "Revenir en haut",
+      end: "Aller à la fin du texte",
     },
     credits: {
       greek: "Grec",
@@ -260,6 +315,7 @@ export const UI = {
       publicDomain: "domaine public",
       greekNote: "sans les signes de critique textuelle",
       latinNote: "sans les marques de mise en page",
+      commentary: "Commentaire",
     },
   },
 
@@ -303,11 +359,24 @@ export const UI = {
       "Con i pulsanti «Colonne» scegli quali lingue vedere. Puoi lasciare solo l’italiano.",
       "Tocca o fai clic su un versetto per evidenziarlo in tutte le colonne. L’indirizzo della pagina punta allora a quel versetto: copialo per condividerlo.",
       "Per andare altrove, scegli un capitolo o scrivi un riferimento come 3,16 e premi «Vai».",
+      "«Oggi» mostra il Vangelo della Messa di ogni giorno nel rito romano, secondo il Calendario romano generale, con l’Ascensione e il Corpus Domini di domenica. Le frecce e la data portano agli altri giorni. Il testo è quello di queste colonne, non quello dei lezionari attuali; quando il riferimento prende solo una parte di un versetto (5a, 12b), si mostra il versetto intero.",
       "Nel greco, le parentesi quadre [ ] segnano parole di autenticità dubbia, e le doppie ⟦ ⟧ passi aggiunti più tardi, come Giovanni 7,53–8,11.",
       "Alcuni versetti non hanno il greco: mancano nei manoscritti più antichi e il testo critico li omette. Le traduzioni antiche li conservano.",
+      "«Catena Aurea», accanto alle colonne, segna con una croce (†) i versetti commentati dai Padri: i passi che san Tommaso d’Aquino raccolse da Crisostomo, Agostino, Girolamo e altri, nell’ordine in cui li concatenò. Toccala per leggerli. Sono in inglese, nella traduzione di Oxford dell’Ottocento.",
     ],
     about: {
       martini: "La traduzione italiana è quella di mons. Antonio Martini (1769–1781), fatta sulla Vulgata latina: per questo segue da vicino la colonna latina. Ne conserva la lingua del Settecento (imperocché, de’, veggano). Il testo digitale è quello di Parola Viva.",
+    },
+    catena: {
+      group: "Commento",
+      open: (reference) => `Commento dei Padri a ${reference}`,
+      close: "Chiudi il commento",
+      note: "La Catena Aurea di san Tommaso d’Aquino, nella traduzione inglese dell’edizione di Oxford (1841–1845), curata da John Henry Newman.",
+      unattributed: "Senza attribuzione",
+    },
+    scroll: {
+      top: "Torna all’inizio",
+      end: "Vai alla fine del testo",
     },
     credits: {
       greek: "Greco",
@@ -322,6 +391,7 @@ export const UI = {
       publicDomain: "pubblico dominio",
       greekNote: "senza i segni di critica testuale",
       latinNote: "senza i segni di impaginazione",
+      commentary: "Commento",
     },
   },
 };

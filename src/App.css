@@ -600,6 +600,239 @@
   line-height: 1.6;
 }
 
+/* The Gospel of the day */
+
+.daily-nav {
+  justify-content: center;
+  gap: 4px;
+}
+
+.daily-nav .chapter-chip {
+  font-size: 1.3rem;
+}
+
+.reference-input.date-input {
+  width: auto;
+  padding: 0 6px;
+  text-align: center;
+}
+
+.daily-nav .reference-submit {
+  margin-left: 8px;
+}
+
+.daily-nav .reference-submit:disabled {
+  color: var(--faint);
+  cursor: default;
+}
+
+.daily-heading {
+  max-width: 900px;
+  margin: 6px auto 20px;
+  text-align: center;
+}
+
+.daily-heading-anchor {
+  scroll-margin-top: calc(var(--nav-height, 0px) + 12px);
+}
+
+.daily-date {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.daily-title {
+  margin: 6px 0 0;
+  font-size: clamp(1.3rem, 2vw, 1.7rem);
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--ink-strong);
+}
+
+.daily-note {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
+.daily-options {
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+/* On a line of its own, under the choice of Gospels. */
+.daily-context {
+  display: block;
+  width: fit-content;
+  margin: 6px auto 0;
+}
+
+/* The announcement of the Gospel, in each column's language, as the
+   Lectionary heads the reading. */
+.pericope-heading {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(var(--columns, 3), minmax(0, 1fr));
+  border-bottom: 1px solid rgba(84, 65, 38, 0.16);
+}
+
+.pericope-heading-cell {
+  padding: 18px 16px 14px;
+  text-align: center;
+}
+
+.pericope-heading-cell:not(:last-child) {
+  border-right: 1px solid rgba(84, 65, 38, 0.16);
+}
+
+.pericope-incipit {
+  margin: 0;
+  font-size: calc(1.05rem * var(--reader-font-scale));
+  font-style: italic;
+  line-height: 1.35;
+  color: var(--ink-strong);
+}
+
+.pericope-reference {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  color: var(--rubric);
+}
+
+/* Verses the reading leaves out. */
+.verse-gap {
+  grid-column: 1 / -1;
+  padding: 6px 0;
+  text-align: center;
+  letter-spacing: 0.3em;
+  color: var(--faint);
+}
+
+/* The commentary of the Fathers (Catena Aurea) */
+
+/* A dagger under the verse number, as books mark a note. */
+.parallel-cell {
+  position: relative;
+}
+
+.note-marker {
+  position: absolute;
+  top: 30px;
+  left: 10px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--rubric);
+  font: inherit;
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.note-marker:hover,
+.note-marker[aria-expanded="true"] {
+  background: rgba(181, 53, 32, 0.1);
+}
+
+.note-marker:focus-visible {
+  outline: var(--focus-ring);
+}
+
+.commentary {
+  box-sizing: border-box;
+  width: min(100% - 28px, 48rem);
+  margin: 2px auto 16px;
+  padding: 14px 22px 16px;
+  border-top: 2px solid var(--rubric);
+  border-bottom: 1px solid var(--rule);
+  background: rgba(233, 218, 186, 0.35);
+  text-align: left;
+}
+
+.commentary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.commentary-title {
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.commentary-close {
+  width: 36px;
+  height: 36px;
+  margin-right: -10px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.commentary-close:hover {
+  color: var(--ink-strong);
+}
+
+.commentary-reference {
+  margin: 10px 0 4px;
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: var(--rubric);
+}
+
+.commentary-excerpt {
+  margin: 12px 0 0;
+}
+
+.commentary-father {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+  font-weight: 400;
+  font-variant: small-caps;
+  letter-spacing: 0.06em;
+  color: var(--rubric);
+}
+
+.commentary-cite {
+  font-size: 0.85rem;
+  font-style: italic;
+  font-variant: normal;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+
+.commentary-excerpt p {
+  margin: 0 0 8px;
+  font-size: calc(17px * var(--reader-font-scale));
+  line-height: 1.55;
+  color: var(--ink);
+  hyphens: auto;
+  text-wrap: pretty;
+}
+
+.commentary-note {
+  margin: 14px 0 0;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
 /* Credits */
 
 .credits {
@@ -669,6 +902,52 @@
 }
 
 /* One column on phones */
+
+/* Arrows to the head of the page and the end of the text */
+
+.scroll-arrows {
+  position: fixed;
+  right: max(14px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scroll-arrow {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--control-border);
+  border-radius: 50%;
+  background: rgba(244, 234, 208, 0.92);
+  box-shadow: 0 4px 12px rgba(92, 65, 30, 0.12);
+  color: var(--rubric);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.scroll-arrow.is-shown {
+  opacity: 1;
+  visibility: visible;
+}
+
+.scroll-arrow:hover {
+  background: #efe0be;
+}
+
+.scroll-arrow:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
 
 @media (max-width: 720px) {
   .app-shell {
@@ -785,6 +1064,34 @@
     margin-bottom: 8px;
   }
 
+  .pericope-heading {
+    grid-template-columns: 1fr;
+  }
+
+  .pericope-heading-cell {
+    padding: 10px 12px;
+  }
+
+  .pericope-heading-cell:not(:last-child) {
+    border-right: none;
+    border-bottom: 1px solid rgba(84, 65, 38, 0.16);
+  }
+
+  /* Under the language code, which takes the verse number's place. */
+  .is-multi .note-marker {
+    top: 22px;
+  }
+
+  .commentary {
+    width: 100%;
+    padding: 12px 14px 14px;
+  }
+
+  /* The day's Gospels wrap, each on its own when it has a label. */
+  .daily-options.segmented {
+    flex-wrap: wrap;
+  }
+
   .parallel-cell:not(:last-child) {
     border-right: none;
   }
@@ -820,7 +1127,8 @@
   .segment,
   .text-button,
   .chapter-chip,
-  .reference-submit {
+  .reference-submit,
+  .scroll-arrow {
     transition: none;
   }
 }
