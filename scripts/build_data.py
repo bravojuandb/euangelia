@@ -10,6 +10,7 @@ Latin, and so does the Crampon in Mark):
 
   ("merge", c, a, b)      verses c:a..c:b form one verse c:a; later verses move up
   ("split", c, v, marks)  verse c:v is cut where marks[source] begins; later verses move down
+  ("swap", c, a, b)       the texts of verses c:a and c:b trade places
   ("to_next", c)          the last verse of chapter c becomes (c+1):1
 
 Each Gospel gets a folder with verses.json, the list of [chapter, verse] in
@@ -44,31 +45,62 @@ from parsers import (  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
+BEATITUDES = ("swap", 5, 4, 5)
+
+# These editions print the two men in verse 35 and give the disciples'
+# question its own number. The reader follows the Greek and KJV numbering.
+LUKE_FIELD_VERSES = [
+    ("split", 17, 35, {
+        "latin": "duo in agro",
+        "spanish": "dos hombres en el mismo campo",
+        "polish": "Dwaj na polu",
+        "crampon": "[de deux hommes",
+        "martini": "due (saranno) in un campo",
+        "douay": "two men shall be in the field",
+    }),
+    ("merge", 17, 36, 37),
+]
+
+# Parola Viva stops after the question in its John 11:56. The sentence
+# below continues that verse in the printed Martini (e-rara 14913624).
+MARTINI_JOHN_11_57 = (
+    "E i Pontefici e i Farisei avevano mandato un ordine, che chi sapesse, "
+    "dove egli si fosse, ne desse avviso, affine di averlo nelle mani."
+)
+
 BOOKS = {
     "matthew": {
-        "vulgate_ops": [("split", 17, 14, {"latin": "dicens : Domine", "spanish": "le dijo: Señor"})],
-        "douay_ops": [("split", 17, 14, {"douay": "saying: Lord"})],
-        "martini_ops": [("split", 17, 14, {"martini": "dicendo: Signore"})],
+        "vulgate_ops": [
+            BEATITUDES,
+            ("split", 17, 14, {"latin": "dicens : Domine", "spanish": "le dijo: Señor"}),
+        ],
+        "douay_ops": [BEATITUDES, ("split", 17, 14, {"douay": "saying: Lord"})],
+        "martini_ops": [BEATITUDES, ("split", 17, 14, {"martini": "dicendo: Signore"})],
         # This edition joins 17:14-15 as the Vulgate does, and divides 17:27 in two.
         "crampon_ops": [
+            BEATITUDES,
             ("split", 17, 14, {"crampon": "il lui dit : « Seigneur"}),
             ("merge", 17, 26, 27),
         ],
-        "polish_ops": [],
+        "polish_ops": [BEATITUDES],
         # The 1836 printing skips from 14:11 "...en una fuente," to 14:13.
         "spanish_missing": ["14:12"],
         "spanish_fixes": {
             "3:3": [("di- ciendo", "diciendo")],
             "5:12": [("grande:—la", "grande la")],
+            "8:25": [("deSpertaron", "despertaron")],
+            "14:3": [("áJuan", "á Juan")],
             "15:2": [("tradi- cion", "tradicion")],
             "17:26": [("por tí. }", "por tí.")],
             "23:25": [("corazon'", "corazon")],
             "23:36": [("presente.{", "presente.")],
             "24:33": [("ya' á", "ya á")],
             "26:35": [("discípulos..", "discípulos.")],
+            "26:65": [("eÍ Sumo", "el Sumo")],
+            "27:53": [("deSpues", "despues")],
+            "27:59": [("Joseph pu,", "Joseph pues,")],
         },
         "polish_fixes": {},
-        "martini_missing": [],
         # Reading slips in the digital text, in the Vulgate numbering.
         "martini_fixes": {
             "17:23": [("accontarono", "accostarono")],
@@ -92,16 +124,21 @@ BOOKS = {
             "13:2": [("mag- níficos", "magníficos")],
         },
         "polish_fixes": {},
-        "martini_missing": [],
         "martini_fixes": {},
     },
     "luke": {
-        "vulgate_ops": [],
-        "douay_ops": [],
-        "martini_ops": [],
-        "crampon_ops": [],
+        "vulgate_ops": LUKE_FIELD_VERSES,
+        "douay_ops": LUKE_FIELD_VERSES,
+        "douay_fixes": {"17:35": [("shall be keft", "shall be left")]},
+        "martini_ops": LUKE_FIELD_VERSES,
+        "crampon_ops": LUKE_FIELD_VERSES,
         # The Wikisource transcription of Wujek splits three verses in two.
-        "polish_ops": [("merge", 3, 28, 29), ("merge", 4, 42, 43), ("merge", 19, 47, 48)],
+        "polish_ops": [
+            ("merge", 3, 28, 29),
+            ("merge", 4, 42, 43),
+            *LUKE_FIELD_VERSES,
+            ("merge", 19, 47, 48),
+        ],
         "spanish_missing": [],
         "spanish_fixes": {
             "3:1": [("Phi- lippo", "Philippo")],
@@ -109,9 +146,9 @@ BOOKS = {
             "8:1": [("ciu- dades", "ciudades")],
             "8:10": [("habla'", "habla")],
             "9:3": [("defenderos'", "defenderos")],
+            "17:35": [("la oira", "la otra")],
         },
         "polish_fixes": {"12:57": [("57 Przeczże", "Przeczże")]},
-        "martini_missing": [],
         "martini_fixes": {"10:13": [("Silone", "Sidone")]},
     },
     "john": {
@@ -121,7 +158,6 @@ BOOKS = {
         ],
         # This edition already divides 11:56-57 as the Greek does.
         "douay_ops": [("merge", 6, 51, 52)],
-        "martini_ops": [("merge", 6, 51, 52)],
         "crampon_ops": [],
         "polish_ops": [],
         "spanish_missing": [],
@@ -138,10 +174,14 @@ BOOKS = {
             "18:27": [("y a] punto", "y al punto")],
         },
         "polish_fixes": {},
-        # Parola Viva's text ends 11:56 at "…alla festa?": the sentence the
-        # Greek numbers 11:57 is missing.
-        "martini_missing": ["11:57"],
-        "martini_fixes": {"11:55": [("parificarsi", "purificarsi")]},
+        "martini_ops": [
+            ("merge", 6, 51, 52),
+            ("split", 11, 56, {"martini": "E i Pontefici e i Farisei"}),
+        ],
+        "martini_fixes": {
+            "11:55": [("parificarsi", "purificarsi")],
+            "11:56": [("venuto alla festa?", f"venuto alla festa? {MARTINI_JOHN_11_57}")],
+        },
     },
 }
 
@@ -195,6 +235,10 @@ def apply_ops(texts, ops, source):
                 texts[key(c, w + 1)] = texts.pop(key(c, w))
             i = text.find(mark)
             texts[key(c, v)], texts[key(c, v + 1)] = text[:i].strip(), text[i:].strip()
+        elif op[0] == "swap":
+            _, c, a, b = op
+            first, second = key(c, a), key(c, b)
+            texts[first], texts[second] = texts[second], texts[first]
         elif op[0] == "to_next":
             _, c = op
             last = verses_of(texts, c)[-1]
@@ -240,11 +284,10 @@ def build(gospel, cfg, sources):
     italian = parse_martini(json.loads((sources / "it" / f"{gospel}.json").read_text(encoding="utf-8")))
     italian = apply_fixes(italian, cfg["martini_fixes"], "martini")
     italian = apply_ops(italian, cfg["martini_ops"], "martini")
-    for k in cfg["martini_missing"]:
-        italian[k] = ""
 
     kjv = parse_usfm((sources / "kjv" / f"{gospel}.usfm").read_text(encoding="utf-8-sig"))
     douay = parse_usfm((sources / "dra" / f"{gospel}.usfm").read_text(encoding="utf-8-sig"))
+    douay = apply_fixes(douay, cfg.get("douay_fixes", {}), "douay")
     douay = apply_ops(douay, cfg["douay_ops"], "douay")
 
     # Every source must cover the same verses, except those the Greek omits.
