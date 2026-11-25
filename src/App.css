@@ -862,6 +862,13 @@
   margin: 22px auto 0;
 }
 
+.credits .version {
+  margin-top: 10px;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+}
+
 /* Reading guide */
 
 .guide {

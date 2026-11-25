@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { version } from "../package.json";
 import "./App.css";
 import sello from "./assets/sello.png";
 import {
@@ -824,6 +825,9 @@ function App() {
           {ui.credits.and} <a href="https://ccel.org/ccel/aquinas/catena1">CCEL</a>.
         </p>
         <img className="colophon" src={sello} alt="JB" width="72" height="72" />
+        <p className="version">
+          <a href="https://github.com/bravojuandb/euangelion">Euangelion {version}</a>
+        </p>
       </footer>
 
       <dialog
