@@ -19,6 +19,7 @@ The data files are built from the sources with Python 3.9+ (standard library onl
 
 ```sh
 python3 scripts/fetch_sources.py        # download into scripts/sources/ (not committed)
+python3 scripts/fetch_sources.py --check # verify local source files against the manifest
 python3 scripts/build_data.py --check   # report: renumbering, gaps, length outliers
 python3 scripts/build_data.py           # write public/data/<gospel>/*.json
 python3 scripts/build_catena.py         # write public/data/<gospel>/catena.json (Python 3.11+)
@@ -26,7 +27,9 @@ python3 scripts/build_catena.py         # write public/data/<gospel>/catena.json
 
 `fetch_sources.py --only texts` or `--only fathers` downloads one part.
 
-The GitHub sources are pinned to a commit; the Wikisource pages, the eBible.org English Bibles and Parola Viva's Italian text are fetched as currently published. Every re-numbering and correction described below is listed per book in [scripts/build_data.py](../scripts/build_data.py), and the build stops if one no longer matches the text.
+The [source manifest](../scripts/sources.lock.json) records fingerprints for the inputs used to generate the published data. GitHub downloads use commit hashes and Wikisource downloads use revision IDs. eBible.org, Parola Viva and CCEL supply files at live URLs. If those files change or a transcluded Wikisource page changes, an archived copy of the matching inputs is needed for an exact rebuild. To review a source update, download the current editions to a separate directory with `python3 scripts/fetch_sources.py --latest --dest /path/to/review`.
+
+[scripts/build_data.py](../scripts/build_data.py) records the re-numbering and editorial corrections for each book. The builder checks that their source text matches the expected wording.
 
 ## Changes to each text
 
@@ -42,7 +45,7 @@ The Clementine Vulgate Project asks users to acknowledge the source and state th
 
 The Spanish column uses Torres Amat (1836) because the usual modern Catholic translations (Nácar-Colunga, Bover-Cantera, the Biblia de Jerusalén, the Biblia de Navarra) are still under copyright.
 
-The Spanish text is the Wikisource transcription of the 1836 edition, with its orthography (*á*, *Jesus*, *habia*). The words Torres Amat printed in italics as his own additions are kept as plain text. Where the transcription has no verse anchor or a mistyped one, verses are numbered in sequence. 26 transcription slips are corrected against the scans (stray apostrophes and braces, `=` for `?`, `a]` for `al`, words split at a line end, a speck read as `:—`), and the dashes that close some paragraphs are dropped. The 1836 printing itself skips from Matthew 14:11 "…en una fuente," to 14:13, so the rest of 14:11 and all of 14:12 are missing in Spanish.
+The Spanish text is the Wikisource transcription of the 1836 edition, with its orthography (*á*, *Jesus*, *habia*). The words Torres Amat printed in italics as his own additions are kept as plain text. Where the transcription has no verse anchor or a mistyped one, verses are numbered in sequence. Transcription slips are corrected against the scans, including `deSpertaron` for `despertaron` in Matthew 8:25, `Joseph pu` for `Joseph pues` in Matthew 27:59 and `oira` for `otra` in Luke 17:35. The dashes that close some paragraphs are dropped. The 1836 printing itself skips from Matthew 14:11 “...en una fuente,” to 14:13, so the rest of 14:11 and all of 14:12 are missing in Spanish. [1836 facsimile](https://es.wikisource.org/wiki/Archivo:La_Sagrada_Biblia_(XIII).djvu)
 
 ### Polish
 
@@ -50,22 +53,24 @@ The Polish text is kept as transcribed on Wikisource, including the 1923 orthogr
 
 ### French
 
-The French text is the Wikisource transcription of the 1923 Crampon, with its notes and section headings left out. It follows the Greek verse numbering, except that, like the Vulgate, it joins Matthew 17:14–15 and Mark 4:40–41, divides Matthew 17:27 in two and numbers Mark 9:1 as 8:39; these are re-keyed.
+The French text is the Wikisource transcription of the 1923 Crampon, with its notes and section headings left out. Like the Vulgate, it joins Matthew 17:14–15 and Mark 4:40–41, divides Matthew 17:27 in two and numbers Mark 9:1 as 8:39. Those verses follow the reader's common numbering.
 
 ### Italian
 
-The Italian text is Parola Viva's digital edition of Martini, which follows the Vulgate numbering. Five reading slips are corrected (`|oro`, `accontarono`, `l'Angolo`, `Silone`, `parificarsi`), and the sentence the Greek numbers John 11:57 is missing from it.
+The Italian text is Parola Viva's digital edition of Martini, which follows the Vulgate numbering. Five reading slips are corrected (`|oro`, `accontarono`, `l'Angolo`, `Silone`, `parificarsi`). The end of John 11:56 in the printed edition supplies the sentence missing from the digital text, placed here in John 11:57 under the reader's numbering. [Martini facsimile, p. 325](https://www.e-rara.ch/download/pdf/14913624.pdf#page=56)
 
 ### English
 
-The English texts are the eBible.org USFM editions. Their markup is removed: Strong's numbers, the paragraph signs (¶), and the styles for words in italics (added by the translators), words of Jesus and LORD are kept as plain text. The KJV was translated from the Greek Textus Receptus, so in places it has words the SBLGNT omits (e.g. Matthew 27:35, Luke 9:55–56). The Douay-Rheims was translated from the Latin Vulgate and follows it closely.
+The English texts are the eBible.org USFM editions. Strong's numbers and paragraph signs (¶) are removed. Words that USFM marks as italic, as words of Jesus or as LORD are kept in plain text. The KJV was translated from the Greek Textus Receptus, so in places it has words the SBLGNT omits, such as Matthew 27:35 and Luke 9:55–56. The Douay-Rheims follows the Latin Vulgate. In Luke 17:35–36, `keft` in the digital source is corrected to `left`. [Douay-Rheims, Luke 17](https://drbo.org/chapter/49017.htm)
 
 ## Verse numbering
 
-Rows follow the Greek verse numbering, which the KJV shares. The Latin, Spanish, Douay-Rheims and Italian texts use the Vulgate numbering and are re-keyed where it differs:
+Rows follow the Greek verse numbering, which the KJV shares. The reader aligns the other editions where they group, number or order the text differently.
 
+- Matthew 5:4–5 puts those who mourn before the meek in all columns, following the Greek and the KJV. The other six editions print these two beatitudes in the reverse order.
 - Matthew 17:14 is split into 17:14–15 (17:15–26 become 17:16–27).
 - Mark 4:40 is split into 4:40–41, and Mark 8:39 becomes 9:1 (9:1–49 become 9:2–50; the Polish text follows the Vulgate here too).
+- Luke 17:35–37 keeps the women at the mill in 17:35, the two men in the field in 17:36 and the question and answer together in 17:37. The six editions that join the two scenes and separate the question and answer are divided and joined accordingly.
 - John 6:51–52 form 6:51 (6:53–72 become 6:52–71), and John 11:56 is split into 11:56–57 (the Douay-Rheims already divides it there).
 
 In a few places the Vulgate ends a verse a few words earlier or later than the Greek (e.g. Luke 1:32–33, 9:42–44; Matthew 15:5–6, 16:2–3), so a phrase may sit in the neighbouring row.
