@@ -22,10 +22,15 @@ function Chevron({ down }) {
   );
 }
 
-// Two arrows at the side of the page: up to its head and down to the end of
-// the text (`endRef`), each shown while that end is far away.
+// How far the foot of the page is below the bottom of the window.
+function distanceToFoot() {
+  return document.documentElement.scrollHeight - window.scrollY - window.innerHeight;
+}
+
+// Two arrows at the side of the page, up to its head and down to its foot
+// (the credits and the seal), each shown while that end is far away.
 // `words`: UI[lang].scroll.
-export function ScrollArrows({ endRef, words }) {
+export function ScrollArrows({ words }) {
   const [shown, setShown] = useState({ top: false, end: false });
 
   useEffect(() => {
@@ -33,8 +38,10 @@ export function ScrollArrows({ endRef, words }) {
     const update = () => {
       frame = 0;
       const screen = window.innerHeight;
-      const end = endRef.current?.getBoundingClientRect().bottom ?? 0;
-      const next = { top: window.scrollY > screen * SCREENS, end: end - screen > screen * SCREENS };
+      const next = {
+        top: window.scrollY > screen * SCREENS,
+        end: distanceToFoot() > screen * SCREENS,
+      };
       setShown((last) => (last.top === next.top && last.end === next.end ? last : next));
     };
     const schedule = () => {
@@ -43,11 +50,9 @@ export function ScrollArrows({ endRef, words }) {
       }
     };
 
-    // The text grows as a Gospel loads, with no scroll.
+    // The page grows as a Gospel loads, with no scroll.
     const observer = new ResizeObserver(schedule);
-    if (endRef.current) {
-      observer.observe(endRef.current);
-    }
+    observer.observe(document.body);
     schedule();
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
@@ -57,16 +62,14 @@ export function ScrollArrows({ endRef, words }) {
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
     };
-  }, [endRef]);
+  }, []);
 
   const toTop = () => window.scrollTo({ top: 0, behavior: scrollBehavior() });
-  const toEnd = () => {
-    const end = endRef.current?.getBoundingClientRect().bottom ?? 0;
+  const toEnd = () =>
     window.scrollTo({
-      top: window.scrollY + end - window.innerHeight,
+      top: document.documentElement.scrollHeight,
       behavior: scrollBehavior(),
     });
-  };
 
   return (
     <div className="scroll-arrows">
