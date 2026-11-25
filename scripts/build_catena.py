@@ -22,8 +22,8 @@ Writes public/data/<gospel>/catena.json:
     {"fathers": ["Chrysostom", "Augustine", …],
      "comments": [[father, chapter, verse, chapter, verse, cite, [paragraph, …]], …]}
 
-`father` indexes `fathers` ("" for the few excerpts the transcription leaves
-unattributed); the four numbers are the verses commented on; `cite` is the
+`father` indexes `fathers` ("" if no attribution can be established);
+the four numbers are the verses commented on; `cite` is the
 work the excerpt is taken from, as the edition gives it ("Hom. in Matt.
 15"), or "". Comments are in the order of the Catena. With --check, nothing
 is written.
@@ -42,6 +42,23 @@ DATA = ROOT / "public" / "data"
 
 CHAPTERS = {"matthew": 28, "mark": 16, "luke": 24, "john": 21}
 FROM_TEXT = {("matthew", 15)}
+
+# The English transcription omits these names. The Latin edition in
+# Corpus Thomisticum identifies them at 85337, 85736 and 86150 respectively.
+ATTRIBUTIONS = {
+    "matthew": {(1, 6): ("The Evangelist has now finished", "Gloss")},
+    "luke": {(1, 30): ("When the angel saw that she was troubled", "Bede")},
+    "john": {(19, 23): ("On Pilate giving sentence", "Augustine")},
+}
+
+# The Oxford translation transcribed by CCEL confirms these readings.
+MATTHEW_ERRATA = (
+    ((1, 1), "in Hebrewa;", "in Hebrew;"),
+    ((1, 1), "of the earth he blessed", "of the earth be blessed"),
+    ((1, 1), "will lore him", "will love him"),
+    ((15, 39), "Greek textp.", "Greek text."),
+    ((15, 39), "It mill be fair weather", "It will be fair weather"),
+)
 
 # The Fathers' names as the HTML prints them (in capitals), where a plain
 # change of case would not give their usual English name.
@@ -239,6 +256,35 @@ def read_text_chapter(path, chapter):
     return passages
 
 
+def correct_excerpts(gospel, passages):
+    for start, (opening, name) in ATTRIBUTIONS.get(gospel, {}).items():
+        matches = [
+            entry
+            for passage in passages if passage.start == start
+            for entry in passage.excerpts
+            if not entry[0] and entry[2] and entry[2][0].startswith(opening)
+        ]
+        if len(matches) != 1:
+            raise CatenaError(f"{gospel} {start}: unattributed excerpt {opening!r} not found once")
+        matches[0][0] = name
+
+    if gospel != "matthew":
+        return
+    for start, old, new in MATTHEW_ERRATA:
+        matches = [
+            (paragraphs, i)
+            for passage in passages if passage.start == start
+            for _, _, paragraphs in passage.excerpts
+            for i, paragraph in enumerate(paragraphs) if old in paragraph
+        ]
+        if len(matches) != 1:
+            raise CatenaError(f"matthew {start}: erratum {old!r} not found once")
+        paragraphs, i = matches[0]
+        if paragraphs[i].count(old) != 1:
+            raise CatenaError(f"matthew {start}: erratum {old!r} appears more than once")
+        paragraphs[i] = paragraphs[i].replace(old, new)
+
+
 def build_gospel(gospel):
     verses = [tuple(v) for v in json.loads((DATA / gospel / "verses.json").read_text(encoding="utf-8"))]
     position = {verse: i for i, verse in enumerate(verses)}
@@ -248,6 +294,8 @@ def build_gospel(gospel):
             passages += read_text_chapter(SOURCES / f"{gospel}.txt", chapter)
         else:
             passages += read_html(SOURCES / gospel / f"{chapter}.html")
+
+    correct_excerpts(gospel, passages)
 
     problems = []
     for passage in passages:

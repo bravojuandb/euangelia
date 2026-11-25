@@ -1,6 +1,7 @@
 """Download the source texts of the four Gospels.
 
 Usage: python3 scripts/fetch_sources.py [--dest DIR] [--only texts|fathers]
+                                       [--check | --latest]
 
 Files are written to scripts/sources/ (not committed) as
 gr/<gospel>.txt, la/<gospel>.lat, es/<gospel>.json, pl/<gospel>.json,
@@ -8,23 +9,34 @@ fr/<gospel>.json, it/<gospel>.json, kjv/<gospel>.usfm and dra/<gospel>.usfm;
 and, for the commentary of the Fathers, catena/<gospel>/<chapter>.html (the
 Catena Aurea, one file per chapter) and catena/matthew.txt (CCEL's text of
 the Catena on Matthew, which supplies the one chapter the others lack).
-GitHub files are pinned to a commit. Wikisource pages are rendered by the
-MediaWiki API from the current transcription, and eBible.org and Parola Viva
-serve their current editions, so these can change; build_data.py stops if a
-correction or the verse numbering no longer matches.
+GitHub files are pinned to commits and Wikisource pages to revisions. The
+source manifest checks downloads against the inputs used to build the data.
 """
 
 import argparse
+import hashlib
 import io
 import json
 import pathlib
+import re
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 import zipfile
 
-USER_AGENT = "gospel-data-fetch/1.0 (one-off script)"
+USER_AGENT = "Euangelia source fetcher/1.0 (https://github.com/bravojuandb/euangelia)"
+SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
+SOURCE_LOCK = SCRIPT_DIR / "sources.lock.json"
+WIKISOURCE = {"es": "spanish", "pl": "polish", "fr": "french"}
+
+# MediaWiki appends diagnostics whose timing, cache metadata and render ID
+# can differ between requests for the same revision.
+RENDER_COMMENTS = re.compile(
+    r"\s*<!--\s*(?:NewPP limit report|Transclusion expansion time report|"
+    r"Render ID|Saved in parser cache)\b.*?-->",
+    re.S,
+)
 
 SBLGNT = (
     "https://raw.githubusercontent.com/Faithlife/SBLGNT/"
@@ -115,9 +127,31 @@ def get(url, attempts=4):
     raise RuntimeError("unreachable")
 
 
-def wikisource_page(language, title):
+def source_sha256(relative, body):
+    """Fingerprint a build input independently of the upstream transport."""
+    folder = relative.split("/", 1)[0]
+    if folder in WIKISOURCE:
+        rendered = json.loads(body)["parse"]["text"]
+        body = RENDER_COMMENTS.sub("", rendered).encode("utf-8")
+    elif folder == "it":
+        body = json.dumps(json.loads(body), sort_keys=True, ensure_ascii=False).encode("utf-8")
+    return hashlib.sha256(body).hexdigest()
+
+
+def verify_source(relative, body, fingerprints):
+    expected = fingerprints[relative]
+    actual = source_sha256(relative, body)
+    if actual != expected:
+        raise SystemExit(
+            f"{relative}: source fingerprint differs from {SOURCE_LOCK.name}\n"
+            f"  expected {expected}\n  received {actual}"
+        )
+
+
+def wikisource_page(language, title, revision):
+    page = {"page": title} if revision is None else {"oldid": revision}
     query = urllib.parse.urlencode(
-        {"action": "parse", "page": title, "prop": "text", "format": "json", "formatversion": 2}
+        {"action": "parse", **page, "prop": "text|revid", "format": "json", "formatversion": 2}
     )
     body = get(f"https://{language}.wikisource.org/w/api.php?{query}")
     data = json.loads(body)
@@ -137,35 +171,57 @@ def martini_book(book, chapters):
     return json.dumps(files, ensure_ascii=False).encode("utf-8")
 
 
-def catena_files(dest):
+def catena_files(save):
     """The Catena Aurea, chapter by chapter, and CCEL's text of its Matthew."""
     for gospel, (book, chapters) in CATENA_BOOKS.items():
-        (dest / "catena" / gospel).mkdir(parents=True, exist_ok=True)
         for chapter in range(1, chapters + 1):
             if (gospel, chapter) in CATENA_MISSING:
                 continue
             body = get(CATENA.format(book, chapter))
-            (dest / "catena" / gospel / f"{chapter}.html").write_bytes(body)
-    (dest / "catena" / "matthew.txt").write_bytes(get(CATENA_MATTHEW_TEXT))
+            save(f"catena/{gospel}/{chapter}.html", body)
+    save("catena/matthew.txt", get(CATENA_MATTHEW_TEXT))
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--dest", type=pathlib.Path,
-                        default=pathlib.Path(__file__).resolve().parent / "sources")
+    parser.add_argument("--dest", type=pathlib.Path, default=SCRIPT_DIR / "sources")
     parser.add_argument("--only", choices=("texts", "fathers"),
                         help="download only the Gospel texts, or only the commentary")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--check", action="store_true",
+                      help="verify existing local inputs without downloading")
+    mode.add_argument("--latest", action="store_true",
+                      help="download live inputs without checking the manifest")
     args = parser.parse_args()
+    manifest = json.loads(SOURCE_LOCK.read_text(encoding="utf-8"))
+    fingerprints = manifest["sha256"]
+    if args.check:
+        for relative in fingerprints:
+            group = "fathers" if relative.startswith("catena/") else "texts"
+            if args.only not in (None, group):
+                continue
+            path = args.dest / relative
+            try:
+                body = path.read_bytes()
+            except FileNotFoundError:
+                raise SystemExit(f"source file missing: {path}") from None
+            verify_source(relative, body, fingerprints)
+        print(f"source fingerprints verified in {args.dest}")
+        return
+
+    def save(relative, body):
+        if not args.latest:
+            verify_source(relative, body, fingerprints)
+        path = args.dest / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(body)
 
     if args.only != "texts":
         print("Commentary of the Fathers: the Catena Aurea")
-        catena_files(args.dest)
+        catena_files(save)
     if args.only == "fathers":
         print(f"sources written to {args.dest}")
         return
-
-    for folder in ("gr", "la", "es", "pl", "fr", "it", "kjv", "dra"):
-        (args.dest / folder).mkdir(parents=True, exist_ok=True)
 
     print("King James Version and Douay-Rheims (eBible.org)")
     english = {
@@ -176,13 +232,14 @@ def main():
     for gospel, source in SOURCES.items():
         print(f"{gospel}: Greek, Latin, Spanish, Polish, French, Italian, English")
         for folder, archive in english.items():
-            (args.dest / folder / f"{gospel}.usfm").write_bytes(archive.read(source[folder]))
-        (args.dest / "gr" / f"{gospel}.txt").write_bytes(get(SBLGNT.format(source["greek"])))
-        (args.dest / "la" / f"{gospel}.lat").write_bytes(get(CLEMENTINE.format(source["latin"])))
-        (args.dest / "es" / f"{gospel}.json").write_bytes(wikisource_page("es", source["spanish"]))
-        (args.dest / "pl" / f"{gospel}.json").write_bytes(wikisource_page("pl", source["polish"]))
-        (args.dest / "fr" / f"{gospel}.json").write_bytes(wikisource_page("fr", source["french"]))
-        (args.dest / "it" / f"{gospel}.json").write_bytes(martini_book(*source["italian"]))
+            save(f"{folder}/{gospel}.usfm", archive.read(source[folder]))
+        save(f"gr/{gospel}.txt", get(SBLGNT.format(source["greek"])))
+        save(f"la/{gospel}.lat", get(CLEMENTINE.format(source["latin"])))
+        for language, edition in WIKISOURCE.items():
+            relative = f"{language}/{gospel}.json"
+            revision = None if args.latest else manifest["wikisource_revisions"][relative]
+            save(relative, wikisource_page(language, source[edition], revision))
+        save(f"it/{gospel}.json", martini_book(*source["italian"]))
     print(f"sources written to {args.dest}")
 
 
