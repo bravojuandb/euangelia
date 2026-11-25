@@ -10,17 +10,33 @@ import {
   VERNACULAR_LANGUAGES,
   VERNACULARS,
 } from "./config.js";
-import { useGospelData } from "./data.js";
+import { CommentaryPanel } from "./Commentary.jsx";
+import { DailyHeading, DailyNav } from "./DailyGospel.jsx";
+import { useCatena, useGospelData, useLectionary } from "./data.js";
+import ParallelReader from "./ParallelReader.jsx";
+import { ScrollArrows } from "./ScrollArrows.jsx";
 import { UI } from "./i18n.js";
-import { loadSettings, parseLocation, saveSettings, writeLocation } from "./settings.js";
+import { lectionaryEntry, liturgicalDay, todayISO } from "./liturgy.js";
+import { COLUMN_WORDS, LITURGY } from "./liturgyText.js";
 import {
-  bindPunctuation,
-  parseReference,
-  toGreekNumeral,
-  toRomanNumeral,
-} from "./text.js";
+  loadSettings,
+  parseLocation,
+  saveSettings,
+  writeDailyLocation,
+  writeLocation,
+} from "./settings.js";
+import { parseReference, toGreekNumeral, toRomanNumeral } from "./text.js";
 
 const NO_VERSES = [];
+
+// Whether a row lies within one of a reading's [chapter, verse, chapter, verse] ranges.
+function inSegments(row, segments) {
+  return segments.some(
+    ([c1, v1, c2, v2]) =>
+      (row.chapter > c1 || (row.chapter === c1 && row.verse >= v1)) &&
+      (row.chapter < c2 || (row.chapter === c2 && row.verse <= v2)),
+  );
+}
 
 function scrollBehavior() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
@@ -41,8 +57,12 @@ function scrollToPlace(chapter, verse, behavior = scrollBehavior()) {
 function initialState() {
   const settings = loadSettings();
   const place = parseLocation(window.location.hash);
+  // An address decides the view; without one, the page opens as it was left.
+  const daily = place ? Boolean(place.daily) : settings.view === "daily";
   return {
     ...settings,
+    view: daily ? "daily" : "reader",
+    date: place?.daily ? place.date : null,
     gospel: place?.gospel ?? settings.gospel,
     place: place?.chapter ? { chapter: place.chapter, verse: place.verse } : null,
   };
@@ -100,24 +120,49 @@ function App() {
   const [target, setTarget] = useState(initial.place?.verse ? initial.place : null);
   const [reference, setReference] = useState("");
   const [referenceError, setReferenceError] = useState("");
+  // "reader": a whole Gospel; "daily": the Gospel of a day.
+  const [view, setView] = useState(initial.view);
+  // The commentary of the Fathers (the Catena Aurea) beside the verses.
+  const [showCatena, setShowCatena] = useState(initial.catena);
+  // The verse whose commentary is open: { gospel, index } of its row.
+  const [openNote, setOpenNote] = useState(null);
+  // The day whose Gospel is read; null is today.
+  const [dailyDate, setDailyDate] = useState(initial.date);
+  // Which of the day's Gospels is shown; null is the one the Lectionary puts first.
+  const [chosenOption, setChosenOption] = useState(null);
   const navRef = useRef(null);
   const chipsRef = useRef(null);
   const guideRef = useRef(null);
+  const dailyHeadingRef = useRef(null);
+  const mainRef = useRef(null);
   // A place to scroll to once its Gospel has loaded (from the address).
-  const pendingPlaceRef = useRef(initial.place);
+  const pendingPlaceRef = useRef(initial.view === "reader" ? initial.place : null);
 
-  const currentGospel = GOSPELS.find((gospel) => gospel.id === selectedGospel);
   const currentVernacular = VERNACULARS.find(
     (vernacular) => vernacular.id === selectedVernacular,
   );
   const ui = UI[currentVernacular.lang];
+  const words = LITURGY[currentVernacular.lang];
+
+  const isDaily = view === "daily";
+  const today = todayISO();
+  const shownDate = dailyDate ?? today;
+  const lectionary = useLectionary(isDaily);
+  const day = isDaily ? liturgicalDay(shownDate) : null;
+  const entry = day && lectionary.entries ? lectionaryEntry(lectionary.entries, day) : null;
+  const optionIndex = chosenOption ?? entry?.main ?? 0;
+  const reading = entry?.options[optionIndex] ?? null;
+
+  // The Gospel on the page: the chosen one, or the day's reading.
+  const shownGospel = isDaily ? (reading?.gospel ?? null) : selectedGospel;
+  const currentGospel = GOSPELS.find((gospel) => gospel.id === (shownGospel ?? selectedGospel));
   const gospelName = ui.gospels[selectedGospel];
 
   // Only the texts of the visible columns are downloaded. Greek and Latin
   // columns are named after their files; the vernacular column reads the
   // selected translation.
   const textNames = columns.map((id) => (id === "vernacular" ? currentVernacular.id : id));
-  const data = useGospelData(selectedGospel, textNames);
+  const data = useGospelData(shownGospel, textNames);
   // While a newly chosen translation loads, the column keeps the one it had.
   const shownVernacular = data.text(currentVernacular.id)
     ? currentVernacular
@@ -132,17 +177,39 @@ function App() {
     }
     pendingPlaceRef.current = null;
     scrollToPlace(place.chapter, place.verse, "auto");
-    // The Gospel is a dependency too: one already loaded is ready at once.
-  }, [allTextsShown, selectedGospel]);
+    // The Gospel and the view are dependencies too: a Gospel already loaded
+    // is ready at once.
+  }, [allTextsShown, selectedGospel, view]);
 
-  // An address edited by hand, or back/forward between shared links.
+  // An address edited by hand, or back/forward between shared links, or a
+  // link on the page ("Read it in context").
   useEffect(() => {
     const onHashChange = () => {
       const place = parseLocation(window.location.hash);
       if (!place) {
         return;
       }
+      if (place.daily) {
+        if (view !== "daily") {
+          window.scrollTo({ top: 0 });
+        }
+        setView("daily");
+        setDailyDate(place.date);
+        setChosenOption(null);
+        setTarget(null);
+        return;
+      }
       setTarget(place.verse ? { chapter: place.chapter, verse: place.verse } : null);
+      if (view === "daily") {
+        // The reader is not on the page yet: scroll once it is.
+        setView("reader");
+        pendingPlaceRef.current = place.chapter ? place : null;
+        setSelectedGospel(place.gospel);
+        if (!place.chapter) {
+          window.scrollTo({ top: 0 });
+        }
+        return;
+      }
       if (place.gospel === selectedGospel) {
         if (place.chapter) {
           scrollToPlace(place.chapter, place.verse);
@@ -156,7 +223,7 @@ function App() {
     };
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
-  }, [selectedGospel]);
+  }, [selectedGospel, view]);
 
   useEffect(() => {
     saveSettings({
@@ -165,13 +232,16 @@ function App() {
       columns,
       fontScale,
       welcomed,
+      view,
+      catena: showCatena,
     });
-  }, [selectedGospel, selectedVernacular, columns, fontScale, welcomed]);
+  }, [selectedGospel, selectedVernacular, columns, fontScale, welcomed, view, showCatena]);
 
+  const pageTitle = isDaily ? words.title : gospelName.full;
   useEffect(() => {
     document.documentElement.lang = currentVernacular.lang;
-    document.title = `${gospelName.full} · Euangelion`;
-  }, [currentVernacular.lang, gospelName.full]);
+    document.title = `${pageTitle} · Euangelion`;
+  }, [currentVernacular.lang, pageTitle]);
 
   // Sticky column headers and scroll targets sit below the sticky nav.
   useEffect(() => {
@@ -183,21 +253,14 @@ function App() {
     return () => observer.disconnect();
   }, []);
 
-  const chapterGroups = useMemo(() => {
-    const groups = [];
-    for (const [index, [chapter, number]] of (data.verses ?? NO_VERSES).entries()) {
-      const verse = { chapter, verse: number, index };
-      const last = groups[groups.length - 1];
-      if (last?.chapter === verse.chapter) {
-        last.verses.push(verse);
-      } else {
-        groups.push({ chapter: verse.chapter, verses: [verse] });
-      }
-    }
-    return groups;
-  }, [data.verses]);
+  const rows = useMemo(
+    () =>
+      (data.verses ?? NO_VERSES).map(([chapter, verse], index) => ({ chapter, verse, index })),
+    [data.verses],
+  );
 
-  const chapters = useMemo(() => chapterGroups.map((group) => group.chapter), [chapterGroups]);
+  // Each chapter once, in reading order.
+  const chapters = useMemo(() => [...new Set(rows.map((row) => row.chapter))], [rows]);
   const currentChapter = useCurrentChapter(chapters, navRef);
 
   // Keep the current chapter chip in view when the chips overflow.
@@ -239,7 +302,90 @@ function App() {
   const visibleColumns = columns
     .map((id) => ({ id, ...ui.columns[id], ...columnDefs[id] }))
     .filter((column) => column.texts);
-  const isLoading = !data.error && visibleColumns.length === 0;
+
+  // The day's reading: its verses, and its announcement in each column's language.
+  const dailyRows = useMemo(
+    () => (reading ? rows.filter((row) => inSegments(row, reading.segments)) : NO_VERSES),
+    [rows, reading],
+  );
+  const pericopeHeading = reading
+    ? visibleColumns.map((column) => {
+        const columnWords = column.id === "vernacular" ? words : COLUMN_WORDS[column.textLang];
+        return {
+          lang: column.textLang,
+          title: columnWords.incipit[reading.gospel],
+          reference: `${columnWords.books[reading.gospel]} ${columnWords.reference(reading.ref)}`,
+        };
+      })
+    : null;
+
+  // The Catena's words on the shown verses, each under the first verse of its
+  // passage that is on the page (a day's reading may begin within a passage).
+  const catena = useCatena(shownGospel, showCatena);
+  const shownRows = isDaily ? dailyRows : rows;
+  const notesByRow = useMemo(() => {
+    if (!catena || !data.verses) {
+      return null;
+    }
+    const position = new Map(data.verses.map(([c, v], index) => [`${c}:${v}`, index]));
+    const shown = new Set(shownRows.map((row) => row.index));
+    const byRow = new Map();
+    for (const [father, c1, v1, c2, v2, cite, paragraphs] of catena.comments) {
+      const first = position.get(`${c1}:${v1}`);
+      const last = position.get(`${c2}:${v2}`);
+      for (let index = first; index <= last; index += 1) {
+        if (shown.has(index)) {
+          const comment = {
+            father: catena.fathers[father],
+            start: [c1, v1],
+            end: [c2, v2],
+            cite,
+            paragraphs,
+          };
+          byRow.set(index, [...(byRow.get(index) ?? []), comment]);
+          break;
+        }
+      }
+    }
+    return byRow;
+  }, [catena, data.verses, shownRows]);
+
+  // "Mt 5, 14-16" in the interface language.
+  function passageReference(start, end) {
+    const [c1, v1] = start;
+    const [c2, v2] = end;
+    const ref =
+      c1 !== c2 ? `${c1}:${v1}-${c2}:${v2}` : v1 !== v2 ? `${c1}:${v1}-${v2}` : `${c1}:${v1}`;
+    return `${words.books[shownGospel]} ${words.reference(ref)}`;
+  }
+
+  const notes = notesByRow && {
+    label: (row) =>
+      notesByRow.has(row.index)
+        ? ui.catena.open(passageReference([row.chapter, row.verse], [row.chapter, row.verse]))
+        : null,
+    open: openNote?.gospel === shownGospel ? openNote.index : null,
+    onToggle: (row) =>
+      setOpenNote((open) =>
+        open?.gospel === shownGospel && open.index === row.index
+          ? null
+          : { gospel: shownGospel, index: row.index },
+      ),
+    render: (row) => (
+      <CommentaryPanel
+        lang={currentVernacular.lang}
+        comments={notesByRow.get(row.index)}
+        reference={passageReference}
+        words={ui.catena}
+        onClose={() => setOpenNote(null)}
+      />
+    ),
+  };
+
+  const loadError = data.error || (isDaily && lectionary.error);
+  const isLoading =
+    !loadError &&
+    (visibleColumns.length === 0 || (isDaily && (!reading || dailyRows.length === 0)));
 
   function goTo(chapter, verse = null) {
     if (!scrollToPlace(chapter, verse)) {
@@ -267,9 +413,10 @@ function App() {
   }
 
   function selectGospel(id) {
-    if (id === selectedGospel) {
+    if (id === selectedGospel && !isDaily) {
       return;
     }
+    setView("reader");
     setSelectedGospel(id);
     setTarget(null);
     setReference("");
@@ -292,6 +439,24 @@ function App() {
     );
   }
 
+  // The Gospel of a day; null is today.
+  function openDay(date) {
+    const next = date === today ? null : date;
+    setView("daily");
+    setDailyDate(next);
+    setChosenOption(null);
+    setTarget(null);
+    writeDailyLocation(next);
+    // From a Gospel, the day opens at the top; from another day, back to the
+    // top of the reading if the reader had scrolled into it.
+    const heading = dailyHeadingRef.current;
+    if (!isDaily) {
+      window.scrollTo({ top: 0 });
+    } else if (heading && heading.getBoundingClientRect().top < 0) {
+      heading.scrollIntoView({ behavior: scrollBehavior(), block: "start" });
+    }
+  }
+
   function toggleVerse(verse) {
     // A click that ends a text selection is not a request to highlight.
     if (window.getSelection()?.toString()) {
@@ -299,7 +464,10 @@ function App() {
     }
     const isTarget = target?.chapter === verse.chapter && target?.verse === verse.verse;
     setTarget(isTarget ? null : { chapter: verse.chapter, verse: verse.verse });
-    writeLocation(selectedGospel, verse.chapter, isTarget ? null : verse.verse);
+    // The address of the day's Gospel names the day, not a verse.
+    if (!isDaily) {
+      writeLocation(selectedGospel, verse.chapter, isTarget ? null : verse.verse);
+    }
   }
 
   function changeFontScale(step) {
@@ -320,7 +488,7 @@ function App() {
     <div className="app-shell" style={{ "--reader-font-scale": fontScale }}>
       <header className="masthead">
         <h1>Euangelion</h1>
-        <p className="masthead-title">{gospelName.full}</p>
+        <p className="masthead-title">{pageTitle}</p>
         <p className="masthead-subtitle">
           <span lang={LANG.greekCaps}>{currentGospel.heading}</span>
           <span aria-hidden="true"> · </span>
@@ -333,12 +501,20 @@ function App() {
               {ui.gospelGroup}
             </span>
             <div className="segmented" role="group" aria-labelledby="gospel-label">
+              <button
+                type="button"
+                className="segment"
+                aria-pressed={isDaily}
+                onClick={() => openDay(today)}
+              >
+                {words.today}
+              </button>
               {GOSPELS.map((gospel) => (
                 <button
                   key={gospel.id}
                   type="button"
                   className="segment"
-                  aria-pressed={selectedGospel === gospel.id}
+                  aria-pressed={!isDaily && selectedGospel === gospel.id}
                   onClick={() => selectGospel(gospel.id)}
                 >
                   {ui.gospels[gospel.id].short}
@@ -459,53 +635,57 @@ function App() {
         </aside>
       )}
 
-      <nav ref={navRef} className="reader-nav" aria-label={gospelName.full}>
-        <div className="reader-nav-row">
-          <span className="nav-label" aria-hidden="true">
-            {ui.chapter}
-          </span>
-          <div ref={chipsRef} className="chapter-chips">
-            {chapters.map((chapter) => (
-              <button
-                key={chapter}
-                type="button"
-                className="chapter-chip"
-                aria-label={`${ui.chapter} ${chapter}`}
-                aria-current={chapter === currentChapter ? "true" : undefined}
-                onClick={() => goTo(chapter)}
-              >
-                {chapter}
-              </button>
-            ))}
-          </div>
+      <nav ref={navRef} className="reader-nav" aria-label={pageTitle}>
+        {isDaily ? (
+          <DailyNav lang={currentVernacular.lang} date={shownDate} today={today} onGoTo={openDay} />
+        ) : (
+          <div className="reader-nav-row">
+            <span className="nav-label" aria-hidden="true">
+              {ui.chapter}
+            </span>
+            <div ref={chipsRef} className="chapter-chips">
+              {chapters.map((chapter) => (
+                <button
+                  key={chapter}
+                  type="button"
+                  className="chapter-chip"
+                  aria-label={`${ui.chapter} ${chapter}`}
+                  aria-current={chapter === currentChapter ? "true" : undefined}
+                  onClick={() => goTo(chapter)}
+                >
+                  {chapter}
+                </button>
+              ))}
+            </div>
 
-          <form className="reference-form" role="search" onSubmit={handleReferenceSubmit}>
-            <label className="visually-hidden" htmlFor="reference">
-              {ui.referenceLabel}
-            </label>
-            <input
-              id="reference"
-              className="reference-input"
-              type="text"
-              inputMode="decimal"
-              autoComplete="off"
-              placeholder={ui.referencePlaceholder}
-              value={reference}
-              aria-invalid={Boolean(referenceError)}
-              aria-describedby="reference-error"
-              onChange={(event) => {
-                setReference(event.target.value);
-                setReferenceError("");
-              }}
-            />
-            <button type="submit" className="reference-submit">
-              {ui.go}
-            </button>
-            <p id="reference-error" className="reference-error" aria-live="polite">
-              {referenceError}
-            </p>
-          </form>
-        </div>
+            <form className="reference-form" role="search" onSubmit={handleReferenceSubmit}>
+              <label className="visually-hidden" htmlFor="reference">
+                {ui.referenceLabel}
+              </label>
+              <input
+                id="reference"
+                className="reference-input"
+                type="text"
+                inputMode="decimal"
+                autoComplete="off"
+                placeholder={ui.referencePlaceholder}
+                value={reference}
+                aria-invalid={Boolean(referenceError)}
+                aria-describedby="reference-error"
+                onChange={(event) => {
+                  setReference(event.target.value);
+                  setReferenceError("");
+                }}
+              />
+              <button type="submit" className="reference-submit">
+                {ui.go}
+              </button>
+              <p id="reference-error" className="reference-error" aria-live="polite">
+                {referenceError}
+              </p>
+            </form>
+          </div>
+        )}
 
         <div className="reader-nav-row reader-tools">
           <span id="columns-label" className="nav-label">
@@ -532,75 +712,74 @@ function App() {
             })}
           </div>
 
+          <span id="commentary-label" className="nav-label">
+            {ui.catena.group}
+          </span>
+          <div className="segmented column-toggles" role="group" aria-labelledby="commentary-label">
+            <button
+              type="button"
+              className="segment"
+              aria-pressed={showCatena}
+              onClick={() => {
+                setShowCatena((shown) => !shown);
+                setOpenNote(null);
+              }}
+            >
+              <span className="check" aria-hidden="true">
+                {showCatena ? "✓" : ""}
+              </span>
+              Catena Aurea
+            </button>
+          </div>
         </div>
       </nav>
 
-      <main className={`reader ${visibleColumns.length > 1 ? "is-multi" : "is-single"}`}>
-        {data.error ? (
+      <main
+        ref={mainRef}
+        className={`reader ${visibleColumns.length > 1 ? "is-multi" : "is-single"}`}
+      >
+        {loadError ? (
           <p className="status-message">{ui.loadError}</p>
         ) : isLoading ? (
           <p className="status-message">{ui.loading}</p>
+        ) : isDaily ? (
+          <>
+            <div ref={dailyHeadingRef} className="daily-heading-anchor">
+              <DailyHeading
+                lang={currentVernacular.lang}
+                day={day}
+                entry={entry}
+                chosen={optionIndex}
+                onChoose={(index) => {
+                  setChosenOption(index);
+                  setTarget(null);
+                }}
+                contextHref={`#${reading.gospel}/${dailyRows[0].chapter}/${dailyRows[0].verse}`}
+              />
+            </div>
+            <ParallelReader
+              rows={dailyRows}
+              columns={visibleColumns}
+              target={target}
+              onToggleVerse={toggleVerse}
+              missing={ui.missing}
+              heading={pericopeHeading}
+              notes={notes}
+            />
+          </>
         ) : (
-          <div className="parallel-reader" style={{ "--columns": visibleColumns.length }}>
-            <div className="folio-rule" aria-hidden="true" />
-            {visibleColumns.map((column) => (
-              <div key={column.id} className="parallel-header">
-                <span className="parallel-header-label">{column.label}</span>
-                <span className="parallel-header-note">{column.note}</span>
-              </div>
-            ))}
-
-            {chapterGroups.map((group) => (
-              <section
-                key={`chapter-${group.chapter}`}
-                className="chapter-section"
-                aria-labelledby={`chapter-${group.chapter}`}
-              >
-                <h2 id={`chapter-${group.chapter}`} className="chapter-divider">
-                  {visibleColumns.map((column) => (
-                    <span key={column.id} lang={column.dividerLang}>
-                      {column.divider(group.chapter)}
-                    </span>
-                  ))}
-                </h2>
-
-                {group.verses.map((verse) => {
-                  const isTarget =
-                    target?.chapter === verse.chapter && target?.verse === verse.verse;
-                  return (
-                    <div
-                      key={`verse-${verse.chapter}-${verse.verse}`}
-                      id={`verse-${verse.chapter}-${verse.verse}`}
-                      className={`parallel-verse-row ${isTarget ? "is-target" : ""}`}
-                      data-verse={verse.verse}
-                      onClick={() => toggleVerse(verse)}
-                    >
-                      {visibleColumns.map((column) => {
-                        const text = column.texts[verse.index];
-                        return (
-                          <article key={column.id} className="parallel-cell">
-                            <span className="verse-number">{verse.verse}</span>
-                            <span className="cell-lang" aria-hidden="true">
-                              {column.code}
-                            </span>
-                            {text ? (
-                              <p className={`verse ${column.textClass}`} lang={column.textLang}>
-                                {bindPunctuation(text)}
-                              </p>
-                            ) : (
-                              <p className="verse verse-missing">{column.missing ?? ui.missing}</p>
-                            )}
-                          </article>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
-              </section>
-            ))}
-          </div>
+          <ParallelReader
+            rows={rows}
+            columns={visibleColumns}
+            target={target}
+            onToggleVerse={toggleVerse}
+            missing={ui.missing}
+            notes={notes}
+          />
         )}
       </main>
+
+      <ScrollArrows endRef={mainRef} words={ui.scroll} />
 
       <footer className="credits">
         <p>
@@ -635,6 +814,14 @@ function App() {
           {ui.credits.and}{" "}
           <a href="https://ebible.org/find/details.php?id=engDRA">Douay-Rheims, 1899</a>,{" "}
           {ui.credits.publicDomain}.
+        </p>
+        <p>
+          {ui.credits.commentary}:{" "}
+          <a href="https://github.com/HistoricalChristianFaith/Writings-Database">
+            Catena Aurea, Oxford 1841–1845
+          </a>
+          , {ui.credits.publicDomain}; {ui.credits.digitalText} HistoricalChristianFaith{" "}
+          {ui.credits.and} <a href="https://ccel.org/ccel/aquinas/catena1">CCEL</a>.
         </p>
         <img className="colophon" src={sello} alt="JB" width="72" height="72" />
       </footer>

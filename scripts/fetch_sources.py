@@ -1,10 +1,13 @@
 """Download the source texts of the four Gospels.
 
-Usage: python3 scripts/fetch_sources.py [--dest DIR]
+Usage: python3 scripts/fetch_sources.py [--dest DIR] [--only texts|fathers]
 
 Files are written to scripts/sources/ (not committed) as
 gr/<gospel>.txt, la/<gospel>.lat, es/<gospel>.json, pl/<gospel>.json,
-fr/<gospel>.json, it/<gospel>.json, kjv/<gospel>.usfm and dra/<gospel>.usfm.
+fr/<gospel>.json, it/<gospel>.json, kjv/<gospel>.usfm and dra/<gospel>.usfm;
+and, for the commentary of the Fathers, catena/<gospel>/<chapter>.html (the
+Catena Aurea, one file per chapter) and catena/matthew.txt (CCEL's text of
+the Catena on Matthew, which supplies the one chapter the others lack).
 GitHub files are pinned to a commit. Wikisource pages are rendered by the
 MediaWiki API from the current transcription, and eBible.org and Parola Viva
 serve their current editions, so these can change; build_data.py stops if a
@@ -37,6 +40,19 @@ CLEMENTINE = (
 # revision).
 KJV_ZIP = "https://ebible.org/Scriptures/eng-kjv_usfm.zip"
 DRA_ZIP = "https://ebible.org/Scriptures/engDRA_usfm.zip"
+
+# The Catena Aurea of Saint Thomas Aquinas in the English of the Oxford
+# edition (1841–1845), one HTML file per chapter, from HistoricalChristianFaith's
+# Writings-Database at a fixed commit. Its Matthew lacks chapter 15, which
+# CCEL's plain text of the same edition supplies.
+CATENA = (
+    "https://raw.githubusercontent.com/HistoricalChristianFaith/Writings-Database/"
+    "401527e29ee0ebeee5f0f4d6928807ef956c1d60/Thomas%20Aquinas/Catena%20Aurea/"
+    "Commentary%20on%20{}/Chapter%20{}.html"
+)
+CATENA_MATTHEW_TEXT = "https://ccel.org/ccel/a/aquinas/catena1/cache/catena1.txt"
+CATENA_BOOKS = {"matthew": ("Matthew", 28), "mark": ("Mark", 16), "luke": ("Luke", 24), "john": ("John", 21)}
+CATENA_MISSING = {("matthew", 15)}
 
 # Antonio Martini's Italian translation, one JSON file per chapter, from
 # Parola Viva's open data (https://parolaviva.art/opendata).
@@ -121,11 +137,32 @@ def martini_book(book, chapters):
     return json.dumps(files, ensure_ascii=False).encode("utf-8")
 
 
+def catena_files(dest):
+    """The Catena Aurea, chapter by chapter, and CCEL's text of its Matthew."""
+    for gospel, (book, chapters) in CATENA_BOOKS.items():
+        (dest / "catena" / gospel).mkdir(parents=True, exist_ok=True)
+        for chapter in range(1, chapters + 1):
+            if (gospel, chapter) in CATENA_MISSING:
+                continue
+            body = get(CATENA.format(book, chapter))
+            (dest / "catena" / gospel / f"{chapter}.html").write_bytes(body)
+    (dest / "catena" / "matthew.txt").write_bytes(get(CATENA_MATTHEW_TEXT))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--dest", type=pathlib.Path,
                         default=pathlib.Path(__file__).resolve().parent / "sources")
+    parser.add_argument("--only", choices=("texts", "fathers"),
+                        help="download only the Gospel texts, or only the commentary")
     args = parser.parse_args()
+
+    if args.only != "texts":
+        print("Commentary of the Fathers: the Catena Aurea")
+        catena_files(args.dest)
+    if args.only == "fathers":
+        print(f"sources written to {args.dest}")
+        return
 
     for folder in ("gr", "la", "es", "pl", "fr", "it", "kjv", "dra"):
         (args.dest / folder).mkdir(parents=True, exist_ok=True)

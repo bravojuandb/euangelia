@@ -25,12 +25,16 @@ function request(gospel, name) {
 // Loads a Gospel's verse list and the given texts, and keeps every text
 // already loaded, so a column can show its previous text until a new one
 // arrives. A batch is applied at once: the page never shows half of it.
+// With no Gospel yet (the day's is still being looked up), nothing loads.
 export function useGospelData(gospel, textNames) {
   const [loaded, setLoaded] = useState({});
   const [failure, setFailure] = useState(null);
   const wanted = ["verses", ...textNames].join(",");
 
   useEffect(() => {
+    if (!gospel) {
+      return undefined;
+    }
     let cancelled = false;
     const names = wanted.split(",");
     Promise.all(names.map((name) => request(gospel, name)))
@@ -65,4 +69,64 @@ export function useGospelData(gospel, textNames) {
     text: (name) => loaded[`${gospel}/${name}`] ?? null,
     error: failure?.gospel === gospel ? failure.error : null,
   };
+}
+
+let lectionaryRequest = null;
+
+// The Gospel of each day (public/data/lectionary.json), loaded the first time
+// it is wanted.
+export function useLectionary(wanted) {
+  const [state, setState] = useState({ entries: null, error: null });
+
+  useEffect(() => {
+    if (!wanted || state.entries) {
+      return undefined;
+    }
+    let cancelled = false;
+    lectionaryRequest ??= fetch(`${import.meta.env.BASE_URL}data/lectionary.json`).then(
+      (response) => {
+        if (!response.ok) {
+          throw new Error(`lectionary: HTTP ${response.status}`);
+        }
+        return response.json();
+      },
+    );
+    lectionaryRequest.then(
+      (entries) => !cancelled && setState({ entries, error: null }),
+      (error) => {
+        lectionaryRequest = null;
+        if (!cancelled) {
+          setState({ entries: null, error });
+        }
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [wanted, state.entries]);
+
+  return state;
+}
+
+// The Catena Aurea on a Gospel (public/data/<gospel>/catena.json), loaded
+// when the commentary is switched on.
+export function useCatena(gospel, wanted) {
+  const [loaded, setLoaded] = useState({});
+
+  useEffect(() => {
+    if (!wanted || !gospel || loaded[gospel]) {
+      return undefined;
+    }
+    let cancelled = false;
+    request(gospel, "catena").then(
+      (catena) => !cancelled && setLoaded((previous) => ({ ...previous, [gospel]: catena })),
+      // Without the commentary the text still reads; switching it off and on retries.
+      () => {},
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [gospel, wanted, loaded]);
+
+  return wanted && gospel ? (loaded[gospel] ?? null) : null;
 }

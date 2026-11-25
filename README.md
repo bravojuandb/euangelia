@@ -6,6 +6,10 @@ The four Gospels are available, complete, in Greek, Latin, Spanish, French, Ital
 
 The interface follows the language of the chosen translation (Spanish, English, French, Italian or Polish); a browser in another language gets English, in the King James Version.
 
+"Catena Aurea" marks with a dagger the verses the Fathers comment on, and opens their words under the verse: the Catena Aurea of Saint Thomas Aquinas, in English (see [The commentary of the Fathers](#the-commentary-of-the-fathers)).
+
+"Today" shows the Gospel of the day's Mass in the Roman Rite (the Missal of Paul VI), laid out like the reader, with the days before and after and any date from 1583 on: `#today` or `#2026-11-24` in the address.
+
 ## Development
 
 ```sh
@@ -13,12 +17,16 @@ npm install
 npm run dev     # start the dev server
 npm run build   # production build in dist/
 npm run lint
+npm test        # the liturgical calendar against the Lectionary
 ```
 
 The texts live in `public/data/<gospel>/`, one file per text, so the reader downloads only the columns it shows:
 
 - `verses.json`: the verses in reading order, as `[chapter, verse]` pairs: `[[1, 1], [1, 2], …]`
 - `greek.json`, `latin.json`, and one file per translation, named by its id in [src/config.js](src/config.js) (`torres-amat.json`, `wujek.json`, `crampon.json`, `martini.json`, `kjv.json`, `douay-rheims.json`): one string per verse, in the same order; `""` where that text lacks the verse
+
+- `catena.json`: the Catena Aurea on that Gospel (see [The commentary of the Fathers](#the-commentary-of-the-fathers)), downloaded only when the commentary is switched on
+- `public/data/lectionary.json`: the Gospel of each liturgical day, built from [scripts/lectionary.tsv](scripts/lectionary.tsv) (see [The Gospel of the day](#the-gospel-of-the-day))
 
 A language can have several translations: each is an entry in `VERNACULARS` in [src/config.js](src/config.js), and its description for the reading guide goes under `about` in [src/i18n.js](src/i18n.js).
 
@@ -30,9 +38,39 @@ The data files are built from the sources below with Python 3.9+ (standard libra
 python3 scripts/fetch_sources.py        # download into scripts/sources/ (not committed)
 python3 scripts/build_data.py --check   # report: renumbering, gaps, length outliers
 python3 scripts/build_data.py           # write public/data/<gospel>/*.json
+python3 scripts/build_catena.py         # write public/data/<gospel>/catena.json (Python 3.11+)
 ```
 
+`fetch_sources.py --only texts` or `--only fathers` downloads one part.
+
 The GitHub sources are pinned to a commit; the Wikisource pages, the eBible.org English Bibles and Parola Viva's Italian text are fetched as currently published. Every re-numbering and correction described below is listed per book in [scripts/build_data.py](scripts/build_data.py), and the build stops if one no longer matches the text.
+
+### The Gospel of the day
+
+[src/liturgy.js](src/liturgy.js) works out the liturgical day of a date and its key in the Lectionary; [src/liturgyText.js](src/liturgyText.js) names the day in each language and announces the Gospel as the Lectionary in that language does (the Latin column as the Roman Missal, the Greek as the Byzantine liturgy).
+
+The calendar follows the General Norms for the Liturgical Year and the Calendar and the General Roman Calendar, without national or diocesan calendars:
+
+- Epiphany on January 6, the Ascension and Corpus Christi on the following Sunday, as in most countries (`DEFAULT_OPTIONS` in [src/liturgy.js](src/liturgy.js) also covers Epiphany on a Sunday and the two others on Thursday).
+- The table of precedence decides between a saint's day and the day of the season. An impeded solemnity moves to the next free day; Saint Joseph in Holy Week moves to the Saturday before Palm Sunday, and the Nativity of Saint John the Baptist on the day of the Sacred Heart to June 23.
+- Only celebrations that change the Gospel are followed: solemnities, feasts, and the obligatory memorials with a Gospel of their own (the Blessed Virgin Mary, Mother of the Church; the Immaculate Heart; Barnabas; Joachim and Anne; Martha, Mary and Lazarus; the Passion of John the Baptist; Our Lady of Sorrows; the Guardian Angels). On other memorials the Lectionary keeps the weekday's Gospel, and so does the page.
+
+The Gospels themselves are listed in [scripts/lectionary.tsv](scripts/lectionary.tsv), after the *Ordo Lectionum Missae*, second typical edition (1981): the three Sunday cycles, the weekdays (the same in Years I and II), the saints' days, and the alternatives the Lectionary offers (Masses of Christmas, the procession of Palm Sunday, shorter forms, Year A readings in Lent). The reader shows the texts of its own columns, not those of a current lectionary, and shows whole verses where the reference takes part of one (`5a`, `12b`).
+
+```sh
+python3 scripts/build_lectionary.py --check   # check every reference against the verse lists
+python3 scripts/build_lectionary.py           # write public/data/lectionary.json
+```
+
+The table was checked against the tables of the Lectionary published by Felix Just, S.J., at [catholic-resources.org](https://catholic-resources.org/Lectionary/1998USL.htm) (the 1998–2002 edition for the United States, which numbers its readings as the 1981 Latin edition). They agree except on December 18, where the United States edition reads Matthew 1:18-25 and the Latin edition 1:18-24, kept here. The calendar was checked against the dates of those tables for 2026–2028. `npm test` checks that every day from 1990 to 2100 has a Gospel in the table, and that every line of the table is reached.
+
+### The commentary of the Fathers
+
+The commentary is the *Catena Aurea* of Saint Thomas Aquinas: for each passage of the four Gospels, the words of the Fathers on it, chained in the order he chose. It is shown in the English of the Oxford edition (1841–1845) edited by John Henry Newman, the one complete translation in the public domain; there is none in Spanish, French, Italian or Polish.
+
+[scripts/build_catena.py](scripts/build_catena.py) reads the Catena from the transcription in HistoricalChristianFaith's [Writings-Database](https://github.com/HistoricalChristianFaith/Writings-Database) (pinned to a commit), one HTML file per chapter. It lacks Matthew 15, which is read from [CCEL](https://ccel.org/ccel/aquinas/catena1)'s plain text of the same edition, fetched as currently published. The Catena prints each passage (the lemma) in the Authorized Version and its verse numbering, which is the reader's; every excerpt is tied to the verses of the lemma before it, and a passage runs on to the next one, so verses whose lemma the transcription dropped (Matthew 5:15–16) stay with the passage that comments on them. The reader shows the excerpts under the first verse of their passage that is on the page, in the Catena's order, with the work each is taken from as the edition gives it ("Hom. in Matt. 15").
+
+The same group's verse-indexed Commentaries-Database was tried first, but it files some excerpts under the wrong verse (the last words on Matthew 5:11–12 under 5:13, and Chrysostom's first words on 5:13 elsewhere), so it is not used. Three excerpts are unattributed in the sources (Matthew 1:6–8, Luke 1:30–33, John 19:23–24) and are shown so.
 
 ## Text sources
 
@@ -46,6 +84,7 @@ The GitHub sources are pinned to a commit; the Wikisource pages, the eBible.org 
 | Italian | La Sacra Bibbia, tr. Antonio Martini (1769–1781) | [Parola Viva open data](https://parolaviva.art/opendata) (`/api/v1/bibbia/{mt,mc,lc,gv}/<chapter>.json`), by Giovanni Novelli | Text in the public domain; Parola Viva's data [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | English | King James Version (1611), standard text of 1769 | [eBible.org](https://ebible.org/find/details.php?id=eng-kjv) (`eng-kjv_usfm.zip`) | Public domain (outside the UK, where printing it is under Crown letters patent) |
 | English | Douay-Rheims, Challoner revision (1749–1752), American edition of 1899 | [eBible.org](https://ebible.org/find/details.php?id=engDRA) (`engDRA_usfm.zip`) | Public domain |
+| Commentary | Thomas Aquinas, *Catena Aurea*, English translation, Oxford, 1841–1845, ed. J. H. Newman | [HistoricalChristianFaith/Writings-Database](https://github.com/HistoricalChristianFaith/Writings-Database) (`Thomas Aquinas/Catena Aurea/`); Matthew 15 from [CCEL](https://ccel.org/ccel/aquinas/catena1) | Public domain |
 
 The SBLGNT is copyright 2010 by the Society of Biblical Literature and Logos Bible Software. Here its variation-unit signs (⸀ ⸁ ⸂ ⸃ ⸄ ⸅) are removed, since the apparatus is not included; the double brackets ⟦ ⟧ are kept because they mark passages as later additions (the shorter ending after Mark 16:8, Mark 16:9–20 and John 7:53–8:11). As a critical text it omits Matthew 17:21, 18:11, 23:14; Mark 7:16, 9:44, 9:46, 11:26, 15:28; Luke 17:36, 23:17; and John 5:4, so those verses have no Greek.
 
