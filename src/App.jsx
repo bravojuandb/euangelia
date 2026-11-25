@@ -241,7 +241,7 @@ function App() {
   const pageTitle = isDaily ? words.title : gospelName.full;
   useEffect(() => {
     document.documentElement.lang = currentVernacular.lang;
-    document.title = `${pageTitle} · Euangelion`;
+    document.title = `${pageTitle} · Euangelia`;
   }, [currentVernacular.lang, pageTitle]);
 
   // Sticky column headers and scroll targets sit below the sticky nav.
@@ -488,7 +488,7 @@ function App() {
   return (
     <div className="app-shell" style={{ "--reader-font-scale": fontScale }}>
       <header className="masthead">
-        <h1>Euangelion</h1>
+        <h1>Euangelia</h1>
         <p className="masthead-title">{pageTitle}</p>
         <p className="masthead-subtitle">
           <span lang={LANG.greekCaps}>{currentGospel.heading}</span>
@@ -826,7 +826,7 @@ function App() {
         </p>
         <img className="colophon" src={sello} alt="JB" width="72" height="72" />
         <p className="version">
-          <a href="https://github.com/bravojuandb/euangelia">Euangelion {version}</a>
+          <a href="https://github.com/bravojuandb/euangelia">Euangelia {version}</a>
         </p>
       </footer>
 
