@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { version } from "../package.json";
 import "./App.css";
-import sello from "./assets/sello.png";
+import sello from "./assets/sello.webp";
 import {
   CHAPTER_LABELS,
   COLUMN_IDS,
