@@ -2,7 +2,7 @@
 
 The versions of Euangelia, newest first. The numbers follow [Semantic Versioning](https://semver.org/): a new major number for changes that break addresses or settings, a minor one for new features, a patch for fixes.
 
-## 1.0.0 — 2026-11-25
+## 1.0.0 — 2026-11-26
 
 The first public version.
 
