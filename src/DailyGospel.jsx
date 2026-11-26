@@ -77,51 +77,59 @@ export function DailyHeading({ lang, day, entry, chosen, onChoose, contextHref }
     }
     return labels;
   };
+  // The day's Gospels as a menu: always when there are many, and on phones,
+  // where the buttons would push the text below the screen.
+  const many = entry.options.length > MAX_BUTTONS;
+  const menu = (
+    <select
+      className={`reference-input daily-select${many ? "" : " daily-select-phone"}`}
+      aria-label={words.options}
+      value={chosen}
+      onChange={(event) => onChoose(Number(event.target.value))}
+    >
+      {entry.options.map((option, i) => (
+        <option key={`${i}-${option.ref}`} value={i}>
+          {[reference(option), ...labelsOf(option, i)].join(" · ")}
+        </option>
+      ))}
+    </select>
+  );
+
   return (
     <header className="daily-heading">
       <p className="daily-date">{capitalize(longDate(lang, day.date))}</p>
       <h2 className="daily-title">{dayTitle(lang, day.title)}</h2>
       {day.transferred && <p className="daily-note">{words.transferred}</p>}
-      {entry.options.length > MAX_BUTTONS ? (
-        <select
-          className="reference-input daily-select"
-          aria-label={words.options}
-          value={chosen}
-          onChange={(event) => onChoose(Number(event.target.value))}
-        >
-          {entry.options.map((option, i) => (
-            <option key={`${i}-${option.ref}`} value={i}>
-              {[reference(option), ...labelsOf(option, i)].join(" · ")}
-            </option>
-          ))}
-        </select>
-      ) : (
-        entry.options.length > 1 && (
-          <div className="segmented daily-options" role="group" aria-label={words.options}>
-            {entry.options.map((option, i) => {
-              const labels = labelsOf(option, i);
-              return (
-                <button
-                  key={`${i}-${option.ref}`}
-                  type="button"
-                  className="segment"
-                  aria-pressed={i === chosen}
-                  onClick={() => onChoose(i)}
-                >
-                  {labels.length ? (
-                    <>
-                      <span>{labels.join(" · ")}</span>
-                      <span className="segment-edition">{reference(option)}</span>
-                    </>
-                  ) : (
-                    <span>{reference(option)}</span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        )
-      )}
+      {many
+        ? menu
+        : entry.options.length > 1 && (
+            <>
+              {menu}
+              <div className="segmented daily-options" role="group" aria-label={words.options}>
+                {entry.options.map((option, i) => {
+                  const labels = labelsOf(option, i);
+                  return (
+                    <button
+                      key={`${i}-${option.ref}`}
+                      type="button"
+                      className="segment"
+                      aria-pressed={i === chosen}
+                      onClick={() => onChoose(i)}
+                    >
+                      {labels.length ? (
+                        <>
+                          <span>{labels.join(" · ")}</span>
+                          <span className="segment-edition">{reference(option)}</span>
+                        </>
+                      ) : (
+                        <span>{reference(option)}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
       <a className="text-button daily-context" href={contextHref}>
         {words.inContext}
       </a>

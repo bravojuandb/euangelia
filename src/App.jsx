@@ -147,6 +147,7 @@ function App() {
   const navRef = useRef(null);
   const chipsRef = useRef(null);
   const guideRef = useRef(null);
+  const settingsSheetRef = useRef(null);
   const dailyHeadingRef = useRef(null);
   // A place to scroll to once its Gospel has loaded (from the address).
   const pendingPlaceRef = useRef(initial.view === "reader" ? initial.place : null);
@@ -500,6 +501,66 @@ function App() {
 
   const fontIndex = FONT_SCALES.indexOf(fontScale);
 
+  // The columns and the commentary: a row of the nav on wide screens, a
+  // sheet on phones. `prefix` keeps the ids of the two copies apart.
+  function readingToggles(prefix, labelClass) {
+    return (
+      <>
+        <span id={`${prefix}columns-label`} className={labelClass}>
+          {ui.columnsGroup}
+        </span>
+        <div
+          className="segmented column-toggles"
+          role="group"
+          aria-labelledby={`${prefix}columns-label`}
+        >
+          {COLUMN_IDS.map((id) => {
+            const shown = columns.includes(id);
+            return (
+              <button
+                key={id}
+                type="button"
+                className="segment"
+                aria-pressed={shown}
+                disabled={shown && columns.length === 1}
+                onClick={() => toggleColumn(id)}
+              >
+                <span className="check" aria-hidden="true">
+                  {shown ? "✓" : ""}
+                </span>
+                {ui.columns[id].label}
+              </button>
+            );
+          })}
+        </div>
+
+        <span id={`${prefix}commentary-label`} className={labelClass}>
+          {ui.catena.group}
+        </span>
+        <div
+          className="segmented column-toggles"
+          role="group"
+          aria-labelledby={`${prefix}commentary-label`}
+        >
+          <button
+            type="button"
+            className="segment"
+            aria-pressed={showCatena}
+            onClick={() => {
+              setShowCatena((shown) => !shown);
+              setOpenNote(null);
+            }}
+          >
+            <span className="check" aria-hidden="true">
+              {showCatena ? "✓" : ""}
+            </span>
+            Catena Aurea
+          </button>
+        </div>
+      </>
+    );
+  }
+
   return (
     <div className="app-shell" style={{ "--reader-font-scale": fontScale }}>
       <header className="masthead">
@@ -647,8 +708,118 @@ function App() {
               </button>
             </div>
           </div>
+
+          {/* Phones: the translation as a menu; the reading options and the
+              settings open as sheets from the foot of the screen. */}
+          <div className="mobile-bar">
+            <label className="visually-hidden" htmlFor="vernacular-select">
+              {ui.languageGroup}
+            </label>
+            <span className="mobile-select">
+              <select
+                id="vernacular-select"
+                value={selectedVernacular}
+                onChange={(event) => selectVernacular(event.target.value)}
+              >
+                {VERNACULAR_LANGUAGES.flatMap(({ label, translations }) =>
+                  translations.map((vernacular) => (
+                    <option key={vernacular.id} value={vernacular.id} lang={vernacular.lang}>
+                      {translations.length > 1 ? `${label} · ${vernacular.edition}` : label}
+                    </option>
+                  )),
+                )}
+              </select>
+            </span>
+            <button type="button" className="segment sheet-button" popoverTarget="reading-sheet">
+              {ui.readingOptions}
+            </button>
+            <button
+              type="button"
+              className="segment sheet-button"
+              popoverTarget="settings-sheet"
+              aria-label={ui.settings}
+              title={ui.settings}
+            >
+              Aa
+            </button>
+          </div>
         </div>
       </header>
+
+      <div
+        id="reading-sheet"
+        className="sheet"
+        popover="auto"
+        role="dialog"
+        aria-labelledby="reading-sheet-title"
+      >
+        <p id="reading-sheet-title" className="sheet-title">
+          {ui.readingOptions}
+        </p>
+        {readingToggles("sheet-", "sheet-label")}
+        <button
+          type="button"
+          className="text-button sheet-close"
+          popoverTarget="reading-sheet"
+          popoverTargetAction="hide"
+        >
+          {ui.close}
+        </button>
+      </div>
+
+      <div
+        ref={settingsSheetRef}
+        id="settings-sheet"
+        className="sheet"
+        popover="auto"
+        role="dialog"
+        aria-labelledby="settings-sheet-title"
+      >
+        <p id="settings-sheet-title" className="sheet-title">
+          {ui.settings}
+        </p>
+        <span id="sheet-text-size-label" className="sheet-label">
+          {ui.textSize}
+        </span>
+        <div className="segmented" role="group" aria-labelledby="sheet-text-size-label">
+          <button
+            type="button"
+            className="segment"
+            aria-label={ui.smaller}
+            disabled={fontIndex <= 0}
+            onClick={() => changeFontScale(-1)}
+          >
+            A−
+          </button>
+          <button
+            type="button"
+            className="segment"
+            aria-label={ui.larger}
+            disabled={fontIndex >= FONT_SCALES.length - 1}
+            onClick={() => changeFontScale(1)}
+          >
+            A+
+          </button>
+        </div>
+        <button
+          type="button"
+          className="text-button sheet-guide"
+          onClick={() => {
+            settingsSheetRef.current?.hidePopover();
+            openGuide();
+          }}
+        >
+          {ui.guide}
+        </button>
+        <button
+          type="button"
+          className="text-button sheet-close"
+          popoverTarget="settings-sheet"
+          popoverTargetAction="hide"
+        >
+          {ui.close}
+        </button>
+      </div>
 
       {!welcomed && (
         <WelcomeDialog
@@ -711,49 +882,7 @@ function App() {
         )}
 
         <div className="reader-nav-row reader-tools">
-          <span id="columns-label" className="nav-label">
-            {ui.columnsGroup}
-          </span>
-          <div className="segmented column-toggles" role="group" aria-labelledby="columns-label">
-            {COLUMN_IDS.map((id) => {
-              const shown = columns.includes(id);
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  className="segment"
-                  aria-pressed={shown}
-                  disabled={shown && columns.length === 1}
-                  onClick={() => toggleColumn(id)}
-                >
-                  <span className="check" aria-hidden="true">
-                    {shown ? "✓" : ""}
-                  </span>
-                  {ui.columns[id].label}
-                </button>
-              );
-            })}
-          </div>
-
-          <span id="commentary-label" className="nav-label">
-            {ui.catena.group}
-          </span>
-          <div className="segmented column-toggles" role="group" aria-labelledby="commentary-label">
-            <button
-              type="button"
-              className="segment"
-              aria-pressed={showCatena}
-              onClick={() => {
-                setShowCatena((shown) => !shown);
-                setOpenNote(null);
-              }}
-            >
-              <span className="check" aria-hidden="true">
-                {showCatena ? "✓" : ""}
-              </span>
-              Catena Aurea
-            </button>
-          </div>
+          {readingToggles("", "nav-label")}
         </div>
       </nav>
 
