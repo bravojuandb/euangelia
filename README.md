@@ -61,6 +61,6 @@ The site needs Node.js 20.19 or later; it is built with the version in [.node-ve
 
 The SBLGNT is copyright 2010 by the Society of Biblical Literature and Logos Bible Software. See the [notes on each text](docs/data.md#changes-to-each-text) for the adaptations made here. The [source manifest](scripts/sources.lock.json) records the fingerprints of the downloaded inputs and the Wikisource revisions.
 
-The typeface is [EB Garamond](https://github.com/octaviopardo/EBGaramond12) (SIL Open Font License 1.1), bundled through [Fontsource](https://fontsource.org/fonts/eb-garamond). The fish icon is from Tabler Icons by Paweł Kuna. See [third-party notices](public/THIRD-PARTY-NOTICES.txt).
+The typeface is [EB Garamond](https://github.com/octaviopardo/EBGaramond12) (SIL Open Font License 1.1), bundled through [Fontsource](https://fontsource.org/fonts/eb-garamond). See [third-party notices](public/THIRD-PARTY-NOTICES.txt).
 
 The MIT license in [LICENSE](LICENSE) covers the code. Each text keeps the license of its source.
