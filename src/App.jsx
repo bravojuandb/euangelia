@@ -521,11 +521,11 @@ function App() {
         </figure>
 
         <div className="settings">
-          <div className="setting">
-            <span id="gospel-label" className="setting-label">
-              {ui.gospelGroup}
+          <div className="setting setting-daily">
+            <span id="daily-label" className="setting-label">
+              {words.title}
             </span>
-            <div className="segmented" role="group" aria-labelledby="gospel-label">
+            <div className="segmented" role="group" aria-labelledby="daily-label">
               <button
                 type="button"
                 className="segment"
@@ -534,6 +534,14 @@ function App() {
               >
                 {words.today}
               </button>
+            </div>
+          </div>
+
+          <div className="setting setting-gospels">
+            <span id="gospel-label" className="setting-label">
+              {ui.gospelGroup}
+            </span>
+            <div className="segmented" role="group" aria-labelledby="gospel-label">
               {GOSPELS.map((gospel) => (
                 <button
                   key={gospel.id}
@@ -548,7 +556,7 @@ function App() {
             </div>
           </div>
 
-          <div className="setting">
+          <div className="setting setting-vernacular">
             <span id="language-label" className="setting-label">
               {ui.languageGroup}
             </span>
@@ -605,11 +613,9 @@ function App() {
             </div>
           </div>
 
-          <div className="setting">
-            <span id="text-size-label" className="setting-label">
-              {ui.textSize}
-            </span>
-            <div className="segmented text-size" role="group" aria-labelledby="text-size-label">
+          {/* Text size and the reading guide: tools, with no label of their own. */}
+          <div className="setting setting-tools">
+            <div className="segmented text-size" role="group" aria-label={ui.textSize}>
               <button
                 type="button"
                 className="segment"
@@ -630,16 +636,14 @@ function App() {
               >
                 A+
               </button>
-            </div>
-          </div>
-
-          <div className="setting">
-            <span id="help-label" className="setting-label">
-              {ui.help}
-            </span>
-            <div className="segmented" role="group" aria-labelledby="help-label">
-              <button type="button" className="segment guide-button" onClick={openGuide}>
-                <span aria-hidden="true">?</span> {ui.guide}
+              <button
+                type="button"
+                className="segment guide-button"
+                aria-label={ui.guide}
+                title={ui.guide}
+                onClick={openGuide}
+              >
+                ?
               </button>
             </div>
           </div>

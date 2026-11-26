@@ -131,6 +131,32 @@
   gap: 6px;
 }
 
+/* The tools sit level with the buttons of the labelled groups. */
+.setting-tools {
+  justify-content: flex-end;
+}
+
+/* Thin rules between the groups, while they fit on one line. */
+@media (min-width: 1240px) {
+  .settings {
+    column-gap: 48px;
+  }
+
+  .setting + .setting {
+    position: relative;
+  }
+
+  .setting + .setting::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: -24px;
+    width: 1px;
+    background: var(--rule);
+  }
+}
+
 .setting-label {
   font-size: 0.72rem;
   letter-spacing: 0.22em;
@@ -1142,13 +1168,16 @@
     width: 100%;
   }
 
-  /* Text size and help share one line under the gospel and translation. */
+  /* The day's Gospel and the tools share the first line; the gospels and
+     the translations each take a line of their own. */
   .setting {
     flex: 1 1 0;
   }
 
-  .setting:nth-child(-n + 2) {
+  .setting-gospels,
+  .setting-vernacular {
     flex-basis: 100%;
+    order: 1;
   }
 
   .setting .segmented .segment {
