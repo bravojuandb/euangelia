@@ -22,6 +22,19 @@ function Chevron({ down }) {
   );
 }
 
+// A whole Gospel is too long to scroll through smoothly: the page jumps at
+// once to a screen short of `top` and glides the last screen, so the move
+// is quick and still reads as one. Short ways are glided all along.
+function glideTo(top) {
+  const behavior = scrollBehavior();
+  const screen = window.innerHeight;
+  const way = top - window.scrollY;
+  if (behavior === "smooth" && Math.abs(way) > screen * 2) {
+    window.scrollTo({ top: top - Math.sign(way) * screen, behavior: "instant" });
+  }
+  window.scrollTo({ top, behavior });
+}
+
 // How far the foot of the page is below the bottom of the window.
 function distanceToFoot() {
   return document.documentElement.scrollHeight - window.scrollY - window.innerHeight;
@@ -64,12 +77,8 @@ export function ScrollArrows({ words }) {
     };
   }, []);
 
-  const toTop = () => window.scrollTo({ top: 0, behavior: scrollBehavior() });
-  const toEnd = () =>
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: scrollBehavior(),
-    });
+  const toTop = () => glideTo(0);
+  const toEnd = () => glideTo(document.documentElement.scrollHeight - window.innerHeight);
 
   return (
     <div className="scroll-arrows">
