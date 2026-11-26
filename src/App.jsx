@@ -256,7 +256,7 @@ function App() {
   const pageTitle = isDaily ? words.title : gospelName.full;
   useEffect(() => {
     document.documentElement.lang = currentVernacular.lang;
-    document.title = `${pageTitle} · Euangelia`;
+    document.title = `${pageTitle} · EUANGELIA`;
   }, [currentVernacular.lang, pageTitle]);
 
   // Sticky column headers and scroll targets sit below the sticky nav.
