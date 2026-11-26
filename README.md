@@ -57,6 +57,7 @@ The site needs Node.js 20.19 or later; it is built with the version in [.node-ve
 | English | King James Version (1611), standard text of 1769 | [eBible.org](https://ebible.org/find/details.php?id=eng-kjv) (`eng-kjv_usfm.zip`) | Public domain outside the United Kingdom. [Crown letters patent](https://www.gov.uk/government/publications/copyright-notice-duration-of-copyright-term/copyright-notice-duration-of-copyright-term#king-james-bible) govern UK publication and distribution. |
 | English | Douay-Rheims, Challoner revision (1749–1752), American edition of 1899 | [eBible.org](https://ebible.org/find/details.php?id=engDRA) (`engDRA_usfm.zip`) | Public domain |
 | Commentary | Thomas Aquinas, *Catena Aurea*, English translation, Oxford, 1841–1845, ed. J. H. Newman | [HistoricalChristianFaith/Writings-Database](https://github.com/HistoricalChristianFaith/Writings-Database) (`Thomas Aquinas/Catena Aurea/`); Matthew 15 from [CCEL](https://ccel.org/ccel/aquinas/catena1) | Public domain |
+| Title | Thomas à Kempis, *De imitatione Christi*, Latin: 50 sentences, one shown under the title, with translations made for this site | [Wikisource](https://la.wikisource.org/wiki/De_imitatione_Christi) | Public domain |
 
 The SBLGNT is copyright 2010 by the Society of Biblical Literature and Logos Bible Software. See the [notes on each text](docs/data.md#changes-to-each-text) for the adaptations made here. The [source manifest](scripts/sources.lock.json) records the fingerprints of the downloaded inputs and the Wikisource revisions.
 

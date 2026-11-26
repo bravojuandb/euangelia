@@ -13,6 +13,7 @@ export const UI = {
       john: { short: "Juan", full: "Evangelio según san Juan" },
     },
     gospelGroup: "Evangelio",
+    imitatio: "Imitación de Cristo",
     languageGroup: "Traducción",
     columnsGroup: "Columnas",
     columns: {
@@ -91,6 +92,7 @@ export const UI = {
       john: { short: "Jan", full: "Ewangelia według św. Jana" },
     },
     gospelGroup: "Ewangelia",
+    imitatio: "O naśladowaniu Chrystusa",
     languageGroup: "Przekład",
     columnsGroup: "Kolumny",
     columns: {
@@ -169,6 +171,7 @@ export const UI = {
       john: { short: "John", full: "The Gospel according to John" },
     },
     gospelGroup: "Gospel",
+    imitatio: "The Imitation of Christ",
     languageGroup: "Translation",
     columnsGroup: "Columns",
     columns: {
@@ -248,6 +251,7 @@ export const UI = {
       john: { short: "Jean", full: "Évangile selon saint Jean" },
     },
     gospelGroup: "Évangile",
+    imitatio: "L’Imitation de Jésus-Christ",
     languageGroup: "Traduction",
     columnsGroup: "Colonnes",
     columns: {
@@ -324,6 +328,7 @@ export const UI = {
       john: { short: "Giovanni", full: "Vangelo secondo Giovanni" },
     },
     gospelGroup: "Vangelo",
+    imitatio: "Imitazione di Cristo",
     languageGroup: "Traduzione",
     columnsGroup: "Colonne",
     columns: {

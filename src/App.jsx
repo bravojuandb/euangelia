@@ -13,6 +13,7 @@ import {
 } from "./config.js";
 import { CommentaryPanel } from "./Commentary.jsx";
 import { DailyHeading, DailyNav } from "./DailyGospel.jsx";
+import IMITATIO from "./imitatio.json";
 import { useCatena, useGospelData, useLectionary } from "./data.js";
 import ParallelReader from "./ParallelReader.jsx";
 import { ScrollArrows } from "./ScrollArrows.jsx";
@@ -123,6 +124,8 @@ function ExternalLink({ href, children }) {
 
 function App() {
   const [initial] = useState(initialState);
+  // A sentence of the Imitation of Christ under the title, new on each visit.
+  const [motto] = useState(() => IMITATIO[Math.floor(Math.random() * IMITATIO.length)]);
   const [selectedGospel, setSelectedGospel] = useState(initial.gospel);
   const [selectedVernacular, setSelectedVernacular] = useState(initial.vernacular);
   const [columns, setColumns] = useState(initial.columns);
@@ -501,12 +504,21 @@ function App() {
     <div className="app-shell" style={{ "--reader-font-scale": fontScale }}>
       <header className="masthead">
         <h1>Euangelia</h1>
-        <p className="masthead-title">{pageTitle}</p>
-        <p className="masthead-subtitle">
-          <span lang={LANG.greekCaps}>{currentGospel.heading}</span>
-          <span aria-hidden="true"> · </span>
-          <span lang={LANG.latin}>{currentGospel.subheading}</span>
-        </p>
+        {/* The Latin gives way to a translation on hover, or on a tap or
+            keyboard focus, where there is no pointer to hover with. */}
+        <figure className="motto" tabIndex={0}>
+          <blockquote>
+            <span className="motto-latin" lang={LANG.latin}>
+              {motto.text}
+            </span>
+            <span className="motto-translation" lang={currentVernacular.lang}>
+              {motto[currentVernacular.lang]}
+            </span>
+          </blockquote>
+          <figcaption>
+            {ui.imitatio}, {toRomanNumeral(motto.ref[0])}, {motto.ref[1]}, {motto.ref[2]}
+          </figcaption>
+        </figure>
 
         <div className="settings">
           <div className="setting">
@@ -742,6 +754,16 @@ function App() {
       </nav>
 
       <main className={`reader ${visibleColumns.length > 1 ? "is-multi" : "is-single"}`}>
+        {!isDaily && (
+          <header className="gospel-heading">
+            <h2 className="gospel-title">{gospelName.full}</h2>
+            <p className="gospel-subtitle">
+              <span lang={LANG.greekCaps}>{currentGospel.heading}</span>
+              <span aria-hidden="true"> · </span>
+              <span lang={LANG.latin}>{currentGospel.subheading}</span>
+            </p>
+          </header>
+        )}
         {loadError ? (
           <p className="status-message">{ui.loadError}</p>
         ) : isLoading ? (
@@ -829,7 +851,12 @@ function App() {
             Catena Aurea, Oxford 1841–1845
           </ExternalLink>
           , {ui.credits.publicDomain}; {ui.credits.digitalText} HistoricalChristianFaith{" "}
-          {ui.credits.and} <ExternalLink href="https://ccel.org/ccel/aquinas/catena1">CCEL</ExternalLink>.
+          {ui.credits.and} <ExternalLink href="https://ccel.org/ccel/aquinas/catena1">CCEL</ExternalLink>.{" "}
+          {ui.imitatio}:{" "}
+          <ExternalLink href="https://la.wikisource.org/wiki/De_imitatione_Christi">
+            De imitatione Christi
+          </ExternalLink>
+          , {ui.credits.publicDomain}.
         </p>
         <p>
           <ExternalLink href={`${import.meta.env.BASE_URL}THIRD-PARTY-NOTICES.txt`}>
