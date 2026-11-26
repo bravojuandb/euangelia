@@ -339,6 +339,68 @@
   outline-offset: 2px;
 }
 
+/* Phones only: the translation menu and the buttons for the two sheets. */
+.mobile-bar {
+  display: none;
+}
+
+/* Sheets: the reading options and the settings, opened from the phone bar
+   as popovers that rise from the foot of the screen. */
+.sheet {
+  position: fixed;
+  inset: auto 0 0;
+  box-sizing: border-box;
+  width: auto;
+  max-width: none;
+  height: auto;
+  max-height: 80svh;
+  margin: 0;
+  padding: 16px 16px calc(12px + env(safe-area-inset-bottom));
+  overflow: auto;
+  border: 0;
+  border-top: 3px solid var(--rubric);
+  background: #faf3de;
+  color: var(--ink);
+  box-shadow: 0 -16px 40px rgba(60, 40, 15, 0.25);
+  text-align: center;
+}
+
+.sheet::backdrop {
+  background: rgba(47, 36, 24, 0.35);
+}
+
+.sheet-title {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+  color: var(--ink-strong);
+}
+
+.sheet-label {
+  display: block;
+  margin: 12px 0 2px;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.sheet .segmented {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.sheet-guide {
+  display: block;
+  margin: 14px auto 0;
+}
+
+.sheet-close {
+  display: block;
+  margin: 10px auto 0;
+  color: var(--muted);
+}
+
 /* Sticky reading navigation */
 
 .reader-nav {
@@ -744,6 +806,11 @@
   cursor: pointer;
 }
 
+/* The menu that stands in for the day's buttons on phones. */
+.reference-input.daily-select-phone {
+  display: none;
+}
+
 /* On a line of its own, under the choice of Gospels. */
 .daily-context {
   display: block;
@@ -1093,41 +1160,48 @@
 }
 
 @media (max-width: 720px) {
+  /* The text should show on opening the page: a short masthead, no
+     sentence of the Imitation, and the choices in two rows. */
   .app-shell {
-    padding: 18px 12px 32px;
+    padding: 10px 12px 32px;
   }
 
   .masthead {
-    margin-bottom: 14px;
+    margin-bottom: 8px;
   }
 
   .masthead h1 {
-    font-size: 2.3rem;
+    font-size: 1.75rem;
     letter-spacing: 0.16em;
     padding-left: 0.16em;
   }
 
   .motto {
-    margin: 18px 0 10px;
+    display: none;
   }
 
-  .motto blockquote {
-    font-size: 1rem;
+  .gospel-heading {
+    margin: 0 auto 10px;
+  }
+
+  .gospel-title {
+    font-size: 1.15rem;
   }
 
   .gospel-subtitle {
-    font-size: 0.75rem;
+    margin-top: 2px;
+    font-size: 0.68rem;
     letter-spacing: 0.14em;
   }
 
   .settings {
-    gap: 8px;
-    margin-top: 14px;
+    gap: 2px 0;
+    margin-top: 4px;
   }
 
-  /* Tighter spacing keeps long labels ("Dimensione testo") on one line. */
+  /* The buttons name themselves; the labels stay for screen readers. */
   .setting-label {
-    letter-spacing: 0.14em;
+    display: none;
   }
 
   /* Each group spans the width; the underline stays the width of its word. */
@@ -1145,8 +1219,8 @@
   }
 
   .reader-nav {
-    margin: 0 -12px 12px;
-    padding: 8px 12px;
+    margin: 0 -12px 8px;
+    padding: 2px 12px;
   }
 
   .nav-label {
@@ -1162,29 +1236,87 @@
     width: 72px;
   }
 
+  /* The date row keeps "Aujourd’hui" inside 320 px. */
+  .daily-nav {
+    gap: 0;
+  }
+
+  .daily-nav .reference-submit {
+    margin-left: 2px;
+  }
+
+  /* The columns and the commentary move to the reading options sheet. */
   .reader-tools {
-    margin-top: 6px;
-    padding-top: 6px;
+    display: none;
   }
 
-  .reader-tools .column-toggles {
-    width: 100%;
+  /* First row: today and the four Gospels, divided by a thin rule. Second
+     row: the translation menu and the two sheets. The translation buttons
+     and the tools give way to them. */
+  .setting-vernacular,
+  .setting-tools {
+    display: none;
   }
 
-  /* The day's Gospel and the tools share the first line; the gospels and
-     the translations each take a line of their own. */
-  .setting {
+  .setting-daily {
+    flex: 0 0 auto;
+    padding-right: 2px;
+    border-right: 1px solid var(--rule);
+  }
+
+  .setting-gospels {
     flex: 1 1 0;
+    min-width: 0;
   }
 
-  .setting-gospels,
-  .setting-vernacular {
+  .mobile-bar {
+    display: flex;
     flex-basis: 100%;
-    order: 1;
+    align-items: center;
+    gap: 4px;
   }
 
-  .setting .segmented .segment {
-    min-height: 40px;
+  .mobile-select {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .mobile-select select {
+    width: 100%;
+    height: 40px;
+    padding: 0 22px 0 6px;
+    border: 0;
+    border-bottom: 1px solid var(--control-border);
+    border-radius: 0;
+    appearance: none;
+    background: transparent;
+    color: var(--ink-strong);
+    font: inherit;
+    font-size: 0.95rem;
+    text-overflow: ellipsis;
+  }
+
+  .mobile-select select:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  .mobile-select::after {
+    content: "▾";
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 0.75rem;
+    pointer-events: none;
+  }
+
+  .sheet-button {
+    flex: 0 0 auto;
+    padding: 4px 8px;
+    color: var(--ink-strong);
   }
 
   .parallel-reader,
@@ -1194,8 +1326,12 @@
   }
 
   .parallel-reader {
-    padding: 18px 12px 14px;
-    outline-offset: -7px;
+    padding: 10px 8px 12px;
+    outline-offset: -6px;
+  }
+
+  .folio-rule {
+    display: none;
   }
 
   /* The column buttons in the nav name the languages. */
@@ -1203,15 +1339,26 @@
     display: none;
   }
 
+  /* The chapter in its three languages, on one line where it fits. */
   .chapter-divider {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    column-gap: 0.5em;
+    margin-top: 0;
+    padding: 8px 6px 6px;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
     scroll-margin-top: calc(var(--nav-height, 0px) + 8px);
   }
 
   .chapter-divider span:not(:last-child) {
     border-right: none;
-    border-bottom: 1px solid rgba(84, 65, 38, 0.16);
-    padding-bottom: 8px;
-    margin-bottom: 8px;
+  }
+
+  .chapter-divider span + span::before {
+    content: "·";
+    margin-right: 0.5em;
   }
 
   .pericope-heading {
@@ -1219,7 +1366,42 @@
   }
 
   .pericope-heading-cell {
-    padding: 10px 12px;
+    padding: 6px 8px;
+  }
+
+  .pericope-incipit {
+    font-size: calc(0.95rem * var(--reader-font-scale));
+  }
+
+  /* The reference follows its announcement on the same line. */
+  .pericope-incipit,
+  .pericope-reference {
+    display: inline;
+  }
+
+  .pericope-reference {
+    margin-left: 0.4em;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
+  /* The day's heading, compact: date, title and the link to the context. */
+  .daily-heading {
+    margin: 0 auto 8px;
+  }
+
+  .daily-date {
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+  }
+
+  .daily-title {
+    margin-top: 2px;
+    font-size: 1.1rem;
+  }
+
+  .daily-context {
+    margin-top: 0;
   }
 
   .pericope-heading-cell:not(:last-child) {
@@ -1237,9 +1419,15 @@
     padding: 12px 14px 14px;
   }
 
-  /* The day's Gospels wrap, each on its own when it has a label. */
+  /* The day's Gospels as a menu, which takes one line. */
   .daily-options.segmented {
-    flex-wrap: wrap;
+    display: none;
+  }
+
+  .reference-input.daily-select,
+  .reference-input.daily-select-phone {
+    display: block;
+    margin-top: 6px;
   }
 
   .parallel-cell:not(:last-child) {
@@ -1253,7 +1441,7 @@
   /* Several languages: verse number once per row, language code per cell */
   .is-multi .parallel-verse-row::before {
     content: attr(data-verse);
-    padding: 10px 12px 0;
+    padding: 6px 12px 0;
     color: #775d3c;
     font-size: 0.8rem;
     font-weight: 500;

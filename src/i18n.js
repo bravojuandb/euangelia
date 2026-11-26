@@ -37,6 +37,9 @@ export const UI = {
     missing: "Este versículo falta en esta edición.",
     guide: "Cómo leer",
     close: "Cerrar",
+    // Phones: the menus of reading options (columns, commentary) and settings.
+    readingOptions: "Lectura",
+    settings: "Ajustes",
     guideTitle: "Cómo leer esta página",
     guideItems: [
       "Cada fila es un versículo. A la izquierda está la traducción española; en el centro, el griego en que se escribieron los Evangelios; a la derecha, la Vulgata latina, la traducción que la Iglesia leyó durante siglos.",
@@ -115,6 +118,9 @@ export const UI = {
     missing: "Tego wersetu brak w tym wydaniu.",
     guide: "Jak czytać",
     close: "Zamknij",
+    // Phones: the menus of reading options (columns, commentary) and settings.
+    readingOptions: "Czytanie",
+    settings: "Ustawienia",
     guideTitle: "Jak czytać tę stronę",
     guideItems: [
       "Każdy rząd to jeden werset. Po lewej jest przekład polski, pośrodku grecki tekst, w którym spisano Ewangelie, a po prawej łacińska Wulgata, przekład czytany w Kościele przez wieki.",
@@ -193,6 +199,9 @@ export const UI = {
     missing: "This verse is missing from this edition.",
     guide: "How to read",
     close: "Close",
+    // Phones: the menus of reading options (columns, commentary) and settings.
+    readingOptions: "Reading",
+    settings: "Settings",
     guideTitle: "How to read this page",
     guideItems: [
       "Each row is one verse. On the left is the English translation; in the middle, the Greek in which the Gospels were written; on the right, the Latin Vulgate, the translation the Western Church read for centuries.",
@@ -271,6 +280,9 @@ export const UI = {
     missing: "Ce verset manque dans cette édition.",
     guide: "Comment lire",
     close: "Fermer",
+    // Phones: the menus of reading options (columns, commentary) and settings.
+    readingOptions: "Lecture",
+    settings: "Réglages",
     guideTitle: "Comment lire cette page",
     guideItems: [
       "Chaque ligne est un verset. À gauche, la traduction française ; au centre, le grec dans lequel les Évangiles ont été écrits ; à droite, la Vulgate latine, la traduction que l’Église a lue pendant des siècles.",
@@ -347,6 +359,9 @@ export const UI = {
     missing: "Questo versetto manca in questa edizione.",
     guide: "Come leggere",
     close: "Chiudi",
+    // Phones: the menus of reading options (columns, commentary) and settings.
+    readingOptions: "Lettura",
+    settings: "Impostazioni",
     guideTitle: "Come leggere questa pagina",
     guideItems: [
       "Ogni riga è un versetto. A sinistra c’è la traduzione italiana; al centro, il greco in cui furono scritti i Vangeli; a destra, la Vulgata latina, la traduzione che la Chiesa ha letto per secoli.",
