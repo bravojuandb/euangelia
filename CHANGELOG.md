@@ -2,6 +2,25 @@
 
 The versions of Euangelia, newest first. The numbers follow [Semantic Versioning](https://semver.org/): a new major number for changes that break addresses or settings, a minor one for new features, a patch for fixes.
 
+## 1.1.0 — 2026-11-26
+
+### On phones
+
+- The Gospel text shows on opening the page. The header is shorter and leaves out the sentence of the _Imitation of Christ_; the day's Gospel and the four Gospels share one row; the translation is chosen from a menu.
+- The columns and the _Catena Aurea_ open from a "Reading" button, and the text size and the reading guide from an "Aa" button, each in a sheet that rises from the foot of the screen.
+- The chapter bar slides away while reading down and comes back on the way up. It stays while it is being used, and the text does not move when it goes.
+- More width for the text: a narrower column for the verse numbers and the language codes, and a finer double rule around the text.
+- Shorter headings: the chapter in its three languages on one line, the announcement of the day's Gospel with its reference beside it, and the day's choice of Gospels as a menu.
+
+### The reader
+
+- The arrows to the head and to the foot of the page jump most of the way at once and glide over the last screen, instead of scrolling through the whole Gospel.
+
+### The site
+
+- A red ichthys (ΙΧΘΥΣ) as the icon in the browser tab and on a phone's home screen, and as the image shown when a link is shared.
+- A new seal at the foot of the page.
+
 ## 1.0.0 — 2026-11-26
 
 The first public version.
