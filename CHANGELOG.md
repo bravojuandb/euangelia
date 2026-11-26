@@ -10,7 +10,8 @@ The first public version.
 
 - The four Gospels, verse by verse in parallel columns, with a historical translation in a modern language, the Greek of the SBL Greek New Testament and the Latin of the Clementine Vulgate.
 - Translations: Spanish (Torres Amat, 1836), French (Crampon, 1923), Italian (Martini, 1769–1781), Polish (Biblia Wujka, 1923) and English (King James Version, 1769, and Douay-Rheims, 1899).
-- A welcome window on the first visit, to choose the language to start in, each written in its own language.
+- A welcome window on the first visit, to choose the language to start in, each named in its own language.
+- Under the title, a sentence of the _Imitation of Christ_ in Latin, on Christ, the Gospel or Scripture, different on each visit, with a translation on hover.
 - An interface in the language of the chosen translation, with a reading guide.
 - Chapter navigation, a chapter and verse typed as "3:16", "3,16" or "3.16", a highlighted verse, addresses that can be shared (`#john/3/16`), and seven text sizes.
 - Columns that can be shown or hidden, and loaded only when shown.

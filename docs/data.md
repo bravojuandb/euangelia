@@ -63,6 +63,14 @@ The Italian text is Parola Viva's digital edition of Martini, which follows the 
 
 The English texts are the eBible.org USFM editions. Strong's numbers and paragraph signs (¶) are removed. Words that USFM marks as italic, as words of Jesus or as LORD are kept in plain text. The KJV was translated from the Greek Textus Receptus, so in places it has words the SBLGNT omits, such as Matthew 27:35 and Luke 9:55–56. The Douay-Rheims follows the Latin Vulgate. In Luke 17:35–36, `keft` in the digital source is corrected to `left`. [Douay-Rheims, Luke 17](https://drbo.org/chapter/49017.htm)
 
+## The Imitation of Christ
+
+Under the title the page shows one of 50 sentences of the *Imitation of Christ* (Thomas à Kempis, *De imitatione Christi*), in Latin, on Christ, the Gospel and Scripture, chosen at random on each visit. They live in [src/imitatio.json](../src/imitatio.json) with their book, chapter and section. The text is the Latin Wikisource transcription, books I–IV at revisions 193274, 193196, 193197 and 193198, with its spelling (*æ*, *Jesu*, *charitate*) and punctuation. Four transcription slips in the sentences quoted are corrected: `eloquenda` for `eloquentia` (I, 5, 1), `regare` for `regnare` (II, 1, 5), `regnis` for `regni` (II, 11, 1) and `Opertebat` for `Oportebat` (II, 12, 6).
+
+On hover or focus the Latin gives way to a translation in the language of the interface. These translations were made for this site from the Latin, since the historical ones are not all available in the public domain, and are kept beside each sentence (`es`, `en`, `fr`, `it`, `pl`).
+
+`python3 scripts/check_imitatio.py` downloads those revisions and checks that every sentence appears word for word in its section.
+
 ## Verse numbering
 
 Rows follow the Greek verse numbering, which the KJV shares. The reader aligns the other editions where they group, number or order the text differently.
