@@ -516,7 +516,7 @@ function App() {
             </span>
           </blockquote>
           <figcaption>
-            {ui.imitatio}, {toRomanNumeral(motto.ref[0])}, {motto.ref[1]}, {motto.ref[2]}
+            <cite>{ui.imitatio}</cite>, {toRomanNumeral(motto.ref[0])}, {motto.ref[1]}, {motto.ref[2]}
           </figcaption>
         </figure>
 
