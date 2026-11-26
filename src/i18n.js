@@ -35,7 +35,6 @@ export const UI = {
     missingGreek:
       "Este versículo no está en el texto griego crítico: falta en los manuscritos más antiguos.",
     missing: "Este versículo falta en esta edición.",
-    help: "Ayuda",
     guide: "Cómo leer",
     close: "Cerrar",
     guideTitle: "Cómo leer esta página",
@@ -114,7 +113,6 @@ export const UI = {
     missingGreek:
       "Tego wersetu nie ma w krytycznym wydaniu tekstu greckiego: brak go w najstarszych rękopisach.",
     missing: "Tego wersetu brak w tym wydaniu.",
-    help: "Pomoc",
     guide: "Jak czytać",
     close: "Zamknij",
     guideTitle: "Jak czytać tę stronę",
@@ -193,7 +191,6 @@ export const UI = {
     missingGreek:
       "This verse is not in the critical Greek text: it is missing from the oldest manuscripts.",
     missing: "This verse is missing from this edition.",
-    help: "Help",
     guide: "How to read",
     close: "Close",
     guideTitle: "How to read this page",
@@ -272,7 +269,6 @@ export const UI = {
     loadError: "Le texte n’a pas pu être chargé. Réessayez plus tard.",
     missingGreek: "Ce verset n’est pas dans le texte grec critique : il manque dans les manuscrits les plus anciens.",
     missing: "Ce verset manque dans cette édition.",
-    help: "Aide",
     guide: "Comment lire",
     close: "Fermer",
     guideTitle: "Comment lire cette page",
@@ -349,7 +345,6 @@ export const UI = {
     loadError: "Non è stato possibile caricare il testo. Riprova più tardi.",
     missingGreek: "Questo versetto non è nel testo greco critico: manca nei manoscritti più antichi.",
     missing: "Questo versetto manca in questa edizione.",
-    help: "Aiuto",
     guide: "Come leggere",
     close: "Chiudi",
     guideTitle: "Come leggere questa pagina",
