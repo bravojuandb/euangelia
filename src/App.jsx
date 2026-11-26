@@ -17,6 +17,7 @@ import IMITATIO from "./imitatio.json";
 import { useCatena, useGospelData, useLectionary } from "./data.js";
 import ParallelReader from "./ParallelReader.jsx";
 import { ScrollArrows } from "./ScrollArrows.jsx";
+import { useTuckingNav } from "./useTuckingNav.js";
 import { WelcomeDialog } from "./WelcomeDialog.jsx";
 import { UI } from "./i18n.js";
 import { lectionaryEntry, liturgicalDay, todayISO } from "./liturgy.js";
@@ -269,6 +270,9 @@ function App() {
     observer.observe(nav);
     return () => observer.disconnect();
   }, []);
+
+  // Phones: the nav slides away while reading down and returns on the way up.
+  useTuckingNav(navRef);
 
   const rows = useMemo(
     () =>

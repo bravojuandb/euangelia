@@ -1163,15 +1163,16 @@
   /* The text should show on opening the page: a short masthead, no
      sentence of the Imitation, and the choices in two rows. */
   .app-shell {
-    padding: 10px 12px 32px;
+    padding: 6px 12px 32px;
   }
 
   .masthead {
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
 
   .masthead h1 {
     font-size: 1.75rem;
+    line-height: 1;
     letter-spacing: 0.16em;
     padding-left: 0.16em;
   }
@@ -1181,7 +1182,7 @@
   }
 
   .gospel-heading {
-    margin: 0 auto 10px;
+    margin: 0 auto 8px;
   }
 
   .gospel-title {
@@ -1196,7 +1197,7 @@
 
   .settings {
     gap: 2px 0;
-    margin-top: 4px;
+    margin-top: 2px;
   }
 
   /* The buttons name themselves; the labels stay for screen readers. */
@@ -1219,8 +1220,25 @@
   }
 
   .reader-nav {
-    margin: 0 -12px 8px;
+    margin: 0 -12px 6px;
     padding: 2px 12px;
+    transition:
+      transform 0.25s ease,
+      box-shadow 0.25s ease,
+      visibility 0s;
+  }
+
+  /* Tucked away while the reader scrolls down the text (useTuckingNav):
+     a transform, so nothing below it moves. Once out of sight it is also
+     hidden, so the keyboard cannot reach it there and pull the page back. */
+  .reader-nav[data-tucked] {
+    visibility: hidden;
+    transform: translateY(calc(-100% - 4px));
+    box-shadow: none;
+    transition:
+      transform 0.25s ease,
+      box-shadow 0.25s ease,
+      visibility 0s 0.25s;
   }
 
   .nav-label {
@@ -1325,9 +1343,12 @@
     grid-template-columns: 1fr;
   }
 
+  /* The double rule of the frame, a little finer. */
   .parallel-reader {
-    padding: 10px 8px 12px;
-    outline-offset: -6px;
+    padding: 10px 6px 12px;
+    border-width: 2px;
+    outline-width: 1px;
+    outline-offset: -5px;
   }
 
   .folio-rule {
@@ -1387,7 +1408,7 @@
 
   /* The day's heading, compact: date, title and the link to the context. */
   .daily-heading {
-    margin: 0 auto 8px;
+    margin: 0 auto 6px;
   }
 
   .daily-date {
@@ -1410,6 +1431,10 @@
   }
 
   /* Under the language code, which takes the verse number's place. */
+  .note-marker {
+    left: 3px;
+  }
+
   .is-multi .note-marker {
     top: 22px;
   }
@@ -1441,7 +1466,7 @@
   /* Several languages: verse number once per row, language code per cell */
   .is-multi .parallel-verse-row::before {
     content: attr(data-verse);
-    padding: 6px 12px 0;
+    padding: 6px 8px 0;
     color: #775d3c;
     font-size: 0.8rem;
     font-weight: 500;
@@ -1459,6 +1484,14 @@
     padding-top: 4px;
     padding-bottom: 4px;
   }
+
+  /* The verse number or language code takes a narrow column of its own. */
+  .parallel-cell {
+    grid-template-columns: 20px 1fr;
+    gap: 6px;
+    padding-right: 8px;
+    padding-left: 8px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1469,7 +1502,8 @@
   .scroll-arrow,
   .welcome-choice,
   .motto-latin,
-  .motto-translation {
+  .motto-translation,
+  .reader-nav {
     transition: none;
   }
 }
