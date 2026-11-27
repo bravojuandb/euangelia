@@ -120,10 +120,14 @@
 }
 
 .settings {
+  /* The space between groups; the rule between them sits in its middle. */
+  --group-gap: 16px;
+
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 12px 28px;
+  align-items: center;
+  gap: 12px var(--group-gap);
   margin-top: 20px;
 }
 
@@ -134,17 +138,9 @@
   gap: 6px;
 }
 
-/* The tools sit level with the buttons of the labelled groups. */
-.setting-tools {
-  justify-content: flex-end;
-}
-
-/* Thin rules between the groups, while they fit on one line. */
-@media (min-width: 1240px) {
-  .settings {
-    column-gap: 48px;
-  }
-
+/* Wider screens: a thin rule between today, the Gospels, the translation
+   and the tools. Phones lay these out in their own rows. */
+@media (min-width: 721px) {
   .setting + .setting {
     position: relative;
   }
@@ -152,19 +148,32 @@
   .setting + .setting::before {
     content: "";
     position: absolute;
-    top: 2px;
-    bottom: 2px;
-    left: -24px;
+    top: 8px;
+    bottom: 8px;
+    left: calc(var(--group-gap) / -2);
     width: 1px;
     background: var(--rule);
   }
 }
 
+/* Narrower than that, the tools may drop to a line of their own: no rule
+   before them, so none starts a line. */
+@media (min-width: 721px) and (max-width: 1239px) {
+  .setting-tools::before {
+    display: none;
+  }
+}
+
+@media (min-width: 1240px) {
+  .settings {
+    --group-gap: 48px;
+  }
+}
+
+/* The buttons name themselves; the labels of the groups stay for screen
+   readers, which read them through aria-labelledby. */
 .setting-label {
-  font-size: 0.72rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--muted);
+  display: none;
 }
 
 /* Segmented controls (gospel, translation, columns, text size): plain words;
@@ -217,20 +226,39 @@
 /* The open menu in the page's colours. Browsers that draw it themselves take
    only the background and text colour. */
 .segment-menu select,
-.segment-menu option {
+.segment-menu option,
+.mobile-select option {
   background-color: #f7efdc;
   color: var(--control-text);
 }
 
 /* Browsers that let the page draw the menu (Chrome and Edge 135+) get the
-   whole look, highlight included. */
+   whole look, highlight included: the translation buttons' menu on wide
+   screens, and the translation menu on phones. */
 @supports (appearance: base-select) {
   .segment-menu select,
-  .segment-menu ::picker(select) {
+  .segment-menu ::picker(select),
+  .mobile-bar .mobile-select select,
+  .mobile-select ::picker(select) {
     appearance: base-select;
   }
 
-  .segment-menu ::picker(select) {
+  /* The phone menu keeps its height and draws its own arrow. */
+  .mobile-bar .mobile-select select {
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: 40px;
+    min-block-size: 0;
+    line-height: 1.2;
+  }
+
+  .mobile-select select::picker-icon {
+    display: none;
+  }
+
+  .segment-menu ::picker(select),
+  .mobile-select ::picker(select) {
     margin-top: 4px;
     padding: 4px 0;
     border: 1px solid var(--control-border);
@@ -238,7 +266,8 @@
     box-shadow: 0 10px 24px rgba(88, 64, 32, 0.18);
   }
 
-  .segment-menu option {
+  .segment-menu option,
+  .mobile-select option {
     padding: 8px 16px;
     font-size: 0.95rem;
     letter-spacing: 0.03em;
@@ -246,17 +275,21 @@
   }
 
   .segment-menu option:hover,
-  .segment-menu option:focus-visible {
+  .segment-menu option:focus-visible,
+  .mobile-select option:hover,
+  .mobile-select option:focus-visible {
     background: var(--control-hover);
     outline: none;
   }
 
-  .segment-menu option:checked {
+  .segment-menu option:checked,
+  .mobile-select option:checked {
     background: var(--active-bg);
     color: var(--ink-strong);
   }
 
-  .segment-menu option::checkmark {
+  .segment-menu option::checkmark,
+  .mobile-select option::checkmark {
     color: var(--accent);
   }
 }
@@ -298,6 +331,20 @@
 .column-toggles .segment {
   flex-direction: row;
   gap: 4px;
+}
+
+/* A name with a smaller line under it, as the commentary and its source. */
+.segment-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* The commentary stands apart from the columns by a thin rule. */
+.reader-tools .commentary-toggle {
+  margin-left: 4px;
+  padding-left: 12px;
+  border-left: 1px solid var(--rule);
 }
 
 .check {
@@ -388,6 +435,10 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+}
+
+.sheet .commentary-toggle {
+  margin-top: 12px;
 }
 
 .sheet-guide {
@@ -741,12 +792,19 @@
   text-align: center;
 }
 
+/* The Gospel's name in red capitals, a size above the Greek and Latin
+   capitals under it, as a rubric heads a book. letter-spacing adds space
+   after the last letter; the padding re-centres the line. */
 .gospel-title {
   margin: 0;
-  font-size: clamp(1.3rem, 2vw, 1.7rem);
+  padding-left: 0.14em;
+  font-size: clamp(1.1rem, 1.6vw, 1.35rem);
   font-weight: 400;
-  line-height: 1.25;
-  color: var(--ink-strong);
+  line-height: 1.3;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  color: var(--rubric);
 }
 
 .gospel-subtitle {
@@ -1303,7 +1361,9 @@
   }
 
   .gospel-title {
-    font-size: 1.15rem;
+    padding-left: 0.1em;
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
   }
 
   .gospel-subtitle {
@@ -1315,11 +1375,6 @@
   .settings {
     gap: 2px 0;
     margin-top: 2px;
-  }
-
-  /* The buttons name themselves; the labels stay for screen readers. */
-  .setting-label {
-    display: none;
   }
 
   /* Each group spans the width; the underline stays the width of its word. */
@@ -1411,14 +1466,19 @@
     gap: 4px;
   }
 
+  /* As wide as the chosen translation, so the menu stays a word, not a bar;
+     the sheet buttons keep to the right. */
   .mobile-select {
     position: relative;
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     min-width: 0;
+    margin-right: auto;
   }
 
   .mobile-select select {
-    width: 100%;
+    width: auto;
+    max-width: 100%;
+    field-sizing: content;
     height: 40px;
     padding: 0 22px 0 6px;
     border: 0;
