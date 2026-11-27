@@ -156,10 +156,22 @@
   }
 }
 
-/* Narrower than that, the tools may drop to a line of their own: no rule
-   before them, so none starts a line. */
-@media (min-width: 721px) and (max-width: 1239px) {
-  .setting-tools::before {
+/* Too narrow for one line: two rows on purpose, today and the Gospels over
+   the translation and the tools, so no rule ever starts a line. The empty
+   ::before, a full row wide, is the break between them. */
+@media (min-width: 721px) and (max-width: 1023px) {
+  .settings::before {
+    content: "";
+    flex-basis: 100%;
+    order: 1;
+  }
+
+  .setting-vernacular,
+  .setting-tools {
+    order: 2;
+  }
+
+  .setting-vernacular::before {
     display: none;
   }
 }
@@ -1136,8 +1148,8 @@
   outline-offset: 2px;
 }
 
-/* The sources, as a colophon lists them: the text in small capitals on the
-   left, its edition and terms on the right, the whole block centered. */
+/* The sources, as a colophon lists them: the text in small spaced capitals
+   on the left, its edition and terms on the right, the whole block centered. */
 .sources {
   display: grid;
   grid-template-columns: max-content minmax(0, 34rem);

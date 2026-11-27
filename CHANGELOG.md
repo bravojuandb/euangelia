@@ -6,15 +6,14 @@ The versions of Euangelia, newest first. The numbers follow [Semantic Versioning
 
 ### The reader
 
-- On wider screens the choices at the head of the page lose their headings ("Gospel of the day", "Gospel", "Translation"), as on phones: the buttons name themselves, and screen readers still hear the headings. Thin rules divide today, the Gospels, the translation and the tools, which sit on one line down to tablet width.
+- On wider screens the choices at the head of the page lose their headings ("Gospel of the day", "Gospel", "Translation"), as on phones: the buttons name themselves, and screen readers still hear the headings. Thin rules divide today, the Gospels, the translation and the tools, on one line on wide screens and in two rows on narrower ones.
 - The commentary is one button, "Commentary", with "Catena Aurea" under it, set apart from the columns by a thin rule.
 - The name of the Gospel above the text is set in red capitals, a size above the Greek and Latin titles under it.
 - On phones the translation menu is as wide as the chosen translation, and in browsers that allow it, its list opens in the colours of the page.
 
 ### The site
 
-- The foot of the page names the author, gives a contact address and the date of the last revision, written in the language of the interface.
-- A new foot of the page: the emblem L.D.V.M (_Laus Deo Virginique Matri_) in red, the seal, the author's name with the contact address written out, and the version, which links to the source code, come first. The sources, their licenses and the third-party notices are folded together under "Sources and licenses", one per line with the name of their text, and open with a tap.
+- A new foot of the page: the emblem L.D.V.M (_Laus Deo Virginique Matri_) in red, the seal, the author's name with the contact address written out, and the version, which links to the source code. The sources, their licenses and the third-party notices are folded together under "Sources and licenses", one per line with the name of their text, and open with a tap. The page closes with the date of its last revision, written in the language of the interface.
 
 ## 1.1.0 — 2026-11-26
 
