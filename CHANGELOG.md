@@ -15,6 +15,7 @@ The versions of Euangelia, newest first. The numbers follow [Semantic Versioning
 
 - A new foot of the page: the emblem L.D.V.M (_Laus Deo Virginique Matri_) in red, the seal, the author's name with the contact address written out, and the version, which links to the source code. The sources, their licenses and the third-party notices are folded together under "Sources and licenses", one per line with the name of their text, and open with a tap. The page closes with the date of its last revision, written in the language of the interface.
 - An address that does not exist gets a short "Page not found" page, in the five languages, with the status 404, instead of the reader. A stylesheet missing for a moment during a deployment can no longer be stored as a copy of the page, which left the site without its styles.
+- Browsers keep the site's built files for a day instead of a year, so that a wrong copy cannot outlast a day.
 - On iPhone the text keeps its size when the phone is turned sideways.
 
 ## 1.1.0 — 2026-11-26
