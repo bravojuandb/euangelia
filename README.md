@@ -23,7 +23,7 @@ See [CHANGELOG.md](CHANGELOG.md) for the release history.
 | [scripts/](scripts/) | Python scripts that download the sources, correct and align them verse by verse, and write `public/data/` |
 | [public/](public/) | Files served as they are: the icons, the image for link previews, `robots.txt` and the response headers |
 | [docs/](docs/) | How the texts were prepared, how the Gospel of the day and the commentary work, and how the site is deployed |
-| [design/](design/) | The seal shown at the foot of the page |
+| [design/](design/) | The seal and the L.D.V.M emblem shown at the foot of the page |
 
 ## Development
 
@@ -36,6 +36,8 @@ npm test        # the liturgical calendar against the Lectionary
 ```
 
 The site needs Node.js 20.19 or later; it is built with the version in [.node-version](.node-version).
+
+[.env](.env) is committed on purpose: it holds only `VITE_SITE_URL`, the public address, which is not a secret. Secrets would go in `.env.local`, which git ignores.
 
 ## Documentation
 
@@ -67,9 +69,6 @@ The MIT license in [LICENSE](LICENSE) covers the code. Each text keeps the licen
 
 ## Credits and contact
 
-Euangelia was developed with the help of Claude (Anthropic). The idea, the choice of texts and the philological review are by Juan Bravo.
+Euangelia was developed with the help of Claude (Anthropic). The idea, the design, the choice of texts and the philological review are by Juan Bravo.
 
 Contact: [contacto@euangelia.org](mailto:contacto@euangelia.org)
-
-<!-- Instagram: [@…](https://www.instagram.com/…/) -->
-
