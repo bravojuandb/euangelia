@@ -64,3 +64,12 @@ The SBLGNT is copyright 2010 by the Society of Biblical Literature and Logos Bib
 The typeface is [EB Garamond](https://github.com/octaviopardo/EBGaramond12) (SIL Open Font License 1.1), bundled through [Fontsource](https://fontsource.org/fonts/eb-garamond). See [third-party notices](public/THIRD-PARTY-NOTICES.txt).
 
 The MIT license in [LICENSE](LICENSE) covers the code. Each text keeps the license of its source.
+
+## Credits and contact
+
+Euangelia was developed with the help of Claude (Anthropic). The idea, the choice of texts and the philological review are by Juan Bravo.
+
+Contact: [contacto@euangelia.org](mailto:contacto@euangelia.org)
+
+<!-- Instagram: [@…](https://www.instagram.com/…/) -->
+
