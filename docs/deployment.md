@@ -14,6 +14,7 @@ Every push to `main` is published; every other branch and pull request gets its 
 ## The files that shape the site
 
 - [.env](../.env) holds `VITE_SITE_URL`, the public address, which [index.html](../index.html) uses for the absolute URLs that link previews need (`og:url`, `og:image`, the canonical link). It holds no secret.
+- [vite.config.js](../vite.config.js) sets the date of the last revision, shown at the foot of the page, to the day of the last commit (`git log -1 --format=%cs`) when the site is built, or to the day of the build where git is not available. The page makes no request for it.
 - [public/_headers](../public/_headers) sets the response headers: a Content-Security-Policy that lets only the site's own files load (and Cloudflare Web Analytics), a year's cache for the built files in `assets/` (their names change with their content), an hour for the texts in `data/` (their names do not), and `noindex` on the `pages.dev` address.
 - `public/og.png` (1200×630, the ichthys on red) is the image shown when a link is shared, and `public/apple-touch-icon.png` (180×180) the icon on a phone's home screen.
 

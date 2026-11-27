@@ -1015,6 +1015,11 @@
   color: var(--faint);
 }
 
+/* The maker, a contact address and the day of the last revision. */
+.credits .maker {
+  margin-top: 2px;
+}
+
 /* Reading guide */
 
 .guide {
