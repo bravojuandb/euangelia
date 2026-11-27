@@ -541,14 +541,8 @@ function App() {
           })}
         </div>
 
-        <span id={`${prefix}commentary-label`} className={labelClass}>
-          {ui.catena.group}
-        </span>
-        <div
-          className="segmented column-toggles"
-          role="group"
-          aria-labelledby={`${prefix}commentary-label`}
-        >
+        {/* One entry for the commentary, with the work it draws on under it. */}
+        <div className="segmented column-toggles commentary-toggle">
           <button
             type="button"
             className="segment"
@@ -561,7 +555,10 @@ function App() {
             <span className="check" aria-hidden="true">
               {showCatena ? "✓" : ""}
             </span>
-            Catena Aurea
+            <span className="segment-stack">
+              {ui.catena.group}
+              <span className="segment-edition">Catena Aurea</span>
+            </span>
           </button>
         </div>
       </>
@@ -598,6 +595,7 @@ function App() {
                 type="button"
                 className="segment"
                 aria-pressed={isDaily}
+                title={words.title}
                 onClick={() => openDay(today)}
               >
                 {words.today}

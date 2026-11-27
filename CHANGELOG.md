@@ -4,6 +4,13 @@ The versions of Euangelia, newest first. The numbers follow [Semantic Versioning
 
 ## Unreleased
 
+### The reader
+
+- On wider screens the choices at the head of the page lose their headings ("Gospel of the day", "Gospel", "Translation"), as on phones: the buttons name themselves, and screen readers still hear the headings. Thin rules divide today, the Gospels, the translation and the tools, which sit on one line down to tablet width.
+- The commentary is one button, "Commentary", with "Catena Aurea" under it, set apart from the columns by a thin rule.
+- The name of the Gospel above the text is set in red capitals, a size above the Greek and Latin titles under it.
+- On phones the translation menu is as wide as the chosen translation, and in browsers that allow it, its list opens in the colours of the page.
+
 ### The site
 
 - The foot of the page names the author, gives a contact address and the date of the last revision, written in the language of the interface.
