@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { version } from "../package.json";
 import "./App.css";
+import ldvm from "./assets/ldvm.webp";
 import sello from "./assets/sello.webp";
 import {
   AUTHOR,
@@ -946,70 +947,119 @@ function App() {
 
       <ScrollArrows words={ui.scroll} />
 
+      {/* The maker's mark and name first, then the version, which links to
+          the source code, and the sources and licenses folded away under a
+          summary that opens them. */}
       <footer className="credits">
-        <p>
-          {ui.credits.greek}:{" "}
-          <ExternalLink href="https://github.com/Faithlife/SBLGNT">SBL Greek New Testament</ExternalLink>, © 2010
-          Society of Biblical Literature {ui.credits.and} Logos Bible Software,{" "}
-          <ExternalLink href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</ExternalLink>;{" "}
-          {ui.credits.greekNote}.
+        {/* Laus Deo Virginique Matri: praise to God and to the Virgin Mother. */}
+        <img className="emblem" src={ldvm} alt="L.D.V.M" lang={LANG.latin} width="150" height="20" />
+        <img className="colophon" src={sello} alt="JB" width="64" height="64" />
+        <p className="maker-name">{AUTHOR}</p>
+        {/* The address in full, so a reader without a mail program can copy it. */}
+        <p className="contact">
+          <a href={`mailto:${CONTACT_EMAIL}`} title={ui.credits.contact}>
+            {CONTACT_EMAIL}
+          </a>
         </p>
-        <p>
-          {ui.credits.latin}:{" "}
-          <ExternalLink href="https://github.com/BibleGet-I-O/Clementine-Vulgate">
-            Clementine Vulgate Project
-          </ExternalLink>
-          , {ui.credits.publicDomain}; {ui.credits.latinNote}. {ui.credits.spanish}:{" "}
-          <ExternalLink href="https://es.wikisource.org/wiki/La_Sagrada_Biblia_(XIII)">
-            Torres Amat, 1836
-          </ExternalLink>
-          , {ui.credits.publicDomain}. {ui.credits.polish}:{" "}
-          <ExternalLink href="https://pl.wikisource.org/wiki/Biblia_Wujka_(1923)">Biblia Wujka, 1923</ExternalLink>,{" "}
-          {ui.credits.publicDomain}. {ui.credits.french}:{" "}
-          <ExternalLink href="https://fr.wikisource.org/wiki/Bible_Crampon_1923">Bible Crampon, 1923</ExternalLink>,{" "}
-          {ui.credits.publicDomain}. {ui.credits.italian}:{" "}
-          <ExternalLink href="https://parolaviva.art/bibbia">Bibbia Martini, 1769–1781</ExternalLink>,{" "}
-          {ui.credits.publicDomain}; {ui.credits.digitalText}{" "}
-          <ExternalLink href="https://parolaviva.art/opendata">Parola Viva</ExternalLink> (Giovanni Novelli),{" "}
-          <ExternalLink href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</ExternalLink>.{" "}
-          {ui.credits.english}:{" "}
-          <ExternalLink href="https://ebible.org/find/details.php?id=eng-kjv">
-            King James Version, 1769
-          </ExternalLink>
-          ,{" "}
-          <ExternalLink href="https://www.gov.uk/government/publications/copyright-notice-duration-of-copyright-term/copyright-notice-duration-of-copyright-term#king-james-bible">
-            {ui.credits.kjvRights}
-          </ExternalLink>
-          .{" "}
-          <ExternalLink href="https://ebible.org/find/details.php?id=engDRA">Douay-Rheims, 1899</ExternalLink>,{" "}
-          {ui.credits.publicDomain}.
-        </p>
-        <p>
-          {ui.credits.commentary}:{" "}
-          <ExternalLink href="https://github.com/HistoricalChristianFaith/Writings-Database">
-            Catena Aurea, Oxford 1841–1845
-          </ExternalLink>
-          , {ui.credits.publicDomain}; {ui.credits.digitalText} HistoricalChristianFaith{" "}
-          {ui.credits.and} <ExternalLink href="https://ccel.org/ccel/aquinas/catena1">CCEL</ExternalLink>.{" "}
-          {ui.imitatio}:{" "}
-          <ExternalLink href="https://la.wikisource.org/wiki/De_imitatione_Christi">
-            De imitatione Christi
-          </ExternalLink>
-          , {ui.credits.publicDomain}.
-        </p>
-        <p>
-          <ExternalLink href={`${import.meta.env.BASE_URL}THIRD-PARTY-NOTICES.txt`}>
-            {ui.credits.notices}
-          </ExternalLink>
-        </p>
-        <img className="colophon" src={sello} alt="JB" width="72" height="72" />
         <p className="version">
-          <ExternalLink href="https://github.com/bravojuandb/euangelia">
-            Euangelia {version}
-          </ExternalLink>
+          <ExternalLink href="https://github.com/bravojuandb/euangelia">Euangelia {version}</ExternalLink>
         </p>
-        <p className="version maker">
-          {AUTHOR} · <a href={`mailto:${CONTACT_EMAIL}`}>{ui.credits.contact}</a> ·{" "}
+        <details className="sources-fold">
+          <summary>{ui.credits.sources}</summary>
+          {/* One row per text: what it is, then its edition and terms. The
+              translations follow the order of the language buttons. */}
+          <dl className="sources">
+            <div>
+              <dt>{ui.credits.greek}</dt>
+              <dd>
+                <ExternalLink href="https://github.com/Faithlife/SBLGNT">SBL Greek New Testament</ExternalLink>, ©
+                2010 Society of Biblical Literature {ui.credits.and} Logos Bible Software,{" "}
+                <ExternalLink href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</ExternalLink>;{" "}
+                {ui.credits.greekNote}
+              </dd>
+            </div>
+            <div>
+              <dt>{ui.credits.latin}</dt>
+              <dd>
+                <ExternalLink href="https://github.com/BibleGet-I-O/Clementine-Vulgate">
+                  Clementine Vulgate Project
+                </ExternalLink>
+                , {ui.credits.publicDomain}; {ui.credits.latinNote}
+              </dd>
+            </div>
+            <div>
+              <dt>{ui.credits.spanish}</dt>
+              <dd>
+                <ExternalLink href="https://es.wikisource.org/wiki/La_Sagrada_Biblia_(XIII)">
+                  Torres Amat, 1836
+                </ExternalLink>
+                , {ui.credits.publicDomain}
+              </dd>
+            </div>
+            <div>
+              <dt>{ui.credits.english}</dt>
+              <dd>
+                <ExternalLink href="https://ebible.org/find/details.php?id=eng-kjv">
+                  King James Version, 1769
+                </ExternalLink>
+                ,{" "}
+                <ExternalLink href="https://www.gov.uk/government/publications/copyright-notice-duration-of-copyright-term/copyright-notice-duration-of-copyright-term#king-james-bible">
+                  {ui.credits.kjvRights}
+                </ExternalLink>
+                ; <ExternalLink href="https://ebible.org/find/details.php?id=engDRA">Douay-Rheims, 1899</ExternalLink>,{" "}
+                {ui.credits.publicDomain}
+              </dd>
+            </div>
+            <div>
+              <dt>{ui.credits.french}</dt>
+              <dd>
+                <ExternalLink href="https://fr.wikisource.org/wiki/Bible_Crampon_1923">Bible Crampon, 1923</ExternalLink>
+                , {ui.credits.publicDomain}
+              </dd>
+            </div>
+            <div>
+              <dt>{ui.credits.italian}</dt>
+              <dd>
+                <ExternalLink href="https://parolaviva.art/bibbia">Bibbia Martini, 1769–1781</ExternalLink>,{" "}
+                {ui.credits.publicDomain}; {ui.credits.digitalText}{" "}
+                <ExternalLink href="https://parolaviva.art/opendata">Parola Viva</ExternalLink> (Giovanni Novelli),{" "}
+                <ExternalLink href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</ExternalLink>
+              </dd>
+            </div>
+            <div>
+              <dt>{ui.credits.polish}</dt>
+              <dd>
+                <ExternalLink href="https://pl.wikisource.org/wiki/Biblia_Wujka_(1923)">Biblia Wujka, 1923</ExternalLink>
+                , {ui.credits.publicDomain}
+              </dd>
+            </div>
+            <div>
+              <dt>{ui.credits.commentary}</dt>
+              <dd>
+                <ExternalLink href="https://github.com/HistoricalChristianFaith/Writings-Database">
+                  Catena Aurea, Oxford 1841–1845
+                </ExternalLink>
+                , {ui.credits.publicDomain}; {ui.credits.digitalText} HistoricalChristianFaith {ui.credits.and}{" "}
+                <ExternalLink href="https://ccel.org/ccel/aquinas/catena1">CCEL</ExternalLink>
+              </dd>
+            </div>
+            <div>
+              <dt>{ui.imitatio}</dt>
+              <dd>
+                <ExternalLink href="https://la.wikisource.org/wiki/De_imitatione_Christi">
+                  De imitatione Christi
+                </ExternalLink>
+                , {ui.credits.publicDomain}
+              </dd>
+            </div>
+          </dl>
+          <p className="notices">
+            <ExternalLink href={`${import.meta.env.BASE_URL}THIRD-PARTY-NOTICES.txt`}>
+              {ui.credits.notices}
+            </ExternalLink>
+          </p>
+        </details>
+        <p className="revision">
           {ui.credits.lastRevision}{" "}
           <time dateTime={__LAST_REVISION__}>
             {longDate(currentVernacular.lang, __LAST_REVISION__, "long")}
