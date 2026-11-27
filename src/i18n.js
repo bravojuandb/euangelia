@@ -85,6 +85,7 @@ export const UI = {
       notices: "Licencias de terceros",
       contact: "Contacto",
       lastRevision: "Última revisión:",
+      sources: "Fuentes y licencias",
     },
   },
 
@@ -168,6 +169,7 @@ export const UI = {
       notices: "Licencje podmiotów trzecich",
       contact: "Kontakt",
       lastRevision: "Ostatnia aktualizacja:",
+      sources: "Źródła i licencje",
     },
   },
 
@@ -252,6 +254,7 @@ export const UI = {
       notices: "Third-party notices",
       contact: "Contact",
       lastRevision: "Last updated:",
+      sources: "Sources and licenses",
     },
   },
 
@@ -333,6 +336,7 @@ export const UI = {
       notices: "Licences tierces",
       contact: "Contact",
       lastRevision: "Dernière révision :",
+      sources: "Sources et licences",
     },
   },
 
@@ -414,6 +418,7 @@ export const UI = {
       notices: "Licenze di terze parti",
       contact: "Contatti",
       lastRevision: "Ultima revisione:",
+      sources: "Fonti e licenze",
     },
   },
 };

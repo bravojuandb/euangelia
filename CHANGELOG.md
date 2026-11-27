@@ -7,6 +7,7 @@ The versions of Euangelia, newest first. The numbers follow [Semantic Versioning
 ### The site
 
 - The foot of the page names the author, gives a contact address and the date of the last revision, written in the language of the interface.
+- A new foot of the page: the emblem L.D.V.M (_Laus Deo Virginique Matri_) in red, the seal, the author's name with the contact address written out, and the version, which links to the source code, come first. The sources, their licenses and the third-party notices are folded together under "Sources and licenses", one per line with the name of their text, and open with a tap.
 
 ## 1.1.0 — 2026-11-26
 

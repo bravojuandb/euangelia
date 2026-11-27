@@ -1000,24 +1000,125 @@
   text-underline-offset: 2px;
 }
 
-/* The maker's mark closes the page, as a printer's device closed a book. */
+/* L.D.V.M in rubric red, between the text and its colophon, as old books
+   closed with it. */
+.credits .emblem {
+  display: block;
+  width: 150px;
+  height: auto;
+  margin: 4px auto 26px;
+}
+
+/* The maker's mark, as a printer's device closed a book, with the maker's
+   name and the version under it. */
 .colophon {
   display: block;
-  width: 72px;
-  height: 72px;
-  margin: 22px auto 0;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 14px;
+}
+
+.credits .maker-name {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--ink);
+}
+
+.credits .contact {
+  margin: 2px 0 0;
+  font-size: 0.88rem;
+}
+
+.credits .contact a {
+  color: var(--ink);
 }
 
 .credits .version {
-  margin-top: 10px;
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
+  margin: 4px 0 22px;
+  font-size: 0.82rem;
   color: var(--faint);
 }
 
-/* The maker, a contact address and the day of the last revision. */
-.credits .maker {
-  margin-top: 2px;
+/* The sources, folded under a summary between two rules. */
+.sources-fold summary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  max-width: 320px;
+  margin: 0 auto;
+  padding: 10px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  list-style: none;
+  cursor: pointer;
+  font-size: 0.92rem;
+  color: var(--ink);
+}
+
+.sources-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.sources-fold summary::after {
+  content: "›";
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--faint);
+  transform: rotate(90deg);
+  transition: transform 0.2s ease;
+}
+
+.sources-fold[open] summary::after {
+  transform: rotate(-90deg);
+}
+
+.sources-fold summary:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* The sources, as a colophon lists them: the text in small capitals on the
+   left, its edition and terms on the right, the whole block centered. */
+.sources {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 34rem);
+  justify-content: center;
+  column-gap: 14px;
+  row-gap: 5px;
+  margin: 16px auto 0;
+  text-align: left;
+}
+
+.sources > div {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  align-items: baseline;
+}
+
+.sources dt {
+  text-align: right;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.sources dd {
+  margin: 0;
+}
+
+/* The third-party notices close the sources. */
+.sources-fold .notices {
+  margin-top: 14px;
+}
+
+/* The day of the last revision closes the page. */
+.credits .revision {
+  margin-top: 18px;
+  font-size: 0.78rem;
+  color: var(--faint);
 }
 
 /* Reading guide */
@@ -1169,6 +1270,17 @@
      sentence of the Imitation, and the choices in two rows. */
   .app-shell {
     padding: 6px 12px 32px;
+  }
+
+  /* The sources in one column: each name over its edition. */
+  .sources {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 10px;
+    text-align: center;
+  }
+
+  .sources dt {
+    text-align: center;
   }
 
   .masthead {
@@ -1508,7 +1620,8 @@
   .welcome-choice,
   .motto-latin,
   .motto-translation,
-  .reader-nav {
+  .reader-nav,
+  .sources-fold summary::after {
     transition: none;
   }
 }
