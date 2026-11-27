@@ -2,6 +2,12 @@
 
 The versions of Euangelia, newest first. The numbers follow [Semantic Versioning](https://semver.org/): a new major number for changes that break addresses or settings, a minor one for new features, a patch for fixes.
 
+## Unreleased
+
+### The site
+
+- The foot of the page names the author, gives a contact address and the date of the last revision, written in the language of the interface.
+
 ## 1.1.0 — 2026-11-26
 
 ### On phones

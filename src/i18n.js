@@ -83,6 +83,8 @@ export const UI = {
       latinNote: "sin las marcas de maquetación",
       commentary: "Comentario",
       notices: "Licencias de terceros",
+      contact: "Contacto",
+      lastRevision: "Última revisión:",
     },
   },
 
@@ -164,6 +166,8 @@ export const UI = {
       latinNote: "bez znaków układu tekstu",
       commentary: "Komentarz",
       notices: "Licencje podmiotów trzecich",
+      contact: "Kontakt",
+      lastRevision: "Ostatnia aktualizacja:",
     },
   },
 
@@ -246,6 +250,8 @@ export const UI = {
       latinNote: "layout marks removed",
       commentary: "Commentary",
       notices: "Third-party notices",
+      contact: "Contact",
+      lastRevision: "Last updated:",
     },
   },
 
@@ -325,6 +331,8 @@ export const UI = {
       latinNote: "sans les marques de mise en page",
       commentary: "Commentaire",
       notices: "Licences tierces",
+      contact: "Contact",
+      lastRevision: "Dernière révision :",
     },
   },
 
@@ -404,6 +412,8 @@ export const UI = {
       latinNote: "senza i segni di impaginazione",
       commentary: "Commento",
       notices: "Licenze di terze parti",
+      contact: "Contatti",
+      lastRevision: "Ultima revisione:",
     },
   },
 };

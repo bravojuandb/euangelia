@@ -68,3 +68,7 @@ export const LANG = {
 };
 
 export const FONT_SCALES = [0.85, 0.92, 1, 1.1, 1.2, 1.35, 1.5];
+
+// The maker named at the foot of the page, and the address readers write to.
+export const AUTHOR = "Juan Bravo";
+export const CONTACT_EMAIL = "contacto@euangelia.org";

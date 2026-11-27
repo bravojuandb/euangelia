@@ -14,7 +14,8 @@ export default defineConfig([
       reactRefresh.configs.vite,
     ],
     languageOptions: {
-      globals: globals.browser,
+      // __LAST_REVISION__ is set at build time in vite.config.js.
+      globals: { ...globals.browser, __LAST_REVISION__: 'readonly' },
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },

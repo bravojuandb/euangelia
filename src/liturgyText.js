@@ -691,10 +691,11 @@ export function dayTitle(lang, title) {
   }
 }
 
-// The full date, as a calendar in the language prints it.
-export function longDate(lang, iso) {
+// The full date, as a calendar in the language prints it; "long" leaves out
+// the weekday.
+export function longDate(lang, iso, dateStyle = "full") {
   const [year, month, day] = iso.split("-").map(Number);
   return formatDate(lang, Math.round(Date.UTC(year, month - 1, day) / 86400000), {
-    dateStyle: "full",
+    dateStyle,
   });
 }

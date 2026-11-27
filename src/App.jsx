@@ -3,8 +3,10 @@ import { version } from "../package.json";
 import "./App.css";
 import sello from "./assets/sello.webp";
 import {
+  AUTHOR,
   CHAPTER_LABELS,
   COLUMN_IDS,
+  CONTACT_EMAIL,
   FONT_SCALES,
   GOSPELS,
   LANG,
@@ -21,7 +23,7 @@ import { useTuckingNav } from "./useTuckingNav.js";
 import { WelcomeDialog } from "./WelcomeDialog.jsx";
 import { UI } from "./i18n.js";
 import { lectionaryEntry, liturgicalDay, todayISO } from "./liturgy.js";
-import { COLUMN_WORDS, LITURGY } from "./liturgyText.js";
+import { COLUMN_WORDS, LITURGY, longDate } from "./liturgyText.js";
 import {
   loadSettings,
   parseLocation,
@@ -1005,6 +1007,13 @@ function App() {
           <ExternalLink href="https://github.com/bravojuandb/euangelia">
             Euangelia {version}
           </ExternalLink>
+        </p>
+        <p className="version maker">
+          {AUTHOR} · <a href={`mailto:${CONTACT_EMAIL}`}>{ui.credits.contact}</a> ·{" "}
+          {ui.credits.lastRevision}{" "}
+          <time dateTime={__LAST_REVISION__}>
+            {longDate(currentVernacular.lang, __LAST_REVISION__, "long")}
+          </time>
         </p>
       </footer>
 
