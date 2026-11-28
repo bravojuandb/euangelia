@@ -905,7 +905,7 @@ function App() {
         {loadError ? (
           <p className="status-message">{ui.loadError}</p>
         ) : isLoading ? (
-          <p className="status-message">{ui.loading}</p>
+          <p className="status-message is-loading">{ui.loading}</p>
         ) : isDaily ? (
           <>
             <div ref={dailyHeadingRef} className="daily-heading-anchor">

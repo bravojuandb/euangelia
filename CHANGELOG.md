@@ -2,6 +2,12 @@
 
 The versions of Euangelia, newest first. The numbers follow [Semantic Versioning](https://semver.org/): a new major number for changes that break addresses or settings, a minor one for new features, a patch for fixes.
 
+## Unreleased
+
+### The site
+
+- The page no longer jumps while it opens. The foot of the page stays out of sight until the texts arrive, instead of showing and then being pushed away; the row of chapters keeps its height before its numbers appear; and the faces of EB Garamond that every page shows are fetched with the page, so the text no longer reflows when the font arrives late.
+
 ## 1.2.0 — 2026-11-27
 
 ### The reader
