@@ -512,6 +512,8 @@
   flex-wrap: wrap;
   gap: 2px;
   min-width: 0;
+  /* One row of chapters, held open before they arrive with the text. */
+  min-height: 40px;
   padding: 3px;
   scrollbar-width: none;
 }
@@ -608,6 +610,18 @@
   font-size: 1.1rem;
   letter-spacing: 0.08em;
   color: #6f5b46;
+}
+
+/* While the texts load, the message holds a screen's height, so that the
+   foot of the page waits below it instead of showing and then jumping away
+   when the texts arrive. Padding, not margin, keeps the space inside the
+   reader: a margin would push the reader itself down, and it would rise
+   when the texts take the message's place. */
+.status-message.is-loading {
+  box-sizing: border-box;
+  min-height: 100vh;
+  margin: 0;
+  padding-top: 48px;
 }
 
 .parallel-reader {
