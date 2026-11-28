@@ -7,6 +7,7 @@ The versions of Euangelia, newest first. The numbers follow [Semantic Versioning
 ### The site
 
 - The page no longer jumps while it opens. The foot of the page stays out of sight until the texts arrive, instead of showing and then being pushed away; the row of chapters keeps its height before its numbers appear; and the faces of EB Garamond that every page shows are fetched with the page, so the text no longer reflows when the font arrives late.
+- A shared link shows its card in Spanish: "Euangelia · Los cuatro Evangelios", and a description short enough for a phone to show what matters, instead of a longer one in English and Spanish that phones cut off before the Spanish. The ichthys in its picture is larger, still whole where an app crops the picture to a square.
 
 ## 1.2.0 — 2026-11-27
 
